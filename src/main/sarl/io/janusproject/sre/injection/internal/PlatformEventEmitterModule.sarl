@@ -1,0 +1,78 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2017 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.janusproject.sre.injection.internal
+
+import com.google.inject.AbstractModule
+import com.google.inject.Provides
+import io.janusproject.sre.KernelScope
+import io.janusproject.sre.internal.AgentEventEmitter
+import io.janusproject.sre.internal.ContextMemberEventEmitter
+import io.janusproject.sre.internal.SpaceEventEmitterFactory
+import io.janusproject.sre.internal.SubHolonContextEventEmitterFactory
+import io.janusproject.sre.services.context.ExternalContextMemberListener
+import io.janusproject.sre.services.context.InternalContextMembershipListenerFactory
+import io.janusproject.sre.services.context.SpaceRepositoryListenerFactory
+import io.janusproject.sre.services.lifecycle.LifecycleServiceListener
+import io.janusproject.sre.services.logging.LoggingService
+import javax.inject.Singleton
+
+/** 
+ * Module configures kernel specific components, including the root context creation.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+public class PlatformEventEmitterModule extends AbstractModule {
+
+	protected override configure {
+	}
+
+	@Provides
+	@KernelScope
+	@Singleton
+	static def getExternalContextMemberListener(logging : LoggingService) : ExternalContextMemberListener {
+		new ContextMemberEventEmitter(logging.platformLogger)
+	}
+
+	@Provides
+	@KernelScope
+	@Singleton
+	static def getInternalContextMembershipListenerFactory : InternalContextMembershipListenerFactory {
+		new SubHolonContextEventEmitterFactory
+	}
+
+	@Provides
+	@KernelScope
+	@Singleton
+	static def getSpaceRepositoryListenerFactory : SpaceRepositoryListenerFactory {
+		new SpaceEventEmitterFactory
+	}
+
+	@Provides
+	@KernelScope
+	@Singleton
+	static def getLifecycleServiceListener(logging : LoggingService) : LifecycleServiceListener {
+		new AgentEventEmitter(logging.platformLogger)
+	}
+
+}

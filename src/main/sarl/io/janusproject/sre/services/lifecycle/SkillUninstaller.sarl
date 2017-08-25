@@ -1,0 +1,195 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2017 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.janusproject.sre.services.lifecycle
+
+import com.google.inject.ImplementedBy
+import io.janusproject.sre.skills.JanusBuiltin
+import io.sarl.core.Destroy
+import io.sarl.lang.annotation.PrivateAPI
+import io.sarl.lang.core.Agent
+import io.sarl.lang.core.SREutils
+import io.sarl.lang.core.Skill
+import io.sarl.lang.core.Skill.UninstallationStage
+import io.sarl.util.Comparators
+import java.util.Comparator
+import org.arakhne.afc.util.ListUtil
+import org.arakhne.afc.util.MultiCollection
+
+/** 
+ * Install and uninstall the skills. 
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 2.0.6.0
+ */
+@ImplementedBy(typeof(BasicSkillUninstaller))
+interface SkillUninstaller {
+
+	/** Uninstall the skills before the destroying event handler of the agent is invoked.
+	 *
+	 * @param agent the agent for which the skills should be uninstalled.
+	 * @return the skills to pass to {@link #uninstallSkillsAfterDestroy(io.sarl.lang.core.Agent, java.util.Iterable)}.
+	 */
+	def uninstallSkillsBeforeDestroy(^agent : Agent) : Iterable<? extends Skill>
+
+	/** Uninstall the skills after the destroying event handler of the agent is invoked.
+	 * 
+	 * @param agent the agent for which the skills should be uninstalled.
+	 * @param skills the skills given by {@link #uninstallSkillsBeforeDestroy(io.sarl.lang.core.Agent)}.
+	 */
+	def uninstallSkillsAfterDestroy(^agent : Agent, skills : Iterable<? extends Skill>)
+
+}
+
+/** 
+ * Install and uninstall the skills. 
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 2.0.6.0
+ */
+@SuppressWarnings("use_reserved_sarl_annotation")
+@PrivateAPI(isCallerOnly = true)
+class BasicSkillUninstaller implements SkillUninstaller {
+
+	static val ORDER_COMPARATOR = new OrderComparator
+
+	static val REVERSE_ORDER_COMPARATOR = new ReverseOrderComparator
+
+	/** Retrieve the skills that are installed into the given agent.
+	 *
+	 * <p>This function ensures that a skill is not added two times into the replied skills.
+	 * This case may appends when a skill implements multiple capacities.
+	 * 
+	 * @return the skills.
+	 */
+	private static def getAllSkills(^agent : Agent, inReverseOrder : boolean) : Iterable<? extends Skill>  {
+
+		// Get the registered skills
+		val skills = SREutils.getSkillRepository(^agent)
+		if (skills !== null) {
+			val builtinSkills = <JanusBuiltin>newArrayList
+			val otherSkills = <Skill>newTreeSet(Comparators::objectComparator)
+			var comparator = if (inReverseOrder) REVERSE_ORDER_COMPARATOR else ORDER_COMPARATOR
+			skills.values.forEach [ skillReference |
+				val ^skill = skillReference.get
+				if (^skill instanceof JanusBuiltin) {
+					ListUtil::add(builtinSkills, comparator, ^skill, false, false)
+				} else if (^skill !== null) {
+					otherSkills += ^skill
+				}
+			]
+			if (otherSkills.empty) {
+				return builtinSkills
+			}
+			val allSkills = new MultiCollection
+			if (inReverseOrder) {
+				allSkills.addCollection(otherSkills)
+				allSkills.addCollection(builtinSkills)
+			} else {
+				allSkills.addCollection(builtinSkills)
+				allSkills.addCollection(otherSkills)
+			}
+			return allSkills
+		}
+		return emptyList
+	}
+
+	def uninstallSkillsBeforeDestroy(^agent : Agent) : Iterable<? extends Skill> {
+		val skills = getAllSkills(^agent, true)
+		skills.uninstallSkillsPreStage
+		return skills
+	}
+
+	def uninstallSkillsAfterDestroy(^agent : Agent, skills : Iterable<? extends Skill>) {
+		skills.uninstallSkillsFinalStage
+	}
+
+	/** Run the uninstallation functions of the skills for the pre stage of the uninstallation process.
+	 * 
+	 * <p>This function is run before the handlers for {@link Destroy} are invoked.
+	 * 
+	 * @param skills the skills to uninstall.
+	 * @see #uninstallSkillsFinalStage(Agent)
+	 */
+	private static def uninstallSkillsPreStage(skills : Iterable<? extends Skill>) {
+		for (^skill : skills) {
+			SREutils::doSkillUninstallation(^skill, UninstallationStage::PRE_DESTROY_EVENT)
+		}
+	}
+
+	/** Run the uninstallation functions of the skills for the final stage of the uninstallation process.
+	 * 
+	 * <p>This function is run after the handlers for {@link Destroy} are invoked.
+	 * 
+	 * @param skills the skills to uninstall.
+	 * @see #uninstallSkillsPreStage(Agent)
+	 */
+	private static def uninstallSkillsFinalStage(skills : Iterable<? extends Skill>) {
+		for (^skill : skills) {
+			SREutils::doSkillUninstallation(^skill, UninstallationStage::POST_DESTROY_EVENT)
+		}
+	}
+
+	/** 
+	 * Comparator for sorting the skills in order of installation.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 */
+	private static class OrderComparator implements Comparator<JanusBuiltin> {
+
+		override compare(outsideElement : JanusBuiltin, insideElement : JanusBuiltin) : int {
+			// insideElement is always the data already in the list, according to the documentation of ListUtil#add()
+			var cmp = Integer::compare(outsideElement.installationOrder, insideElement.installationOrder)
+			if (cmp !== 0) {
+				return cmp
+			}
+			var id1 = System::identityHashCode(outsideElement)
+			var id2 = System::identityHashCode(insideElement)
+			return Integer::compare(id1, id2)
+		}
+
+	}
+
+	/** 
+	 * Comparator for sorting the skills in reverse order of installation.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 */
+	private static class ReverseOrderComparator extends OrderComparator {
+
+		override compare(outsideElement : JanusBuiltin, insideElement : JanusBuiltin) : int {
+			-super.compare(outsideElement, insideElement)
+		}
+
+	}
+
+}

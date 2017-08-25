@@ -1,0 +1,78 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2017 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.janusproject.sre.injection.kernel
+
+import com.google.common.util.concurrent.Service
+import com.google.inject.AbstractModule
+import com.google.inject.Injector
+import com.google.inject.Key
+import com.google.inject.Provides
+import com.google.inject.name.Names
+import io.janusproject.sre.JanusConfig
+import io.janusproject.sre.KernelScope
+import io.janusproject.sre.services.GoogleServiceManager
+import io.janusproject.sre.services.IServiceManager
+import io.janusproject.sre.services.context.ContextFactory
+import io.janusproject.sre.services.context.JanusContext
+import io.janusproject.sre.services.logging.LoggerCreator
+import io.sarl.sarlspecification.SarlSpecificationChecker
+import io.sarl.sarlspecification.StandardSarlSpecificationChecker
+import java.util.Set
+import java.util.UUID
+import javax.inject.Named
+import javax.inject.Singleton
+
+/** 
+ * Module configures kernel specific components, including the root context creation.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+public class KernelModule extends AbstractModule {
+
+	protected override configure {
+		Key::get(typeof(UUID), Names::named(JanusConfig::DEFAULT_CONTEXT_ID_NAME)).requireBinding
+		Key::get(typeof(UUID), Names::named(JanusConfig::DEFAULT_SPACE_ID_NAME)).requireBinding
+		typeof(SarlSpecificationChecker).bind.to(typeof(StandardSarlSpecificationChecker)).in(typeof(Singleton))
+	}
+
+	@Provides
+	@KernelScope
+	@Singleton
+	static def getKernel(
+		injector : Injector,
+		factory : ContextFactory,
+		@Named(JanusConfig::DEFAULT_CONTEXT_ID_NAME) janusContextID : UUID,
+		@Named(JanusConfig::DEFAULT_SPACE_ID_NAME) defaultJanusSpaceId : UUID) : JanusContext {
+		var context = factory.newInstance(janusContextID, defaultJanusSpaceId, true)
+		injector.injectMembers(context)
+		return context
+	}
+
+	@Provides
+	@Singleton
+	static def createServiceManager(services : Set<Service>, creator : LoggerCreator) : IServiceManager {
+		new GoogleServiceManager(creator, services)
+	}
+
+}
