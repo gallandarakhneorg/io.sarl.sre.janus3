@@ -42,10 +42,10 @@ import java.lang.ref.WeakReference
 import java.util.Collections
 import java.util.Map
 import java.util.UUID
+import java.util.logging.Level
 import org.arakhne.afc.util.MultiCollection
 
 import static extension io.sarl.lang.core.SREutils.*
-import java.util.logging.Level
 
 /**
  * Describes any information that is required by Janus for supporting the agent's life. 
@@ -148,6 +148,7 @@ final class AgentLife {
 	 *
 	 * @param skillUninstaller the skill uninstaller.
 	 * @param logger the logger to use for reporting initialization errors when the agent's logger is unavailable
+	 * @param startError the exception that avoid to start the agent.
 	 * @param spawningAgent the identifier of the agent which has spawn this starting agent. This agent could be outside the spawningContext.
 	 * @param spawningContext the context in which the agent is spawned.
 	 * @param initializationParameters the parameters to give to the agent for its start-up.
@@ -181,7 +182,7 @@ final class AgentLife {
 					return false
 				}
 			} catch (e : Throwable) {
-				this.agentLogger.error(e)
+				this.agentLogger.error(e.localizedMessage, e)
 				stop(skillUninstaller, logger, true)
 				return false
 			}
@@ -239,7 +240,7 @@ final class AgentLife {
 				} catch (e : Throwable) {
 					var log = this.agentLogger
 					if (log !== null) {
-						log.error(e)
+						log.error(e.localizedMessage, e)
 					} else {
 						logger.platformLogger.log(Level::SEVERE, e.localizedMessage, e)
 					}

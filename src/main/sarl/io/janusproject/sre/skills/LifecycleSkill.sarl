@@ -97,7 +97,10 @@ skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
 					return iterator.next
 				}
 			} else {
-				error(result.error)
+				val err = result.error
+				if (err !== null) {
+					error(err.localizedMessage, err)
+				}
 			}
 		}
 		return null
@@ -109,7 +112,10 @@ skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
 			var o = this.owner
 			var result = this.lifecycle.spawnAgent(nbAgents, o.ID, life.defaultContext.context, null, agentType, params)
 			if (result.failing) {
-				error(result.error)
+				val err = result.error
+				if (err !== null) {
+					error(err.localizedMessage, err)
+				}
 			}
 			return result.spawnedAgents
 		}
@@ -126,7 +132,10 @@ skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
 					return iterator.next
 				}
 			} else {
-				error(result.error)
+				val err = result.error
+				if (err !== null) {
+					error(err.localizedMessage, err)
+				}
 			}
 		}
 		return null
@@ -138,7 +147,10 @@ skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
 			var o = this.owner
 			var result = this.lifecycle.spawnAgent(nbAgents, o.ID, context as JanusContext, null, agentClass, params)
 			if (result.failing) {
-				error(result.error)
+				val err = result.error
+				if (err !== null) {
+					error(err.localizedMessage, err)
+				}
 			}
 			return result.spawnedAgents
 		}
@@ -156,7 +168,10 @@ skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
 					return iterator.next
 				}
 			} else {
-				error(result.error)
+				val err = result.error
+				if (err !== null) {
+					error(err.localizedMessage, err)
+				}
 			}
 		}
 		return null
