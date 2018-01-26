@@ -119,19 +119,19 @@ abstract class AbstractLoggingThreadExecutorPolicy extends AbstractThreadExecuto
 		}
 		if (cause instanceof CancellationException || exception instanceof CancellationException) {
 			// Avoid too much processing if the error could not be logged
-			if (!this.logger.platformLogger.isLoggable(Level::FINEST)) {
+			if (!this.logger.kernelLogger.isLoggable(Level::FINEST)) {
 				return
 			}
 			record = new LogRecord(Level::FINEST, MessageFormat::format(Messages::AbortPolicy_1, taskId, taskName))
 		} else if (cause instanceof InterruptedException || exception instanceof InterruptedException) {
 			// Avoid too much processing if the error could not be logged
-			if (!this.logger.platformLogger.isLoggable(Level::FINEST)) {
+			if (!this.logger.kernelLogger.isLoggable(Level::FINEST)) {
 				return
 			}
 			record = new LogRecord(Level::FINEST, MessageFormat::format(Messages::AbortPolicy_2, taskId, taskName))
 		} else {
 			// Avoid too much processing if the error could not be logged
-			if (!this.logger.platformLogger.isLoggable(Level::SEVERE)) {
+			if (!this.logger.kernelLogger.isLoggable(Level::SEVERE)) {
 				return
 			}
 			record = new LogRecord(Level::SEVERE,
@@ -148,7 +148,7 @@ abstract class AbstractLoggingThreadExecutorPolicy extends AbstractThreadExecuto
 			record.sourceMethodName = elt.methodName
 		}
 
-		this.logger.platformLogger.log(record)
+		this.logger.kernelLogger.log(record)
 	}
 
 }
@@ -169,7 +169,7 @@ class VerboseThreadExecutorPolicy extends AbstractLoggingThreadExecutorPolicy {
 	override rejectedExecution(runnable : Runnable, executor : ThreadPoolExecutor) {
 		if (!runRejectedTask(runnable, executor)) {
 			val record = new LogRecord(Level::FINE, MessageFormat::format(Messages::AbortPolicy_0, runnable.toString))
-			this.logger.platformLogger.log(record)
+			this.logger.kernelLogger.log(record)
 		}
     }
 	

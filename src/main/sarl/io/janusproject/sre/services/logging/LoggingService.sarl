@@ -46,14 +46,22 @@ interface LoggingService extends DependentService {
 	def createAgentLogger(name : String, initialLevel : Level = null) : Logger
 
 	/** 
-	 * Replies the logger used by the platform. The platform logger is not associated to a
-	 * specific agent.
+	 * Replies the logger used by the platform. The platform logger is the root logger
+	 * for all the other loggers (for kernel and agents).
 	 * 
 	 * @param name the name of the sub-logger.
-	 * @param initialLevel the initial level to associate to the logger.
 	 * @return the logger.
 	 * @since 2.0.7.0
 	 */
 	def getPlatformLogger : Logger
+
+	/** 
+	 * Replies the logger used by the kernel.
+	 * 
+	 * @param name the name of the sub-logger.
+	 * @return the logger.
+	 * @since 2.0.7.0
+	 */
+	def getKernelLogger : Logger
 
 }

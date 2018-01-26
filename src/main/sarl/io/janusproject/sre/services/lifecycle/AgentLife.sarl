@@ -187,7 +187,7 @@ final class AgentLife {
 				return false
 			}
 		} catch (e : Throwable) {
-			logger.platformLogger.log(Level::SEVERE, e.localizedMessage, e)
+			logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
 			stop(skillUninstaller, logger, false)
 			return false
 		}
@@ -227,7 +227,7 @@ final class AgentLife {
 			try {
 				skills = skillUninstaller.uninstallSkillsBeforeDestroy(^agent)
 			} catch (e : Throwable) {
-				logger.platformLogger.log(Level::SEVERE, e.localizedMessage, e)
+				logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
 				skills = emptyList
 			}
 
@@ -242,7 +242,7 @@ final class AgentLife {
 					if (log !== null) {
 						log.error(e.localizedMessage, e)
 					} else {
-						logger.platformLogger.log(Level::SEVERE, e.localizedMessage, e)
+						logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
 					}
 				}
 			}
@@ -261,7 +261,7 @@ final class AgentLife {
 			try {
 				skillUninstaller.uninstallSkillsAfterDestroy(^agent, skills)
 			} catch (e : Throwable) {
-				logger.platformLogger.log(Level::SEVERE, e.localizedMessage, e)
+				logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
 			}
 
 			// Detach the agent form the platform
@@ -270,7 +270,7 @@ final class AgentLife {
 			// Force unregistration to the enclosing spaces
 			return enclosingContextsCopy
 		} catch (e : Throwable) {
-			logger.platformLogger.log(Level::SEVERE, e.localizedMessage, e)
+			logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
 			return Collections::emptyList
 		} finally {
 			// Clear the references

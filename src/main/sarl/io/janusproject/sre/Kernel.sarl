@@ -146,7 +146,7 @@ class Kernel {
 	 * @see #getShutdownSafeLogger()
 	 */
 	def getLogger : Logger {
-		this.loggingService.platformLogger
+		this.loggingService.kernelLogger
 	}
 
 	/** 
@@ -159,7 +159,7 @@ class Kernel {
 	 */
 	protected def getSafeLogger : Logger {
 		if (this.standaloneLogger === null && this.loggingService !== null) {
-			this.standaloneLogger = this.loggingService.platformLogger
+			this.standaloneLogger = this.loggingService.kernelLogger
 		}
 		if (this.standaloneLogger === null) {
 			this.standaloneLogger = this.loggerCreator.createPlatformLogger(JanusConfig::JANUS_DEFAULT_PLATFORM_NAME)
@@ -200,7 +200,7 @@ class Kernel {
 		var result = this.spawnService.spawnAgent(nbAgents, null, this.contextService.rootContext, null, ^agent, params)
 		if (result.failing) {
 			var exception = result.error
-			this.loggingService.platformLogger.log(Level::SEVERE, exception.localizedMessage, exception)
+			this.loggingService.kernelLogger.log(Level::SEVERE, exception.localizedMessage, exception)
 		}
 		return result.spawnedAgents
 	}

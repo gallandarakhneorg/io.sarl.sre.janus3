@@ -52,6 +52,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn1() throws Exception {
 		runJanus(SpawnerAgent1.class, false);
 		assertEquals(1, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -72,6 +73,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn2() throws Exception {
 		runJanus(SpawnerAgent2.class, false);
 		assertEquals(2, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -92,6 +94,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn3() throws Exception {
 		runJanus(SpawnerAgent3.class, false);
 		assertEquals(3, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -112,6 +115,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn4() throws Exception {
 		runJanus(SpawnerAgent4.class, false);
 		assertEquals(4, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -132,6 +136,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn5() throws Exception {
 		runJanus(SpawnerAgent5.class, false);
 		assertEquals(5, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -152,6 +157,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn6() throws Exception {
 		runJanus(SpawnerAgent6.class, false);
 		assertEquals(6, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -172,6 +178,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn7() throws Exception {
 		runJanus(SpawnerAgent7.class, false);
 		assertEquals(7, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -192,6 +199,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn8() throws Exception {
 		runJanus(SpawnerAgent8.class, false);
 		assertEquals(8, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -212,6 +220,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn9() throws Exception {
 		runJanus(SpawnerAgent9.class, false);
 		assertEquals(9, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -232,6 +241,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn10() throws Exception {
 		runJanus(SpawnerAgent10.class, false);
 		assertEquals(10, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
@@ -252,6 +262,7 @@ public class Bug794 extends AbstractJanusRunTest {
 	public void spawn200() throws Exception {
 		runJanus(SpawnerAgent200.class, false);
 		assertEquals(200, getResults().size());
+		assertAllDifferents(getResults());
 	}
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)

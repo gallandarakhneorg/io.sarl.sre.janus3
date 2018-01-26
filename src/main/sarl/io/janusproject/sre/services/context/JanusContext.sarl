@@ -129,7 +129,7 @@ class JanusContext implements AgentContext {
 	private def getPlatformEventEmitter : SpaceRepositoryListener {
 		var instance = this.platformEventEmitter
 		if (instance === null) {
-			instance = this.spaceEventEmitterFactory.create(ID, defaultSpace, this.logger.platformLogger)
+			instance = this.spaceEventEmitterFactory.create(ID, defaultSpace, this.logger.kernelLogger)
 			this.platformEventEmitter = instance
 		}
 		return instance

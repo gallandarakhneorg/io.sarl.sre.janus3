@@ -113,7 +113,7 @@ class LoggerCreator {
 	}
 
 	/** 
-	 * Create a logger with the given name for an agent.
+	 * Create a logger with the given name for a platform module (kernel or agent).
 	 * 
 	 * <p>The level of logging is influence by {@link JanusConfig#VERBOSE_LEVEL_NAME}.
 	 * 
@@ -122,16 +122,14 @@ class LoggerCreator {
 	 * @return the logger.
 	 * @since 2.0.7.0
 	 */
-	def createAgentLogger(name : String, parent : Logger) : Logger {
+	def createModuleLogger(name : String, parent : Logger) : Logger {
 		val logger = name.createLoggerInstance
 		if (parent !== null) {
 			logger.parent = parent
 		}
 		logger.useParentHandlers = true
-		if (parent !== null) {
-			val level = loggingLevelFromProperties
-			logger.level = level
-		}
+		val level = loggingLevelFromProperties
+		logger.level = level
 		return logger
 	}
 

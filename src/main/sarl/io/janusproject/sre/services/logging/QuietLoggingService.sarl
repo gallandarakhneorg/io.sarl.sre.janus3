@@ -41,7 +41,9 @@ import javax.inject.Singleton
 @Singleton
 class QuietLoggingService extends AbstractDependentService implements LoggingService {
 
-	var loggerInstance : Logger
+	var platformLoggerInstance : Logger
+
+	var kernelLoggerInstance : Logger
 
 	var loggerCreator : LoggerCreator
 
@@ -60,15 +62,24 @@ class QuietLoggingService extends AbstractDependentService implements LoggingSer
 	}
 
 	override getPlatformLogger : Logger {
-		if (this.loggerInstance === null) {
-			this.loggerInstance = this.loggerCreator.createPlatformLogger(JanusConfig::JANUS_DEFAULT_PLATFORM_NAME)
-			this.loggerInstance.level = Level.OFF
+		if (this.platformLoggerInstance === null) {
+			this.platformLoggerInstance = this.loggerCreator.createPlatformLogger(JanusConfig::JANUS_DEFAULT_PLATFORM_NAME)
+			this.platformLoggerInstance.level = Level.OFF
 		}
-		this.loggerInstance
+		this.platformLoggerInstance
+	}
+
+	override getKernelLogger : Logger {
+		if (this.kernelLoggerInstance === null) {
+			this.kernelLoggerInstance = this.loggerCreator.createModuleLogger(JanusConfig::JANUS_DEFAULT_PLATFORM_NAME,
+				getPlatformLogger)
+			this.kernelLoggerInstance.level = Level.OFF
+		}
+		this.kernelLoggerInstance
 	}
 
 	def createAgentLogger(name : String, initialLevel : Level = null) : Logger {
-		val logger = this.loggerCreator.createAgentLogger(name, getPlatformLogger)
+		val logger = this.loggerCreator.createModuleLogger(name, getPlatformLogger)
 		if (initialLevel !== null) {
 			logger.level = initialLevel
 		}

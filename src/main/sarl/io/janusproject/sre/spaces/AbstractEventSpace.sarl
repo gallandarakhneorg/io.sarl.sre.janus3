@@ -151,7 +151,7 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 		try {
 			^event.emitLocally(scope)
 		} catch (e : Throwable) {
-			this.logger.platformLogger.severe(MessageFormat::format(Messages::AbstractEventSpace_0, ^event , scope, e))
+			this.logger.kernelLogger.severe(MessageFormat::format(Messages::AbstractEventSpace_0, ^event, scope, e))
 		}
 	}
 

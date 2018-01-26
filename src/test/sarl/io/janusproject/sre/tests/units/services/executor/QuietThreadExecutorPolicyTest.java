@@ -79,7 +79,7 @@ public class QuietThreadExecutorPolicyTest {
 			this.logger = mock(Logger.class);
 			when(this.logger.isLoggable(ArgumentMatchers.any(Level.class))).thenReturn(true);
 			this.logService = mock(LoggingService.class);
-			when(this.logService.getPlatformLogger()).thenReturn(this.logger);
+			when(this.logService.getKernelLogger()).thenReturn(this.logger);
 
 			this.executor = mock(ThreadPoolExecutor.class);
 			when(this.executor.isShutdown()).thenReturn(false);
@@ -163,7 +163,7 @@ public class QuietThreadExecutorPolicyTest {
 			this.logger = mock(Logger.class);
 			when(this.logger.isLoggable(ArgumentMatchers.any(Level.class))).thenReturn(true);
 			this.logService = mock(LoggingService.class);
-			when(this.logService.getPlatformLogger()).thenReturn(this.logger);
+			when(this.logService.getKernelLogger()).thenReturn(this.logger);
 
 			this.executor = mock(ThreadPoolExecutor.class);
 			when(this.executor.isShutdown()).thenReturn(true);

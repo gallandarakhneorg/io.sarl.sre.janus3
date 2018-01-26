@@ -39,6 +39,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -93,7 +94,7 @@ public class LoggingSkillTest extends AbstractJanusTest {
 		this.logger = spy(this.logger);
 		//
 		this.logService = mock(LoggingService.class);
-		when(this.logService.getPlatformLogger()).thenReturn(this.parentLogger);
+		when(this.logService.getKernelLogger()).thenReturn(this.parentLogger);
 		when(this.logService.createAgentLogger(any())).thenReturn(this.logger);
 		when(this.logService.createAgentLogger(any(), any())).thenReturn(this.logger);
 		//

@@ -120,7 +120,7 @@ public class KernelTest extends AbstractJanusTest {
 	@Test
 	public void getLogger() {
 		Logger log = mock(Logger.class);
-		when(this.logger.getPlatformLogger()).thenReturn(log);
+		when(this.logger.getKernelLogger()).thenReturn(log);
 		Logger l = this.kernel.getLogger();
 		assertSame(log, l);
 	}

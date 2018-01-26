@@ -526,7 +526,7 @@ public class AgentLifeTest extends AbstractJanusTest {
 		SkillUninstaller installer = mock(SkillUninstaller.class);
 		LoggingService logger = mock(LoggingService.class);
 		Logger loglog = mock(Logger.class);
-		when(logger.getPlatformLogger()).thenReturn(loglog);
+		when(logger.getKernelLogger()).thenReturn(loglog);
 		UUID parent = UUID.randomUUID();
 		UUID spawner = UUID.randomUUID();
 		JanusContext spawningContext = mock(JanusContext.class);
@@ -550,7 +550,7 @@ public class AgentLifeTest extends AbstractJanusTest {
 		SkillUninstaller installer = mock(SkillUninstaller.class);
 		LoggingService logger = mock(LoggingService.class);
 		Logger loglog = mock(Logger.class);
-		when(logger.getPlatformLogger()).thenReturn(loglog);
+		when(logger.getKernelLogger()).thenReturn(loglog);
 		// Force the logger to forward the exception
 		doAnswer((it) -> {
 			Exceptions.sneakyThrow((Throwable) it.getArgument(0));
