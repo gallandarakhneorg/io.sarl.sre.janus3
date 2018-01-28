@@ -235,7 +235,7 @@ class Kernel {
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
 	 */
-	private static class KernelStoppingListener implements KernelAgentLifecycleListener {
+	private static class KernelStoppingListener implements KernelAgentLifecycleListener, Runnable, UncaughtExceptionHandler {
 
 		val kernel : WeakReference<Kernel>
 
@@ -245,44 +245,43 @@ class Kernel {
 			this.kernel = new WeakReference(kernel)
 		}
 
-		@SuppressWarnings("use_reserved_sarl_annotation")
-		@PrivateAPI(isCallerOnly = true)
-		def kernelAgentDestroyed {
+		override kernelAgentDestroyed {
 			if (!this.stopProcessRunning.getAndSet(true)) {
 				// CAUTION: EXECUTE THE STOP FUNCTION IN A THREAD THAT
 				// IS INDEPENDENT TO THE ONES FROM THE EXECUTORS
 				// CREATED BY THE EXECUTORSERVICE.
 				// THIS AVOID THE STOP FUNCTION TO BE INTERRUPTED
 				// BECAUSE THE EXECUTORSERVICE WAS SHUTTED DOWN.
-				var executor = Executors::newSingleThreadExecutor([
-					var newThread = Executors::defaultThreadFactory.newThread(it)
-					newThread.name = "Janus shutdown"
-					newThread.daemon = false
-					
-					newThread.uncaughtExceptionHandler = [thread, exception |
-						assert thread !== null
-						assert exception !== null
-						val record = new LogRecord(Level::SEVERE, exception.localizedMessage)
-						if (exception !== null) {
-							record.thrown = exception
-						}
-
-						val elt = exception.stackTrace.get(0)
-						assert elt !== null
-						record.sourceClassName = elt.className
-						record.sourceMethodName = elt.methodName
-						var kernel = this.kernel.get
-						val logger = kernel.safeLogger
-						logger.log(record)
-					]
-
-					return newThread
-				])
-				executor.execute([
-					this.kernel.get?.stopKernel
-				])
+				val thread = Executors::defaultThreadFactory().newThread(this)
+				thread.name = "Janus kernel shutdown" // $NON-NLS-1$
+				thread.daemon = false
+				thread.uncaughtExceptionHandler = this
+				thread.start
 			}
 		}
+
+		override run {
+			val kern = this.kernel.get
+			val logger = kern.logger
+			logger.info(Messages.Kernel_0)
+			kern.serviceManager.stopServices(logger)
+			logger.info(Messages.Kernel_1)
+			kern.isRunning.set(false)
+		}
+		
+		override uncaughtException(thread : Thread, exception : Throwable) {
+			assert thread !== null;
+			assert exception !== null;
+			val record = new LogRecord(Level::SEVERE, exception.localizedMessage)
+			record.thrown = exception
+			val elt = exception.stackTrace.get(0)
+			assert elt !== null
+			record.sourceClassName = elt.className
+			record.sourceMethodName = elt.methodName
+			val logger = this.kernel.get.logger
+			logger.log(record)
+		}
+		
 	}
 
 }
