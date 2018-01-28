@@ -97,7 +97,27 @@ interface IServiceManager {
  */
 abstract class AbstractServiceManager implements IServiceManager {
 
+	var logger : Logger
+
+	/** Replies the logger.
+	 *
+	 * @return the logger.
+	 */
+	protected def getLogger : Logger {
+		return this.logger
+	}
+
+	/** Change the logger.
+	 * 
+	 * @param logger the new logger.
+	 */
+	protected def setLogger(logger : Logger) {
+		this.logger = logger
+	}
+
 	def startServices(logger : Logger) {
+		setLogger(logger)
+
 		val otherServices = <Service>newArrayList
 		val infraServices = <Service>newArrayList
 		val serviceQueue = <DependencyNode>newLinkedList

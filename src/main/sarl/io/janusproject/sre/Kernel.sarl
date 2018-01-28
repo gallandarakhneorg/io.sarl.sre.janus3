@@ -28,6 +28,7 @@ import io.janusproject.sre.services.lifecycle.KernelAgentLifecycleListener
 import io.janusproject.sre.services.lifecycle.LifecycleService
 import io.janusproject.sre.services.logging.LoggerCreator
 import io.janusproject.sre.services.logging.LoggingService
+import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
 import java.lang.Thread.UncaughtExceptionHandler
@@ -42,7 +43,6 @@ import java.util.logging.LogRecord
 import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Singleton
-import io.sarl.lang.annotation.PrivateAPI
 
 /** 
  * This class represents the Kernel of the Janus platform.
@@ -76,10 +76,8 @@ class Kernel {
 	val spawnService : LifecycleService
 
 	val contextService : ContextService
-	
-	val loggerCreator : LoggerCreator
 
-	var standaloneLogger : Logger
+	val loggerCreator : LoggerCreator
 
 	/** 
 	 * Constructs a Janus kernel.
@@ -108,7 +106,7 @@ class Kernel {
 
 		// Start the services NOW to ensure that the default context and space
 		// of the Janus agent are catched by the modules;
-		this.serviceManager.startServices(safeLogger)
+		this.serviceManager.startServices(getLogger)
 	}
 
 	/** Stop the kernel.
@@ -117,7 +115,7 @@ class Kernel {
 	@SuppressWarnings("use_reserved_sarl_annotation")
 	@PrivateAPI
 	def stopKernel {
-		val logger = safeLogger
+		val logger = getLogger
 		logger.info(Messages.Kernel_0)
 		this.spawnService.removeKernelAgentLifecycleListener(this.stopListener)
 		this.serviceManager.stopServices(logger)
@@ -147,24 +145,6 @@ class Kernel {
 	 */
 	def getLogger : Logger {
 		this.loggingService.kernelLogger
-	}
-
-	/** 
-	 * Replies the logger that used by the kernel.
-	 *
-	 * <p>This function always replies a logger, even if the logging system is down.
-	 * 
-	 * @return the logger of the kernel.
-	 * @see #getLogger()
-	 */
-	protected def getSafeLogger : Logger {
-		if (this.standaloneLogger === null && this.loggingService !== null) {
-			this.standaloneLogger = this.loggingService.kernelLogger
-		}
-		if (this.standaloneLogger === null) {
-			this.standaloneLogger = this.loggerCreator.createPlatformLogger(JanusConfig::JANUS_DEFAULT_PLATFORM_NAME)
-		}
-		return this.standaloneLogger
 	}
 
 	/** 

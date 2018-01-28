@@ -91,7 +91,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 	public void setUp() {
 		this.logger = mock(Logger.class);
 		this.loggerCreator = mock(LoggerCreator.class);
-		when(this.loggerCreator.createPlatformLogger(any())).thenReturn(this.logger);
+		when(this.loggerCreator.createPlatformLogger()).thenReturn(this.logger);
 		when(this.loggerCreator.createModuleLogger(any(), any(Logger.class))).thenReturn(this.logger);
 		when(this.loggerCreator.createConsoleLogger(any(), any(PrintStream.class))).thenReturn(this.logger);
 		this.counter = new AtomicInteger();

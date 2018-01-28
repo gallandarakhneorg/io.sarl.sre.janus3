@@ -32,7 +32,6 @@ import io.janusproject.sre.services.GoogleServiceManager
 import io.janusproject.sre.services.IServiceManager
 import io.janusproject.sre.services.context.ContextFactory
 import io.janusproject.sre.services.context.JanusContext
-import io.janusproject.sre.services.logging.LoggerCreator
 import io.sarl.sarlspecification.SarlSpecificationChecker
 import io.sarl.sarlspecification.StandardSarlSpecificationChecker
 import java.util.Set
@@ -71,8 +70,8 @@ public class KernelModule extends AbstractModule {
 
 	@Provides
 	@Singleton
-	static def createServiceManager(services : Set<Service>, creator : LoggerCreator) : IServiceManager {
-		new GoogleServiceManager(creator, services)
+	static def createServiceManager(services : Set<Service>) : IServiceManager {
+		new GoogleServiceManager(services)
 	}
 
 }

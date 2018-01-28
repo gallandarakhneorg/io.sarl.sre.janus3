@@ -33,7 +33,7 @@ public class GoogleServiceManagerTest extends AbstractServiceManagerTest<GoogleS
 
 	@Override
 	protected GoogleServiceManager newServiceManagerInstance(LoggerCreator loggerCreator, Iterable services) {
-		return new GoogleServiceManager(loggerCreator, services);
+		return new GoogleServiceManager(services);
 	}
 
 

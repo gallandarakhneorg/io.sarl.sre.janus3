@@ -79,7 +79,7 @@ class JreLoggingService extends AbstractDependentService implements LoggingServi
 
 	override getPlatformLogger : Logger {
 		if (this.platformLoggerInstance === null) {
-			this.platformLoggerInstance = this.loggerCreator.createPlatformLogger(JanusConfig::JANUS_DEFAULT_PLATFORM_NAME)
+			this.platformLoggerInstance = this.loggerCreator.createPlatformLogger()
 		}
 		this.platformLoggerInstance
 	}

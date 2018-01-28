@@ -24,10 +24,8 @@ import com.google.common.collect.Multimap
 import com.google.common.util.concurrent.Service
 import com.google.common.util.concurrent.ServiceManager
 import com.google.common.util.concurrent.ServiceManager.Listener
-import io.janusproject.sre.services.logging.LoggerCreator
 import java.text.MessageFormat
 import java.util.concurrent.TimeoutException
-import java.util.logging.Logger
 
 /** 
  * Implementation of a service manager based on the Google service manager.
@@ -39,18 +37,13 @@ import java.util.logging.Logger
  */
 class GoogleServiceManager extends AbstractServiceManager {
 
-	val loggerCreator : LoggerCreator
-
 	val googleManager : ServiceManager
 
-	var logger : Logger
-
-	/**
+	/** 
 	 * @param loggerCreator a creator of logger for logging the activities of the service manager.
 	 * @param sm the Google service to use.
 	 */
-	new (loggerCreator : LoggerCreator, sm : ServiceManager) {
-		this.loggerCreator = loggerCreator
+	new (sm : ServiceManager) {
 		this.googleManager = sm
 		this.googleManager.addListener(new Listener() {
 			def failure(service : Service) {
@@ -60,18 +53,10 @@ class GoogleServiceManager extends AbstractServiceManager {
 	}
 
 	/** 
-	 * @param loggerCreator a creator of logger for logging the activities of the service manager.
 	 * @param services the services to manager.
 	 */
-	new (loggerCreator : LoggerCreator, services : Iterable<? extends Service>) {
-		this(loggerCreator, new ServiceManager(services))
-	}
-
-	def getLogger : Logger {
-		if (this.logger === null) {
-			this.logger = this.loggerCreator.createPlatformLogger(this.class.name)
-		}
-		return this.logger
+	new (services : Iterable<? extends Service>) {
+		this(new ServiceManager(services))
 	}
 
 	def getServicesByState : Multimap<Service.State, Service> {
