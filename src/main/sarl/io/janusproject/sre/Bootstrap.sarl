@@ -28,8 +28,11 @@ import io.janusproject.sre.services.executor.EarlyExitException
 import io.janusproject.sre.services.executor.ExecutorService
 import io.janusproject.sre.services.logging.LoggerCreator
 import io.janusproject.sre.services.logging.LoggingService
+import io.sarl.bootstrap.SRE
+import io.sarl.bootstrap.SREBootstrap
 import io.sarl.lang.SARLVersion
 import io.sarl.lang.core.Agent
+import io.sarl.lang.core.AgentContext
 import java.io.File
 import java.io.PrintStream
 import java.io.PrintWriter
@@ -40,16 +43,15 @@ import java.text.MessageFormat
 import java.util.Arrays
 import java.util.Properties
 import java.util.UUID
+import java.util.logging.Logger
 import java.util.regex.Pattern
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 import org.arakhne.afc.vmutil.FileSystem
-import io.sarl.core.SREBootstrap
-import io.sarl.core.SRE
-import io.sarl.lang.core.AgentContext
-import java.util.logging.Logger
+
+import static io.sarl.bootstrap.SRE.*
 
 /** 
  * This is the class that permits to boot the Janus platform.
@@ -628,6 +630,8 @@ class JanusBooter implements Booter {
 		if (logger === null) {
 			logger = getLogger
 		}
+		// TODO : Remove the message below
+		logger.warning("EXPERIMENTAL VERSION")
 		logger.info(MessageFormat::format(Messages::Boot_22, agentCls.name))
 		val id = this.kernel.spawn(agentCls, params)
 		this.bootAgentId = id
@@ -648,7 +652,8 @@ class JanusBooter implements Booter {
 		assert startupModule !== null, "No platform injection module"
 		val injector = Guice::createInjector(startupModule)
 		this.kernel = injector.getInstance(typeof(Kernel))
-		SRE::bootstrap = this 		// Force the bootstrap to be this object
+		// Force the bootstrap to be this object
+		SRE::bootstrap = this
 		return this.kernel
 	}
 

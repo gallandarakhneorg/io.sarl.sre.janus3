@@ -50,7 +50,7 @@ import io.janusproject.sre.Exiter;
 import io.janusproject.sre.JanusConfig;
 import io.janusproject.sre.Kernel;
 import io.janusproject.sre.tests.testutils.AbstractJanusTest;
-import io.sarl.core.SRE;
+import io.sarl.bootstrap.SRE;
 import io.sarl.lang.SARLVersion;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.core.Agent;
