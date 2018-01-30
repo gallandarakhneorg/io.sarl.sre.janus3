@@ -842,57 +842,6 @@ interface Booter extends SREBootstrap {
 	def showJanusLogo
 
 	/** 
-	 * Set offline flag of the Janus platform.
-	 * 
-	 * <p>This function is equivalent to the command line option <code>-o</code>.
-	 * 
-	 * <p>This function must be called before launching the Janus platform.
-	 * 
-	 * @param isOffline the offline flag.
-	 * @since 2.0.2.0
-	 * @see JanusConfig#OFFLINE
-	 */
-	def setOffline(isOffline : boolean)
-
-	/** 
-	 * Force the Janus platform to use a random identifier for its default context.
-	 * 
-	 * <p>This function is equivalent to the command line option <code>-R</code>.
-	 * 
-	 * <p>This function must be called before launching the Janus platform.
-	 * 
-	 * @since 2.0.2.0
-	 * @see JanusConfig#BOOT_DEFAULT_CONTEXT_ID_NAME
-	 * @see JanusConfig#RANDOM_DEFAULT_CONTEXT_ID_NAME
-	 */
-	def setRandomContextUUID
-
-	/** 
-	 * Force the Janus platform to use a default context identifier that tis build upon the classname of the boot agent. It means
-	 * that the UUID is always the same for a given classname.
-	 * 
-	 * <p>This function is equivalent to the command line option <code>-B</code>.
-	 * 
-	 * @since 2.0.2.0
-	 * @see JanusConfig#BOOT_DEFAULT_CONTEXT_ID_NAME
-	 * @see JanusConfig#RANDOM_DEFAULT_CONTEXT_ID_NAME
-	 */
-	def setBootAgentTypeContextUUID
-
-	/** 
-	 * Force the Janus platform to use the identifier hard-coded in the source code for its default context.
-	 * 
-	 * <p>This function is equivalent to the command line option <code>-W</code>.
-	 * 
-	 * <p>This function must be called before launching the Janus platform.
-	 * 
-	 * @since 2.0.2.0
-	 * @see JanusConfig#BOOT_DEFAULT_CONTEXT_ID_NAME
-	 * @see JanusConfig#RANDOM_DEFAULT_CONTEXT_ID_NAME
-	 */
-	def setDefaultContextUUID
-
-	/** 
 	 * Force the verbosity level.
 	 * 
 	 * <p>This function must be called before launching the Janus platform.
