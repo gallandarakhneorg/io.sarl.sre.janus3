@@ -123,6 +123,11 @@ final class JanusConfig {
 	 */
 	public static val OFFLINE = "janus.network.offline"
 	/** 
+	 * Default value of the offline flag for the Janus bootstrap.
+	 * @since 0.7
+	 */
+    public static val DEFAULT_OFFLINE_FLAG_FOR_BOOTSTRAP = true
+	/** 
 	 * Name of the property that contains the classname of the boot agent.
 	 */
 	public static val BOOT_AGENT = "janus.boot.agent"

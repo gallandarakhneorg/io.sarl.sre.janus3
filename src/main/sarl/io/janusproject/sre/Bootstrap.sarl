@@ -183,6 +183,12 @@ class JanusBooter implements Booter {
 	volatile var kernel : Kernel
 
 	val loggerCreator = new LoggerCreator
+
+	/** Construct a bootstrap with the default initialization values for the bootstrap.
+	 */
+	new {
+		this.offline = JanusConfig::DEFAULT_OFFLINE_FLAG_FOR_BOOTSTRAP
+	}
 	
 	override parseCommandLine(args : String[]) : String[] {
 		val parser = new DefaultParser
@@ -840,17 +846,6 @@ interface Booter extends SREBootstrap {
 	 * Show the heading logo of the Janus platform.
 	 */
 	def showJanusLogo
-
-	/** 
-	 * Force the verbosity level.
-	 * 
-	 * <p>This function must be called before launching the Janus platform.
-	 * 
-	 * @param level the verbosity level.
-	 * @since 2.0.2.0
-	 * @see JanusConfig#VERBOSE_LEVEL_NAME
-	 */
-	def setVerboseLevel(level : int)
 
 	/** Do any preparing steps for launching the platform.
 	 * 

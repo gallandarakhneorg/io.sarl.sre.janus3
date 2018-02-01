@@ -52,7 +52,7 @@ class AddressLazyLinks {
 	 * 
 	 * @param participant the link to the participant, {@code null} if none.
 	 */
-	def setParticipant( participant : Participant) {
+	def setParticipant(participant : Participant) {
 		if (participant === null) {
 			this.participant = null;
 		} else {
