@@ -64,7 +64,6 @@ import io.sarl.lang.core.Event;
 import io.sarl.lang.core.SpaceID;
 import io.sarl.util.OpenEventSpace;
 import io.sarl.util.OpenEventSpaceSpecification;
-import net.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder.DefaultsProvider;
 
 /**
  * @author $Author: sgalland$
