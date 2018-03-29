@@ -211,12 +211,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		cmd = parser.parse(janusOptions, args("-nologo"));
 		assertTrue(cmd.hasOption("nologo"));
 
-		optNames.remove("o");
-		cmd = parser.parse(janusOptions, args("-o"));
-		assertTrue(cmd.hasOption('o'));
-		cmd = parser.parse(janusOptions, args("-offline"));
-		assertTrue(cmd.hasOption('o'));
-
 		optNames.remove("q");
 		cmd = parser.parse(janusOptions, args("-q"));
 		assertTrue(cmd.hasOption('q'));
@@ -309,7 +303,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.VERBOSE_LEVEL_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -328,7 +321,7 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
+			
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -344,7 +337,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertTrueProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertFalseProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -362,7 +354,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -378,7 +369,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertFalseProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertTrueProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -396,7 +386,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -412,7 +401,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertFalseProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertFalseProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -430,7 +418,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -446,7 +433,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertFalseProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -464,46 +450,11 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
 		assertProperty(JanusConfig.VERBOSE_LEVEL_NAME, "3");
 		assertContains(Arrays.asList(freeArgs), "-nologo", "-x", "-y");
-		verifyZeroInteractions(this.logger);
-		verifyZeroInteractions(this.exiter);
-	}
-
-	@Test
-	public void option_o_valid() {
-		Object[] freeArgs = this.booter.parseCommandLine(args("-o", "--", "-x", "-y"));
-		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
-		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertTrueProperty(JanusConfig.OFFLINE);
-		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
-		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
-		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
-		assertProperty(JanusConfig.VERBOSE_LEVEL_NAME, "3");
-		assertContains(Arrays.asList(freeArgs), "-x", "-y");
-		verifyZeroInteractions(this.logger);
-		verifyZeroInteractions(this.exiter);
-	}
-
-	@Test
-	public void option_o_asArg() {
-		Object[] freeArgs = this.booter.parseCommandLine(args("--", "-o", "-x", "-y"));
-		// The properties are null since resetProperties() is invoked for resetting the properties in
-		// the start-up function inherited from AbstractJanusTest
-		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
-		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
-		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
-		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
-		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
-		assertProperty(JanusConfig.VERBOSE_LEVEL_NAME, "3");
-		assertContains(Arrays.asList(freeArgs), "-o", "-x", "-y");
 		verifyZeroInteractions(this.logger);
 		verifyZeroInteractions(this.exiter);
 	}
@@ -515,7 +466,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -535,7 +485,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -554,7 +503,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -575,7 +523,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -593,7 +540,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -614,7 +560,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -637,7 +582,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertProperty("io.janusproject.tests.MY_PROPERTY_0", "my value 0");
 		assertProperty("io.janusproject.tests.MY_PROPERTY_1", "my value 1");
 		assertProperty("io.janusproject.tests.MY_PROPERTY_2", "my value 2");
@@ -660,7 +604,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -678,7 +621,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertProperty("io.janusproject.tests.MY_PROPERTY_1", "the value");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -696,7 +638,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertProperty("io.janusproject.tests.MY_PROPERTY_1", "the value");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -714,7 +655,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -732,7 +672,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -750,7 +689,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -768,7 +706,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -786,7 +723,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -804,7 +740,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -822,7 +757,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -840,7 +774,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -858,7 +791,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -876,7 +808,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");
@@ -894,7 +825,6 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		assertFalseProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		assertNullProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
-		assertNullProperty(JanusConfig.OFFLINE);
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_0");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_1");
 		assertNullProperty("io.janusproject.tests.MY_PROPERTY_2");

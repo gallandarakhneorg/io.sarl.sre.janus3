@@ -159,22 +159,6 @@ public class BootTest extends AbstractJanusTest {
 	}
 
 	@Test
-	public void setOffline_offline() {
-		Boot.setOffline(true);
-		ArgumentCaptor<Boolean> capturedOffline = ArgumentCaptor.forClass(Boolean.class);
-		verify(this.booter).setOffline(capturedOffline.capture());
-		assertTrue(capturedOffline.getValue());
-	}
-
-	@Test
-	public void setOffline_online() {
-		Boot.setOffline(false);
-		ArgumentCaptor<Boolean> capturedOffline = ArgumentCaptor.forClass(Boolean.class);
-		verify(this.booter).setOffline(capturedOffline.capture());
-		assertFalse(capturedOffline.getValue());
-	}
-
-	@Test
 	public void setRandomContextUUID() {
 		Boot.setRandomContextUUID();
 		verify(this.booter).setRandomContextUUID();

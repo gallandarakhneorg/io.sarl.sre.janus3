@@ -417,21 +417,6 @@ final class Boot {
 	}
 
 	/** 
-	 * Set offline flag of the Janus platform.
-	 * 
-	 * <p>This function is equivalent to the command line option <code>-o</code>.
-	 * 
-	 * <p>This function must be called before launching the Janus platform.
-	 * 
-	 * @param isOffline the offline flag.
-	 * @since 2.0.2.0
-	 * @see JanusConfig#OFFLINE
-	 */
-	static def setOffline(isOffline : boolean) {
-		getBooter.offline = isOffline
-	}
-
-	/** 
 	 * Force the Janus platform to use a random identifier for its default context.
 	 * 
 	 * <p>This function is equivalent to the command line option <code>-R</code>.
@@ -662,14 +647,6 @@ class JanusBooter implements Booter {
 	 */
 	public static val CLI_OPTION_NOLOGO_LONG = "nologo"
 
-	/** Short command-line option for "offline".
-	 */
-	public static val CLI_OPTION_OFFLINE_SHORT = "o"
-
-	/** Long command-line option for "offline".
-	 */
-	public static val CLI_OPTION_OFFLINE_LONG = "offline"
-
 	/** Short command-line option for "be quiet".
 	 */
 	public static val CLI_OPTION_QUIET_SHORT = "q"
@@ -744,12 +721,6 @@ class JanusBooter implements Booter {
 
 	var dynamicClassLoader : URLClassLoader
 
-	/** Construct a bootstrap with the default initialization values for the bootstrap.
-	 */
-	new {
-		this.offline = JanusConfig::DEFAULT_OFFLINE_FLAG_FOR_BOOTSTRAP
-	}
-
 	override parseCommandLine(args : String[]) : String[] {
 		val parser = new DefaultParser
 		try {
@@ -805,9 +776,6 @@ class JanusBooter implements Booter {
 					case CLI_OPTION_CLASSPATH_LONG: {
 						userClasspath = true
 						opt.value.addToSystemClasspath
-					}
-					case CLI_OPTION_OFFLINE_LONG: {
-						setOffline(true)
 					}
 					case CLI_OPTION_RANDOMID_LONG: {
 						setRandomContextUUID
@@ -1011,9 +979,6 @@ class JanusBooter implements Booter {
 		options.addOption(null, CLI_OPTION_NOLOGO_LONG, false,
 				Messages::Boot_9)
 
-		options.addOption(CLI_OPTION_OFFLINE_SHORT, CLI_OPTION_OFFLINE_LONG, false,
-				MessageFormat::format(Messages::Boot_10, JanusConfig::OFFLINE))
-
 		options.addOption(CLI_OPTION_QUIET_SHORT, CLI_OPTION_QUIET_LONG, false,
 				Messages::Boot_11)
 
@@ -1180,10 +1145,6 @@ class JanusBooter implements Booter {
 
 	override showJanusLogo {
 		this.consoleLogger.println(Messages::Boot_21)
-	}
-
-	override setOffline(isOffline : boolean) {
-		System::setProperty(JanusConfig::OFFLINE, Boolean::toString(isOffline))
 	}
 
 	override setRandomContextUUID {

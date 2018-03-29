@@ -40,7 +40,6 @@ final class Messages extends NLS {
 
 	public static var Boot_0 : String
 	public static var Boot_1 : String
-	public static var Boot_10 : String
 	public static var Boot_11 : String
 	public static var Boot_12 : String
 	public static var Boot_13 : String

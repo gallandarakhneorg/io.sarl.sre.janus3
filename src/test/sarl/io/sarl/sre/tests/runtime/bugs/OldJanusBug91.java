@@ -44,11 +44,6 @@ import io.sarl.lang.annotation.SarlSpecification;
 @SuppressWarnings("all")
 public class OldJanusBug91 extends AbstractJanusRunTest {
 
-	@Before
-	public void setUp() {
-		Boot.setOffline(true);
-	}
-
 	@Test
 	public void ExceptionInInit() throws Exception {
 		runJanus(ExceptionInInitAgent.class, false, true, STANDARD_TIMEOUT);

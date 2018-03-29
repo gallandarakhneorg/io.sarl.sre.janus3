@@ -53,7 +53,6 @@ public class BootTest extends AbstractJanusRunTest {
 	public void setUp() {
 		this.defaultID = UUID.fromString(JanusConfig.DEFAULT_CONTEXT_ID_VALUE);
 		this.bootID = UUID.nameUUIDFromBytes(BootAgent.class.getName().getBytes());
-		Boot.setOffline(true);
 	}
 
 	@Test

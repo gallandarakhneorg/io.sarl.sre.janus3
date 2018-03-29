@@ -50,7 +50,7 @@ public class OldJanusBug84 extends AbstractJanusRunTest {
 
 	@Test
 	public void killMeInInit() throws Exception {
-		Kernel kern = runJanus(KilledInInitAgent.class, false, true, true, STANDARD_TIMEOUT);
+		Kernel kern = runJanus(KilledInInitAgent.class, false, true, STANDARD_TIMEOUT);
 		assertNoErrorLog(kern);
 		assertContains(getResults());
 	}

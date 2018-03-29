@@ -116,7 +116,6 @@ public abstract class AbstractJanusRunTest extends AbstractJanusTest {
 		protected void starting(Description description) {
 			SRE.resetServiceLoader();
 			SRE.setBootstrap(null);
-			Boot.setOffline(true);
 			JanusRun skipRun = description.getAnnotation(JanusRun.class);
 			if (skipRun != null) {
 				try {
@@ -267,15 +266,14 @@ public abstract class AbstractJanusRunTest extends AbstractJanusTest {
 	 * 
 	 * @param type - the type of the agent to launch at start-up.
 	 * @param enableLogging - indicates if the logging is enable or not.
-	 * @param offline - indicates if the Janus platform is offline
 	 * @param timeout - the maximum waiting time in seconds, or <code>-1</code> to ignore the timeout.
 	 *     See {@link #STANDARD_TIMEOUT}, {@link #EXTRA_TIMEOUT} or {@link #NO_TIMEOUT}.
 	 * @return the kernel.
 	 * @throws Exception - if the kernel cannot be launched.
 	 */
-	protected Kernel runJanus(Class<? extends TestingAgent> type, boolean enableLogging, boolean offline, int timeout)
+	protected Kernel runJanus(Class<? extends TestingAgent> type, boolean enableLogging, int timeout)
 			throws Exception {
-		return runJanus(type, enableLogging, false, offline, timeout);
+		return runJanus(type, enableLogging, false, timeout);
 	}
 
 	/**
@@ -284,15 +282,14 @@ public abstract class AbstractJanusRunTest extends AbstractJanusTest {
 	 * @param type - the type of the agent to launch at start-up.
 	 * @param enableLogging - indicates if the logging is enable or not.
 	 * @param trackLogErrors indicates if the logged errors should be tracked.
-	 * @param offline - indicates if the Janus platform is offline
 	 * @param timeout - the maximum waiting time in seconds, or <code>-1</code> to ignore the timeout.
 	 *     See {@link #STANDARD_TIMEOUT}, {@link #EXTRA_TIMEOUT} or {@link #NO_TIMEOUT}.
 	 * @return the kernel.
 	 * @throws Exception - if the kernel cannot be launched.
 	 */
-	protected Kernel runJanus(Class<? extends TestingAgent> type, boolean enableLogging, boolean trackLogErrors, boolean offline, int timeout)
+	protected Kernel runJanus(Class<? extends TestingAgent> type, boolean enableLogging, boolean trackLogErrors, int timeout)
 			throws Exception {
-		Kernel kern = setupTheJanusKernel(type, enableLogging, trackLogErrors, offline);
+		Kernel kern = setupTheJanusKernel(type, enableLogging, trackLogErrors);
 		try {
 			waitForTheKernel(timeout);
 		} catch (TimeoutException exception) {
@@ -328,11 +325,10 @@ public abstract class AbstractJanusRunTest extends AbstractJanusTest {
 	 * @param type - the type of the agent to launch at start-up.
 	 * @param enableLogging - indicates if the logging is enable or not, i.e. messages are output.
 	 * @param trackLogErrors indicates if the logged errors should be tracked.
-	 * @param offline - indicates if the Janus platform is offline
 	 * @return the kernel.
 	 * @throws Exception - if the kernel cannot be launched.
 	 */
-	protected Kernel setupTheJanusKernel(Class<? extends TestingAgent> type, boolean enableLogging, boolean trackLogErrors, boolean offline)
+	protected Kernel setupTheJanusKernel(Class<? extends TestingAgent> type, boolean enableLogging, boolean trackLogErrors)
 			throws Exception {
 		assertNull("Janus already launched.", this.janusKernel);
 		final Level logLevel = enableLogging ? TEST_LOGGING_LEVEL : Level.OFF;
@@ -352,9 +348,7 @@ public abstract class AbstractJanusRunTest extends AbstractJanusTest {
 				//
 			}
 		}));
-		this.results = new ArrayList<>();
-		Boot.setOffline(offline);
-		final JanusBooter booter = (JanusBooter) Boot.getBooter();
+		this.results = new ArrayList<>();		final JanusBooter booter = (JanusBooter) Boot.getBooter();
 		booter.prepareJanusStart(type);
 		this.janusKernel = booter.startWithoutAgent(module);
 		if (trackLogErrors) {

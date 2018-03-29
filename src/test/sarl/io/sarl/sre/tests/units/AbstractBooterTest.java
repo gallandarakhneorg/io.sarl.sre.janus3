@@ -90,7 +90,6 @@ public abstract class AbstractBooterTest<T extends Booter> extends AbstractJanus
 	@After
 	public void tearDown() {
 		System.clearProperty(JanusConfig.JANUS_PROGRAM_NAME);
-		System.clearProperty(JanusConfig.OFFLINE);
 		System.clearProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
 		System.clearProperty(JanusConfig.RANDOM_DEFAULT_CONTEXT_ID_NAME);
 		System.clearProperty(JanusConfig.VERBOSE_LEVEL_NAME);
@@ -139,14 +138,6 @@ public abstract class AbstractBooterTest<T extends Booter> extends AbstractJanus
 		assertSame(exiter, this.booter.getExiter());
 	}
 	
-	@Test
-	public void setOffline() {
-		this.booter.setOffline(true);
-		assertTrueStr(System.getProperty(JanusConfig.OFFLINE));
-		this.booter.setOffline(false);
-		assertFalseStr(System.getProperty(JanusConfig.OFFLINE));
-	}
-
 	@Test
 	public void setRandomContextUUID() {
 		assertEquals(null, System.getProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME));

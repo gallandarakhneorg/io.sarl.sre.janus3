@@ -119,15 +119,6 @@ final class JanusConfig {
 	 */
 	public static val BOOT_DEFAULT_CONTEXT_ID_VALUE = false
 	/** 
-	 * Name of the property that contains the boolean value for offline/online.
-	 */
-	public static val OFFLINE = "janus.network.offline"
-	/** 
-	 * Default value of the offline flag for the Janus bootstrap.
-	 * @since 0.7
-	 */
-    public static val DEFAULT_OFFLINE_FLAG_FOR_BOOTSTRAP = true
-	/** 
 	 * Name of the property that contains the classname of the boot agent.
 	 */
 	public static val BOOT_AGENT = "janus.boot.agent"
@@ -273,7 +264,6 @@ final class JanusConfig {
 			KERNEL_THREAD_TIMEOUT_NAME -> KERNEL_THREAD_TIMEOUT_VALUE,
 			MAX_NUMBER_OF_THREADS_IN_EXECUTOR_NAME -> MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE,
 			MIN_NUMBER_OF_THREADS_IN_EXECUTOR_NAME -> MIN_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE,
-			OFFLINE -> Boolean::FALSE,
 			RANDOM_DEFAULT_CONTEXT_ID_NAME -> RANDOM_DEFAULT_CONTEXT_ID_VALUE,
 			SERIALIZER_CLASSNAME -> null,
 			SPACE_KEEP_ALIVE_DURATION_NAME -> SPACE_KEEP_ALIVE_DURATION_VALUE,
