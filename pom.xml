@@ -14,6 +14,7 @@
 		<osgi.nls.version>3.10.0-v20140606-1445</osgi.nls.version>
 		<afc.version>14.0</afc.version>
 		<guava.version>18.0</guava.version>
+		<guice.version>4.1.0</guice.version>
 		<compiler.level>1.8</compiler.level>
 	</properties>
 
@@ -26,12 +27,25 @@
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-multibindings</artifactId>
-			<version>4.2.0</version>
+			<version>${guice.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-			<version>4.2.0</version>
+			<version>${guice.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- Force the Guava's version because there is multiple versions that are
+		     provided through the dependency tree. -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse</groupId>
@@ -136,7 +150,6 @@
 						<defaultContextId>--worldid</defaultContextId>
 						<randomContextId>--randomid</randomContextId>
 						<bootAgentContextId>--bootid</bootAgentContextId>
-						<offline>--offline</offline>
 						<embedded>--embedded</embedded>
 						<noMoreOption>--</noMoreOption>
 					</commandLineOptions>
