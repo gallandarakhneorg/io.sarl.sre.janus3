@@ -55,8 +55,8 @@ import io.sarl.lang.annotation.PerceptGuardEvaluator;
 import io.sarl.lang.core.Agent;
 import io.sarl.lang.core.DynamicSkillProvider;
 import io.sarl.sre.Boot;
-import io.sarl.sre.JanusBooter;
 import io.sarl.sre.Kernel;
+import io.sarl.sre.boot.adhoc.JanusBooter;
 import io.sarl.sre.injection.MinimumPlatformModule;
 import io.sarl.sre.services.executor.EarlyExitException;
 import io.sarl.sre.services.logging.LoggerCreator;
@@ -348,7 +348,8 @@ public abstract class AbstractJanusRunTest extends AbstractJanusTest {
 				//
 			}
 		}));
-		this.results = new ArrayList<>();		final JanusBooter booter = (JanusBooter) Boot.getBooter();
+		this.results = new ArrayList<>();
+		final JanusBooter booter = (JanusBooter) Boot.getBooter();
 		booter.prepareJanusStart(type);
 		this.janusKernel = booter.startWithoutAgent(module);
 		if (trackLogErrors) {

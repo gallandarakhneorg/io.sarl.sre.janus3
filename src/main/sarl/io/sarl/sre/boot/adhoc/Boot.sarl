@@ -1,0 +1,321 @@
+/* 
+ * $Id$
+ * 
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ * 
+ * Copyright (C) 2014-2018 the original authors or authors.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.boot.adhoc
+
+import com.google.inject.Module
+import io.sarl.bootstrap.SRE
+import io.sarl.lang.core.Agent
+import io.sarl.sre.JanusConfig
+import io.sarl.sre.services.logging.LoggingService
+import java.io.PrintStream
+import java.io.PrintWriter
+import java.util.UUID
+
+import static io.sarl.bootstrap.SRE.*
+import io.sarl.sre.Kernel
+
+/** 
+ * This is the interface that permits to boot the Janus platform.
+ * 
+ * <p>This class provides the "main" function for the platform. The list of the parameters is composed of a list of options, the
+ * classname of an agent to launch, and the parameters to pass to the launched agent.
+ * 
+ * <p>The supported options may be obtain by passing no parameter, or the option <code>-h</code>.
+ * 
+ * <p>Example of Janus launching with Maven:
+ * <pre>
+ * <code>mvn exec:java
+ * -Dexec.mainClass="io.janusproject.Boot"
+ * -Dexec.args="my.Agent"</code>
+ * </pre>
+ * 
+ * <p>Example of Janus launching from the CLI (only with the Jar file that is containing all the jar dependencies):
+ * <pre>
+ * <code>java -jar janus-with-dependencies.jar my.Agent</code>
+ * </pre>
+ * 
+ * @author $Author: srodriguez$
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+final class Boot {
+
+	private new {
+	}
+
+	/** Replies the Janus booter.
+	 * @return the Janus booter.
+	 */
+	static def getBooter : Booter {
+		var bootstrap = SRE::bootstrap
+		if (bootstrap instanceof Booter) {
+			return bootstrap
+		}
+		var booter = new JanusBooter
+		SRE::bootstrap = booter
+		return booter
+	}
+
+	/** Change the Janus booter.
+	 * @param janusBooter the Janus booter.
+	 */
+	static def setBooter(janusBooter : Booter) {
+		SRE::bootstrap = janusBooter
+	}
+
+	/** 
+	 * Main function that is parsing the command line and launching the first agent.
+	 * 
+	 * @param args command line arguments
+	 * @see #startJanus(Class, Object...)
+	 */
+	static def main(args : String*) {
+		getBooter.runStandardBootProcess(args)
+	}
+
+	/** Add the given entries to the system classpath.
+	 * 
+	 * @param entries the new classpath entries. The format of the value is the same as for the <code>-cp</code>
+	 * command-line option of the <code>java</code> tool.
+	 */
+	static def addToSystemClasspath(entries : String) {
+		getBooter.addToSystemClasspath(entries)
+	}
+
+	/** 
+	 * Replies the console stream for logging messages from the boot mechanism.
+	 * 
+	 * <p>The console stream is independent of the stream used by the {@link LoggingService logging service} of the platform. Indeed,
+	 * the console stream is used for displaying information, warnings and messages before the Janus platform is realy launched.
+	 * 
+	 * @return the console logger.
+	 */
+	static def getConsoleLogger : PrintStream {
+		getBooter.consoleLogger
+	}
+
+	/** 
+	 * Replies the console stream for logging messages from the boot mechanism.
+	 * 
+	 * <p>The console stream is independent of the stream used by the {@link LoggingService logging service} of the platform. Indeed,
+	 * the console stream is used for displaying information, warnings and messages before the Janus platform is realy launched.
+	 * 
+	 * @param stream the stream to use for the console logging.
+	 */
+	static def setConsoleLogger(stream : PrintStream) {
+		getBooter.consoleLogger = stream
+	}
+
+	/** 
+	 * Show the help message on the standard console. This function never returns.
+	 */
+	static def showHelp(logger : PrintWriter = null) {
+		getBooter.showHelp(logger)
+	}
+
+	/** 
+	 * Show the classpath. This function never returns.
+	 */
+	static def showClasspath {
+		getBooter.showClasspath
+	}
+
+	/** 
+	 * Show the default values of the system properties. This function never returns.
+	 */
+	static def showDefaults {
+		getBooter.showDefaults
+	}
+
+	/** 
+	 * Show the version of Janus. This function never returns.
+	 */
+	static def showVersion {
+		getBooter.showVersion
+	}
+
+	/** Replies the name of the program.
+	 * 
+	 * @return the name of the program.
+	 */
+	static def getProgramName : String {
+		getBooter.programName
+	}
+
+	/** 
+	 * Show the heading logo of the Janus platform.
+	 */
+	static def showJanusLogo {
+		getBooter.showJanusLogo
+	}
+
+	/** 
+	 * Force the Janus platform to use a random identifier for its default context.
+	 * 
+	 * <p>This function is equivalent to the command line option <code>-R</code>.
+	 * 
+	 * <p>This function must be called before launching the Janus platform.
+	 * 
+	 * @since 2.0.2.0
+	 * @see JanusConfig#BOOT_DEFAULT_CONTEXT_ID_NAME
+	 * @see JanusConfig#RANDOM_DEFAULT_CONTEXT_ID_NAME
+	 */
+	static def setRandomContextUUID {
+		getBooter.setRandomContextUUID
+	}
+
+	/** 
+	 * Force the Janus platform to use a default context identifier that tis build upon the classname of the boot agent. It means
+	 * that the UUID is always the same for a given classname.
+	 * 
+	 * <p>This function is equivalent to the command line option <code>-B</code>.
+	 * 
+	 * @since 2.0.2.0
+	 * @see JanusConfig#BOOT_DEFAULT_CONTEXT_ID_NAME
+	 * @see JanusConfig#RANDOM_DEFAULT_CONTEXT_ID_NAME
+	 */
+	static def setBootAgentTypeContextUUID {
+		getBooter.setBootAgentTypeContextUUID
+	}
+
+	/** 
+	 * Force the Janus platform to use the identifier hard-coded in the source code for its default context.
+	 * 
+	 * <p>This function is equivalent to the command line option <code>-W</code>.
+	 * 
+	 * <p>This function must be called before launching the Janus platform.
+	 * 
+	 * @since 2.0.2.0
+	 * @see JanusConfig#BOOT_DEFAULT_CONTEXT_ID_NAME
+	 * @see JanusConfig#RANDOM_DEFAULT_CONTEXT_ID_NAME
+	 */
+	static def setDefaultContextUUID {
+		getBooter.setDefaultContextUUID
+	}
+
+	/** 
+	 * Force the verbosity level.
+	 * 
+	 * <p>This function must be called before launching the Janus platform.
+	 * 
+	 * @param level the verbosity level.
+	 * @since 2.0.2.0
+	 * @see JanusConfig#VERBOSE_LEVEL_NAME
+	 */
+	static def setVerboseLevel(level : int) {
+		getBooter.verboseLevel = level
+	}
+
+	/** 
+	 * Replies the identifier of the boot agent from the system's properties. The boot agent is launched with
+	 * {@link #startJanus(Class, Object...)}.
+	 * 
+	 * @return the identifier of the boot agent, or <code>null</code> if it is unknown.
+	 * @since 2.0.2.0
+	 * @see JanusConfig#BOOT_AGENT_ID
+	 * @see #startJanus(Class, Object...)
+	 */
+	static def getBootAgentIdentifier : UUID {
+		getBooter.bootAgentIdentifier
+	}
+
+	/** 
+	 * Launch the Janus kernel and the first agent in the kernel.
+	 * 
+	 * <p>Thus function does not parse the command line. See {@link #main(String[])} for the command line management. When this
+	 * function is called, it is assumed that all the system's properties are correctly set.
+	 * 
+	 * <p>The platformModule parameter permits to specify the injection module to use. The injection module is in change of
+	 * creating/injecting all the components of the platform. The default injection module is retreived from the system property
+	 * with the name stored in {@link JanusConfig#INJECTION_MODULE_NAME}. The default type for the injection module is stored in
+	 * the constant {@link JanusConfig#INJECTION_MODULE_NAME_VALUE}.
+	 * 
+	 * <p>The function {@link #getBootAgentIdentifier()} permits to retreive the identifier of the launched agent.
+	 * 
+	 * @param agentCls type of the first agent to launch.
+	 * @param params parameters to pass to the agent as its initliazation parameters.
+	 * @return the kernel that was launched.
+	 * @throws Exception - if it is impossible to start the platform.
+	 * @see #main(String[])
+	 * @see #getBootAgentIdentifier()
+	 */
+	static def startJanus(agentCls : Class<? extends Agent>, params : Object*) : Kernel {
+		getBooter.startJanus(agentCls, params)
+	}
+
+	/** 
+	 * Launch the Janus kernel and the first agent in the kernel.
+	 * 
+	 * <p>Thus function does not parse the command line. See {@link #main(String[])} for the command line management. When this
+	 * function is called, it is assumed that all the system's properties are correctly set.
+	 * 
+	 * <p>The platformModule parameter permits to specify the injection module to use. The injection module is in change of
+	 * creating/injecting all the components of the platform. The default injection module is retreived from the system property
+	 * with the name stored in {@link JanusConfig#INJECTION_MODULE_NAME}. The default type for the injection module is stored in
+	 * the constant {@link JanusConfig#INJECTION_MODULE_NAME_VALUE}.
+	 * 
+	 * <p>The function {@link #getBootAgentIdentifier()} permits to retreive the identifier of the launched agent.
+	 * 
+	 * @param platformModule type of the injection module to use for initializing the platform, if <code>null</code> the default
+	 * module will be used.
+	 * @param agentCls type of the first agent to launch.
+	 * @param params parameters to pass to the agent as its initliazation parameters.
+	 * @return the kernel that was launched.
+	 * @throws Exception - if it is impossible to start the platform.
+	 * @since 2.0.5.0
+	 * @see #main(String[])
+	 * @see #getBootAgentIdentifier()
+	 */
+	static def startJanusWithModuleType(platformModule : Class<? extends Module>, agentCls : Class<? extends Agent>,
+		params : Object*) : Kernel {
+		getBooter.startJanusWithModuleType(platformModule, agentCls, params)
+	}
+
+	/** 
+	 * Launch the Janus kernel and the first agent in the kernel.
+	 * 
+	 * <p>Thus function does not parse the command line. See {@link #main(String[])} for the command line management. When this
+	 * function is called, it is assumed that all the system's properties are correctly set.
+	 * 
+	 * <p>The startupModule parameter permits to specify the injection module to use. The injection module is in change of
+	 * creating/injecting all the components of the platform. The default injection module is retreived from the system property
+	 * with the name stored in {@link JanusConfig#INJECTION_MODULE_NAME}. The default type for the injection module is stored in
+	 * the constant {@link JanusConfig#INJECTION_MODULE_NAME_VALUE}.
+	 * 
+	 * <p>The function {@link #getBootAgentIdentifier()} permits to retreive the identifier of the launched agent.
+	 * 
+	 * @param startupModule the injection module to use for initializing the platform.
+	 * @param agentCls type of the first agent to launch.
+	 * @param params parameters to pass to the agent as its initliazation parameters.
+	 * @return the kernel that was launched.
+	 * @throws Exception - if it is impossible to start the platform.
+	 * @since 2.0.5.0
+	 * @see #main(String[])
+	 * @see #getBootAgentIdentifier()
+	 */
+	static def startJanusWithModule(startupModule : Module, agentCls : Class<? extends Agent>,
+		params : Object*) : Kernel {
+		getBooter.startJanusWithModule(startupModule, agentCls, params)
+	}
+
+}

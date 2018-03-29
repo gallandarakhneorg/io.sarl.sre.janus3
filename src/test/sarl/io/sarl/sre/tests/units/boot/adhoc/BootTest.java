@@ -17,12 +17,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.tests.units;
+package io.sarl.sre.tests.units.boot.adhoc;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,8 +35,8 @@ import com.google.inject.Module;
 
 import io.sarl.lang.core.Agent;
 import io.sarl.sre.Boot;
-import io.sarl.sre.Booter;
-import io.sarl.sre.JanusBooter;
+import io.sarl.sre.boot.adhoc.Booter;
+import io.sarl.sre.boot.adhoc.JanusBooter;
 import io.sarl.sre.tests.testutils.AbstractJanusTest;
 import io.sarl.tests.api.Nullable;
 

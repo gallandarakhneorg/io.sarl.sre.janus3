@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre
+package io.sarl.sre.boot.adhoc
 
 import org.eclipse.osgi.util.NLS
 
@@ -38,9 +38,33 @@ final class Messages extends NLS {
 		NLS.initializeMessages(BUNDLE_NAME, typeof(Messages))
 	}
 
-	public static var Kernel_0 : String
-	public static var Kernel_1 : String
-	public static var Kernel_2 : String
+	public static var Boot_0 : String
+	public static var Boot_1 : String
+	public static var Boot_11 : String
+	public static var Boot_12 : String
+	public static var Boot_13 : String
+	public static var Boot_14 : String
+	public static var Boot_15 : String
+	public static var Boot_16 : String
+	public static var Boot_17 : String
+	public static var Boot_18 : String
+	public static var Boot_19 : String
+	public static var Boot_2 : String
+	public static var Boot_20 : String
+	public static var Boot_21 : String
+	public static var Boot_22 : String
+	public static var Boot_23 : String
+	public static var Boot_24 : String
+	public static var Boot_25 : String
+	public static var Boot_26 : String
+	public static var Boot_27 : String
+	public static var Boot_3 : String
+	public static var Boot_4 : String
+	public static var Boot_5 : String
+	public static var Boot_6 : String
+	public static var Boot_7 : String
+	public static var Boot_8 : String
+	public static var Boot_9 : String
 	
 	private new {
 	}

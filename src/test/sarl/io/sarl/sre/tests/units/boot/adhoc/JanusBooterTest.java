@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.tests.units;
+package io.sarl.sre.tests.units.boot.adhoc;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
@@ -55,10 +55,9 @@ import org.mockito.ArgumentCaptor;
 import com.google.common.base.Strings;
 
 import io.sarl.lang.SARLVersion;
-import io.sarl.sre.Exiter;
-import io.sarl.sre.JanusBooter;
 import io.sarl.sre.JanusConfig;
 import io.sarl.sre.JanusVersion;
+import io.sarl.sre.boot.adhoc.JanusBooter;
 
 /**
  * @author $Author: sgalland$
@@ -310,7 +309,7 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		verify(this.logger, times(2)).flush();
 		verify(this.logger, times(1)).close();
 		verifyNoMoreInteractions(this.logger);
-		verify(this.exiter, only()).exit();
+		verify(this.exiter, only()).run();
 	}
 
 	@Test
@@ -461,7 +460,7 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 
 	@Test
 	public void option_e_valid() {
-		Exiter old = this.booter.getExiter();
+		Runnable old = this.booter.getExiter();
 		Object[] freeArgs = this.booter.parseCommandLine(args("-e", "--", "-x", "-y"));
 		assertNullProperty(JanusConfig.JANUS_LOGO_SHOW_NAME);
 		assertNullProperty(JanusConfig.BOOT_DEFAULT_CONTEXT_ID_NAME);
@@ -478,7 +477,7 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 
 	@Test
 	public void option_e_asArg() {
-		Exiter old = this.booter.getExiter();
+		Runnable old = this.booter.getExiter();
 		Object[] freeArgs = this.booter.parseCommandLine(args("--", "-e", "-x", "-y"));
 		// The properties are null since resetProperties() is invoked for resetting the properties in
 		// the start-up function inherited from AbstractJanusTest
@@ -512,7 +511,7 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		verify(this.logger, times(3)).flush();
 		verify(this.logger, times(1)).close();
 		verifyNoMoreInteractions(this.logger);
-		verify(this.exiter, only()).exit();
+		verify(this.exiter, only()).run();
 	}
 
 	@Test
@@ -549,7 +548,7 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		verify(this.logger, times(1)).close();
 		verify(this.logger, times(1)).flush();
 		verifyNoMoreInteractions(this.logger);
-		verify(this.exiter, only()).exit();
+		verify(this.exiter, only()).run();
 	}
 
 	@Test
@@ -849,7 +848,7 @@ public class JanusBooterTest extends AbstractBooterTest<JanusBooter> {
 		verify(this.logger, times(1)).flush();
 		verify(this.logger, times(1)).close();
 		verifyNoMoreInteractions(this.logger);
-		verify(this.exiter, only()).exit();
+		verify(this.exiter, only()).run();
 	}
 
 }

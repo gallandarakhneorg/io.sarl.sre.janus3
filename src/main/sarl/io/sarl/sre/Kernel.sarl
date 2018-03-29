@@ -218,7 +218,7 @@ class Kernel {
 	 * 
 	 * @return the context for the kernel.
 	 */
-	protected def getRootContext : AgentContext {
+	def getRootContext : AgentContext {
 		this.contextService.rootContext
 	}
 

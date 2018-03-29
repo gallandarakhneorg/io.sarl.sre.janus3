@@ -28,6 +28,8 @@ import io.sarl.sre.JanusConfig
 import java.util.UUID
 import javax.inject.Named
 import javax.inject.Singleton
+import io.sarl.bootstrap.SREBootstrap
+import io.sarl.bootstrap.SRE
 
 /** 
  * The module configures the minimum requirements for the system variables.
@@ -45,6 +47,16 @@ public class BootModule extends AbstractModule {
             var name = entry.key.toString
             Key::get(typeof(String), Names::named(name)).bind.toInstance(entry.value.toString)
         }
+	}
+
+	/** Replies the programmatic bootstrap for Janus.
+	 *
+	 * @return the provider of the bootstrap.
+	 */
+	@Provides
+	@Singleton
+	static def getProgrammaticBootstrap : SREBootstrap {
+		SRE::bootstrap
 	}
 
 	/**

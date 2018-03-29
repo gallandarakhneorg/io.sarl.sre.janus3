@@ -1,0 +1,64 @@
+/* 
+ * $Id$
+ * 
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ * 
+ * Copyright (C) 2014-2018 the original authors or authors.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre
+
+/** 
+ * This is the interface that permits to boot the Janus platform.
+ * 
+ * <p>This class provides the "main" function for the platform. The list of the parameters is composed of a list of options, the
+ * classname of an agent to launch, and the parameters to pass to the launched agent.
+ * 
+ * <p>The supported options may be obtain by passing no parameter, or the option <code>-h</code>.
+ * 
+ * <p>Example of Janus launching with Maven:
+ * <pre>
+ * <code>mvn exec:java
+ * -Dexec.mainClass="io.janusproject.Boot"
+ * -Dexec.args="my.Agent"</code>
+ * </pre>
+ * 
+ * <p>Example of Janus launching from the CLI (only with the Jar file that is containing all the jar dependencies):
+ * <pre>
+ * <code>java -jar janus-with-dependencies.jar my.Agent</code>
+ * </pre>
+ * 
+ * @author $Author: srodriguez$
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+final class Boot {
+
+	private new {
+	}
+
+	/** 
+	 * Main function that is parsing the command line and launching the first agent.
+	 * 
+	 * @param args command line arguments
+	 * @see #startJanus(Class, Object...)
+	 */
+	static def main(args : String*) {
+		io.sarl.sre.boot.adhoc.Boot.main(args)
+	}
+
+}

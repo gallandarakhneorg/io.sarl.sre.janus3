@@ -17,13 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.tests.units;
+package io.sarl.sre.tests.units.boot.adhoc;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,7 +31,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -49,10 +47,9 @@ import io.sarl.bootstrap.SRE;
 import io.sarl.lang.SARLVersion;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.core.Agent;
-import io.sarl.sre.Booter;
-import io.sarl.sre.Exiter;
 import io.sarl.sre.JanusConfig;
 import io.sarl.sre.Kernel;
+import io.sarl.sre.boot.adhoc.Booter;
 import io.sarl.sre.tests.testutils.AbstractJanusTest;
 import io.sarl.tests.api.Nullable;
 
@@ -73,7 +70,7 @@ public abstract class AbstractBooterTest<T extends Booter> extends AbstractJanus
 	protected PrintStream logger;
 	
 	@Nullable
-	protected Exiter exiter;
+	protected Runnable exiter;
 
 	@Nullable
 	protected T booter;
@@ -81,7 +78,7 @@ public abstract class AbstractBooterTest<T extends Booter> extends AbstractJanus
 	@Before
 	public void setUp() throws Exception {
 		this.logger = mock(PrintStream.class);
-		this.exiter = mock(Exiter.class);
+		this.exiter = mock(Runnable.class);
 		this.booter = newBooter();
 		this.booter.setConsoleLogger(this.logger);
 		this.booter.setExiter(this.exiter);
@@ -133,7 +130,7 @@ public abstract class AbstractBooterTest<T extends Booter> extends AbstractJanus
 
 	@Test
 	public void setExiter() {
-		Exiter exiter = mock(Exiter.class);
+		Runnable exiter = mock(Runnable.class);
 		this.booter.setExiter(exiter);
 		assertSame(exiter, this.booter.getExiter());
 	}
