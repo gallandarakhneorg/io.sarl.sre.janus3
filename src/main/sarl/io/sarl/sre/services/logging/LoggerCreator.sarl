@@ -1,0 +1,410 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.services.logging
+
+import io.sarl.sre.JanusConfig
+import java.io.PrintStream
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
+import java.util.logging.SimpleFormatter
+import java.util.logging.StreamHandler
+import org.arakhne.afc.inputoutput.stream.WriterOutputStream
+
+/** 
+ * Helper for creating a logger.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+class LoggerCreator {
+
+	static val FORMAT_PROPERTY_KEY = "java.util.logging.SimpleFormatter.format"
+
+	/**
+	 * The parameters for the format string are:
+	 * <ul>
+	 * <li><code>%1</code>: the date,</li>
+	 * <li><code>%2</code>: the name of the calling function,</li>
+	 * <li><code>%3</code>: the name of the logger,</li>
+	 * <li><code>%4</code>: the logging level,</li>
+	 * <li><code>%5</code>: the message, and</li>
+	 * <li><code>%6</code>: the throwable.</li>
+	 * </ul>
+	 */
+	static val JANUS_FORMAT = "[%4$s, %1$tl:%1$tM:%1$tS%1$tp, %3$s] %5$s%6$s%n"
+
+	/** 
+	 * Change the configuration of the root logger for using the Janus format for the messages.
+	 */
+	static def useJanusMessageFormat {
+		val format = System::getProperty(FORMAT_PROPERTY_KEY, null)
+		if (format === null || format.empty) {
+			System::setProperty(FORMAT_PROPERTY_KEY, JANUS_FORMAT)
+		}
+	}
+
+	/** 
+	 * Create a logger with the given output for the console.
+	 * 
+	 * @param name the name of the new logger.
+	 * @param output the output.
+	 * @return the logger.
+	 * @since 2.0.7.0
+	 */
+	def createConsoleLogger(name : String, output : PrintStream) : Logger {
+		val logger = Logger::getLogger(name)
+		val nhandler = new OutputStreamConsoleHandler(output)
+		for (handler : logger.handlers) {
+			logger.removeHandler(handler)
+		}
+		logger.addHandler(nhandler)
+		logger.useParentHandlers = false
+		val level = loggingLevelFromProperties
+		logger.level = level
+		return logger
+	}
+
+	/** 
+	 * Create a logger with the given name for the platform.
+	 * 
+	 * @return the logger.
+	 * @since 2.0.7.0
+	 */
+	def createPlatformLogger() : Logger {
+		val logger = Logger::anonymousLogger
+		val stderr = new StandardErrorOutputConsoleHandler
+		stderr.level = Level::ALL
+		val stdout = new StandardOutputConsoleHandler
+		stdout.level = Level::ALL
+		for (handler : logger.handlers) {
+			logger.removeHandler(handler)
+		}
+		logger.addHandler(stderr)
+		logger.addHandler(stdout)
+		logger.useParentHandlers = false
+		logger.level = Level::ALL
+		return logger
+	}
+
+	/** 
+	 * Create a logger with the given name for a platform module (kernel or agent).
+	 * 
+	 * <p>The level of logging is influence by {@link JanusConfig#VERBOSE_LEVEL_NAME}.
+	 * 
+	 * @param name the name of the new logger.
+	 * @param parent the parent logger.
+	 * @return the logger.
+	 * @since 2.0.7.0
+	 */
+	def createModuleLogger(name : String, parent : Logger) : Logger {
+		val logger = Logger::getLogger(name)
+		if (parent !== null) {
+			logger.parent = parent
+		}
+		logger.useParentHandlers = true
+		val level = loggingLevelFromProperties
+		logger.level = level
+		return logger
+	}
+
+	/** 
+	 * Extract the logging level from the system properties.
+	 * 
+	 * @return the logging level.
+	 */
+	static def getLoggingLevelFromProperties : Level {
+		val verboseLevel = JanusConfig::getSystemProperty(JanusConfig::VERBOSE_LEVEL_NAME, JanusConfig::VERBOSE_LEVEL_VALUE)
+		return verboseLevel.parseLoggingLevel
+	}
+
+	/** 
+	 * Change the logging level into the system properties.
+	 * 
+	 * @return the logging level.
+	 * @since 2.0.7.0
+	 */
+	static def setLoggingLevelFromProperties(level : Level) : void {
+		JanusConfig::setProperty(JanusConfig::VERBOSE_LEVEL_NAME, Integer.toString(level.toInt))
+	}
+
+	/** 
+	 * Extract the logging level from the given string.
+	 *
+	 * @param level the string representation of the logging level.
+	 * @return the logging level.
+	 */
+	static def parseLoggingLevel(level : String) : Level {
+		if (level === null) {
+			return Level::INFO
+		}
+		switch (level.toLowerCase) {
+		case "none",
+		case "false",
+		case "0":
+			return Level::OFF
+		case "severe",
+		case "error",
+		case "1":
+			return Level::SEVERE
+		case "warn",
+		case "warning",
+		case "2":
+			return Level::WARNING
+		case "info",
+		case "true",
+		case "3":
+			return Level::INFO
+		case "fine",
+		case "config",
+		case "4":
+			return Level::FINE
+		case "finer",
+		case "5":
+			return Level::FINER
+		case "finest",
+		case "debug",
+		case "6":
+			return Level::FINEST
+		case "all", //$NON-NLS-1$
+		case "7": //$NON-NLS-1$
+			return Level::ALL
+		default: {
+				try {
+					return fromInt(Integer.parseInt(level));
+				} catch (exception : Throwable) {
+					//
+				}
+				return Level::INFO
+			}
+		}
+	}
+
+	/** 
+	 * Convert a numerical representation of logging level to the logging level.
+	 * 
+	 * @param num
+	 * - the numerical index that corresponds to the given level.
+	 * @return the logging level.
+	 */
+	static def fromInt(num : int) : Level {
+		switch (num) {
+		case 0:
+			return Level::OFF
+		case 1:
+			return Level::SEVERE
+		case 2:
+			return Level::WARNING
+		case 3:
+			return Level::INFO
+		case 4:
+			return Level::FINE
+		case 5:
+			return Level::FINER
+		case 6:
+			return Level::FINEST
+		case 7:
+			return Level::ALL
+		default: {
+				if (num < 0) {
+					return Level::OFF
+				}
+				return Level::ALL
+			}
+		}
+	}
+
+	/** 
+	 * Convert a logging level to its numerical equivalent.
+	 * 
+	 * @param level
+	 *            - the logging level.
+	 * @return the numerical index that corresponds to the given level.
+	 */
+	static def toInt(level : Level) : int {
+		if (level == Level::OFF) {
+			return 0
+		}
+		if (level == Level::SEVERE) {
+			return 1
+		}
+		if (level == Level::WARNING) {
+			return 2
+		}
+		if (level == Level::INFO) {
+			return 3
+		}
+		if (level == Level::CONFIG) {
+			return 4
+		}
+		if (level == Level::FINE) {
+			return 4
+		}
+		if (level == Level::FINER) {
+			return 5
+		}
+		if (level == Level::FINEST) {
+			return 6
+		}
+		if (level == Level::ALL) {
+			return 7
+		}
+		return 3
+	}
+
+	/** 
+	 * Convert a string representing a logging level into its numerical representation.
+	 * 
+	 * <p>This is a convenient function that calls {@link #parseLoggingLevel(String)} and {@link #toInt(Level)}.
+	 * 
+	 * @param level
+	 * - the string representation of the logging level.
+	 * @return the numerical index that corresponds to the given level.
+	 */
+	static def toInt(level : String) : int {
+		level.parseLoggingLevel.toInt
+	}
+
+	/** 
+	 * Replies the string representations for the logging levels.
+	 * 
+	 * @return the string representations, indexed by the numerical index of the level.
+	 */
+	static def getLevelStrings : String[] {
+		return #[
+			"none",
+			"error",
+			"warning",
+			"info",
+			"fine",
+			"finer",
+			"finest",
+			"all"
+		]
+	}
+
+	/** A console handler that supports to be link to the standard output or the standard error output.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.0.6.0
+	 */
+	static class OutputStreamConsoleHandler extends StreamHandler {
+
+		/** 
+		 * Constructor.
+		 * 
+		 * @param stream the original stream.
+		 */
+		new (stream : PrintStream) {
+			super(ensureOut(stream), new SimpleFormatter)
+			assert stream !== null, "a logger handler cannot have a null output stream"
+			this.level = Level::ALL
+		}
+
+		@SuppressWarnings("discouraged_reference")
+		private static def ensureOut(out : PrintStream) : PrintStream {
+			if (out === null) {
+				new PrintStream(new WriterOutputStream(System.console.writer))
+			} else {
+				out
+			}
+		}
+
+		def publish(record : LogRecord) {
+			super.publish(record)
+			flush
+		}
+
+		/** Replies if the given log level is loggable.
+		 * 
+		 * @param recordLevel the level to test.
+		 * @return {@code true} if loggable level.
+		 */
+		protected def isLoggableRecord(recordLevel : Level) : boolean {
+			true
+		}
+
+		override isLoggable(record : LogRecord) : boolean {
+			if (record !== null) {
+				val level = record.level
+				assert level !== null
+				if (level.isLoggableRecord) {
+					return super.isLoggable(record)
+				}
+			}
+			return false
+		}
+
+	}
+
+	/** A console handler that supports to be link to the standard output.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.0.6.0
+	 */
+	static class StandardOutputConsoleHandler extends OutputStreamConsoleHandler {
+
+		/** Constructor.
+		 */
+		@SuppressWarnings("discouraged_reference")
+		new {
+			super(System::out)
+		}
+
+		def isLoggableRecord(level : Level) : boolean {
+			level !== Level.WARNING && level !== Level.SEVERE
+		}
+
+	}
+
+	/** A console handler that supports to be link to the standard error output.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.0.6.0
+	 */
+	static class StandardErrorOutputConsoleHandler extends OutputStreamConsoleHandler {
+
+		/** Constructor.
+		 */
+		@SuppressWarnings("discouraged_reference")
+		new {
+			super(System::err)
+			this.level = Level::WARNING
+		}
+
+		def isLoggableRecord(level : Level) : boolean {
+			level === Level.WARNING || level === Level.SEVERE
+		}
+
+	}
+
+}

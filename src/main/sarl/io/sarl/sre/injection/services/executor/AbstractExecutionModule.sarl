@@ -1,0 +1,167 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.injection.services.executor
+
+import com.google.inject.AbstractModule
+import io.sarl.sre.JanusConfig
+import io.sarl.sre.services.executor.QuietThreadExecutorPolicy
+import io.sarl.sre.services.executor.VerboseThreadExecutorPolicy
+import io.sarl.sre.services.logging.LoggerCreator
+import java.lang.Thread.UncaughtExceptionHandler
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionHandler
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import javax.inject.Inject
+import javax.inject.Provider
+import javax.inject.Singleton
+
+/** 
+ * Abstract implementation of a module for execution services.
+ * This implementation provides the common tools for executor service injection.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+abstract class AbstractExecutionModule extends AbstractModule {
+
+	/** 
+	 * Bind the executor service policies for rejected tasks and uncaught exceptions
+	 * to the verbose policy implementation.
+	 */
+	protected def bindVerboseExecutorServicePolicies {
+		typeof(VerboseThreadExecutorPolicy).bind.in(typeof(Singleton))
+		typeof(RejectedExecutionHandler).bind.to(typeof(VerboseThreadExecutorPolicy))
+		typeof(UncaughtExceptionHandler).bind.to(typeof(VerboseThreadExecutorPolicy))
+	}
+
+	/** 
+	 * Bind the executor service policies for rejected tasks and uncaught exceptions
+	 * to the verbose policy implementation.
+	 */
+	protected def bindQuietExecutorServicePolicies {
+		typeof(QuietThreadExecutorPolicy).bind.in(typeof(Singleton))
+		typeof(RejectedExecutionHandler).bind.to(typeof(QuietThreadExecutorPolicy))
+		typeof(UncaughtExceptionHandler).bind.to(typeof(QuietThreadExecutorPolicy))
+	}
+
+	/** 
+	 * Bind the executor service policies for rejected tasks and uncaught exceptions
+	 * according to the current level of verbosity
+	 */
+	protected def bindExecutorServicePolicies {
+		if (LoggerCreator::loggingLevelFromProperties.intValue <= Level::CONFIG.intValue) {
+			bindVerboseExecutorServicePolicies
+		} else {
+			bindQuietExecutorServicePolicies
+		}
+	}
+
+	/** 
+	 * Bind the executor services (scheduled and not scheduled) to the default providers defined
+	 * in this class.
+	 */
+	protected def bindJreExecutorServices {
+		typeof(ExecutorService).bind.toProvider(typeof(ExecutorProvider)).in(typeof(Singleton))
+		typeof(ScheduledExecutorService).bind.toProvider(typeof(ScheduledExecutorProvider)).in(typeof(Singleton))
+	}
+
+	/** Provider of a low-level executor service.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 */
+	public static class ExecutorProvider implements Provider<ExecutorService> {
+
+		var rejectedExecutionHandler : RejectedExecutionHandler
+
+		/** Change the handler for rejected executions.
+		 * 
+		 * @param handler the handler.
+		 */
+		@Inject
+		def setRejectedExecutionHandler(handler : RejectedExecutionHandler) {
+			this.rejectedExecutionHandler = handler
+		}
+
+		override get : ExecutorService {
+			val minPoolSize = JanusConfig::getSystemPropertyAsInteger(JanusConfig::MIN_NUMBER_OF_THREADS_IN_EXECUTOR_NAME,
+					JanusConfig::MIN_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE)
+			val maxPoolSize = JanusConfig::getSystemPropertyAsInteger(JanusConfig::MAX_NUMBER_OF_THREADS_IN_EXECUTOR_NAME,
+					JanusConfig::MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE)
+			val keepAliveDuration = JanusConfig::getSystemPropertyAsInteger(JanusConfig::THREAD_KEEP_ALIVE_DURATION_NAME,
+					JanusConfig::THREAD_KEEP_ALIVE_DURATION_VALUE)
+			val executor = new ThreadPoolExecutor(
+					minPoolSize, maxPoolSize,
+					keepAliveDuration, TimeUnit::SECONDS,
+					new SynchronousQueue)
+			if (this.rejectedExecutionHandler !== null) {
+				executor.rejectedExecutionHandler = this.rejectedExecutionHandler
+			}
+			return executor
+		}
+
+	}
+
+	/** Provider of a low-level scheduled executor service.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 */
+	public static class ScheduledExecutorProvider implements Provider<ScheduledExecutorService> {
+
+		var rejectedExecutionHandler : RejectedExecutionHandler
+
+		/** Change the handler for rejected executions.
+		 * 
+		 * @param handler the handler.
+		 */
+		@Inject
+		def setRejectedExecutionHandler(handler : RejectedExecutionHandler) {
+			this.rejectedExecutionHandler = handler
+		}
+
+		override get : ScheduledExecutorService {
+			val minPoolSize = JanusConfig::getSystemPropertyAsInteger(JanusConfig::MIN_NUMBER_OF_THREADS_IN_EXECUTOR_NAME,
+					JanusConfig::MIN_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE)
+			val maxPoolSize = JanusConfig::getSystemPropertyAsInteger(JanusConfig::MAX_NUMBER_OF_THREADS_IN_EXECUTOR_NAME,
+					JanusConfig::MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE)
+			var max = Math::max(1, Math::min(minPoolSize, maxPoolSize))
+			val executor = Executors.newScheduledThreadPool(max)
+			if (this.rejectedExecutionHandler !== null && executor instanceof ThreadPoolExecutor) {
+				(executor as ThreadPoolExecutor).rejectedExecutionHandler = this.rejectedExecutionHandler
+			}
+			return executor
+		}
+
+	}
+
+}

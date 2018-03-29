@@ -1,0 +1,562 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.services.lifecycle
+
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import io.sarl.lang.annotation.PrivateAPI
+import io.sarl.lang.core.Address
+import io.sarl.lang.core.Agent
+import io.sarl.lang.core.EventListener
+import io.sarl.lang.core.SREutils
+import io.sarl.lang.core.Skill
+import io.sarl.lang.core.SpaceID
+import io.sarl.lang.util.ClearableReference
+import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.sre.capacities.InternalEventBusCapacity
+import io.sarl.sre.services.context.JanusContext
+import io.sarl.sre.services.logging.LoggingService
+import io.sarl.util.Collections3
+import io.sarl.util.OpenEventSpace
+import io.sarl.util.OpenEventSpaceSpecification
+import java.lang.ref.WeakReference
+import java.util.Collections
+import java.util.Map
+import java.util.UUID
+import java.util.logging.Level
+import org.arakhne.afc.util.MultiCollection
+
+import static extension io.sarl.lang.core.SREutils.*
+
+/**
+ * Describes any information that is required by Janus for supporting the agent's life. 
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 2.0.6.0
+ */
+@SuppressWarnings("use_reserved_sarl_annotation")
+@PrivateAPI(isCallerOnly = true)
+final class AgentLife {
+
+	volatile var state = AgentState::UNSTARTED
+
+	var agentInstance : Agent
+
+	volatile var innerContextInstance : JanusContext
+	
+	volatile var innerSpaceAddress : Address
+
+	var externalContextInstances : Map<UUID, ContextReference>
+
+	volatile var defaultContextInstance : ContextReference
+
+	var loggingCapacity : ClearableReference<Skill>
+
+	var eventBusCapacity : ClearableReference<Skill>
+
+	/** Replies the data structure which is specific to the Janus SRE.
+	 */
+	static def getLife(^agent : Agent) : AgentLife {
+		var life = ^agent.getSreSpecificData(typeof(AgentLife))
+		if (life === null) {
+			life = new AgentLife
+			life.^agent = ^agent
+			^agent.sreSpecificData = life
+		}
+		return life
+	}
+
+	private new {
+		//
+	}
+
+	def toString : String {
+		this.^agent?.ID + "[" + this.state.name + "]"
+	}
+
+	/** Replies the agent's logger.
+	 * 
+	 * @return the logger.
+	 */
+	protected final def getAgentLogger : Logging {
+		var cap = this.loggingCapacity
+		if (cap === null) {
+			cap = SREutils::getInternalSkillReference(this.^agent, typeof(Logging))
+			this.loggingCapacity = cap
+		}
+		SREutils::castInternalSkillReference(this.^agent, cap, typeof(Logging))
+	}
+
+	/** Replies the agent's event bus.
+	 * 
+	 * @return the event bus.
+	 */
+	protected final def getEventBus : InternalEventBusCapacity {
+		var cap = this.eventBusCapacity
+		if (cap === null) {
+			cap = SREutils::getInternalSkillReference(this.^agent, typeof(InternalEventBusCapacity))
+			this.eventBusCapacity = cap
+		}
+		SREutils::castInternalSkillReference(this.^agent, cap, typeof(InternalEventBusCapacity))
+	}
+
+	/** Set up the agent in order to be attached properly to the plaform.
+	 *
+	 * <p>This function creates the agent's internal event bus, and attach the agent to the default space
+	 * of its default context.
+	 *
+	 * @param spawningContext the context in which the agent is spawn.
+	 * @return the internal event bus.
+	 */
+	protected def attachAgentToPlatform(spawningContext : JanusContext) : InternalEventBusCapacity {
+		// Set up the internal bus
+		val eb = this.eventBus
+		//
+		// Register the agent on its parent default space.
+		var defaultSpace = spawningContext.defaultSpace
+		var addressWithinDefaultSpace = new Address(defaultSpace.spaceID, ^agent.ID)
+		setDefaultContext(spawningContext, addressWithinDefaultSpace)
+		defaultSpace.register(eb.associatedEventBusListener)
+		return eb
+	}
+
+	/** Start the agent's life.
+	 *
+	 * <p>This function is invoked for executing the born stage of the agent.
+	 *
+	 * @param skillUninstaller the skill uninstaller.
+	 * @param logger the logger to use for reporting initialization errors when the agent's logger is unavailable
+	 * @param startError the exception that avoid to start the agent.
+	 * @param spawningAgent the identifier of the agent which has spawn this starting agent. This agent could be outside the spawningContext.
+	 * @param spawningContext the context in which the agent is spawned.
+	 * @param initializationParameters the parameters to give to the agent for its start-up.
+	 * @return {@code true} is successful, i.e. the {@code AgentSpawned} could be fired.
+	 */
+	def start(skillUninstaller : SkillUninstaller, logger : LoggingService,
+		spawningAgent : UUID, spawningContext : JanusContext, initializationParameters : Object*) : boolean {
+		this.state = AgentState::INITIALIZING
+		try {
+			try {
+				var eb = spawningContext.attachAgentToPlatform
+
+				// Notify the agent about its creation.
+				// Assume event handlers were run after returning from the fireEventAndWait function.
+				var initEvent = new Initialize(spawningAgent, initializationParameters)
+				initEvent.source = addressInInnerDefaultSpace
+				// Any exception into the inits are thrown outside the call below.
+				var delayedEvents = eb.fireEventAndWait(initEvent, true, true)
+
+				if (this.state == AgentState::INITIALIZING) {
+					this.state = AgentState::ALIVE
+
+					if (delayedEvents !== null) {
+						for (delayedEvent : delayedEvents) {
+							eb.fireEvent(delayedEvent)
+						}
+					}
+					return true
+				} else {
+					stop(skillUninstaller, logger, true)
+					return false
+				}
+			} catch (e : Throwable) {
+				this.agentLogger.error(e.localizedMessage, e)
+				stop(skillUninstaller, logger, true)
+				return false
+			}
+		} catch (e : Throwable) {
+			logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
+			stop(skillUninstaller, logger, false)
+			return false
+		}
+	}
+
+	/** Detach the agent from the platform.
+	 * 
+	 * <p>This function removes the agent from the default space of its default context.
+	 * 
+	 * @param listener the listener on space events that must be unregistered.
+	 */
+	protected def detachAgentFromPlatform(listener : EventListener) : void {
+		var contextReference = this.defaultContextInstance
+		// Unregister the agent on its parent default space.
+		if (contextReference !== null) {
+			var ds = contextReference.defaultSpace
+			if (ds !== null) {
+				ds.unregister(listener)
+			}
+		}
+	}
+
+	/** Stop the agent's life.
+	 * 
+	 * <p>This function is invoked for executing the killing stage of the agent.
+	 *
+	 * @param skillUninstaller the skill uninstaller.
+	 * @param logger the logger to use for reporting initialization errors when the agent's logger is unavailable
+	 * @return the contexts from which the agent was removed.
+	 * @param fireDestroy indicates if the {@code Destroy} event should be fired.
+	 */
+	def stop(skillUninstaller : SkillUninstaller, logger : LoggingService, fireDestroy : boolean = true) : Iterable<ContextReference> {
+		this.state = AgentState::DYING
+		try {
+			// Pre-stage for uninstalling the skills (BIC and user defined)
+			var skills : Iterable<? extends Skill>
+			try {
+				skills = skillUninstaller.uninstallSkillsBeforeDestroy(^agent)
+			} catch (e : Throwable) {
+				logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
+				skills = emptyList
+			}
+
+			if (fireDestroy) {
+				try {
+					// Notify the agent about its destruction.
+					var ^event  = new Destroy
+					^event.source = addressInInnerDefaultSpace
+					this.eventBus.fireEventAndWait(^event, false, false)
+				} catch (e : Throwable) {
+					var log = this.agentLogger
+					if (log !== null) {
+						log.error(e.localizedMessage, e)
+					} else {
+						logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
+					}
+				}
+			}
+	
+			// Copy the contexts in which the agents is registered in order to reply them.
+			var enclosingContextsCopy = <ContextReference>newArrayList
+			var contexts = enclosingContexts
+			synchronized (contexts.mutex) {
+				enclosingContextsCopy += contexts
+			}
+
+			// Copy the external event listener in order to unregistered it later.
+			var listener = this.eventBus.associatedEventBusListener
+			
+			// Final stage for uninstalling the skills (BIC and user defined)
+			try {
+				skillUninstaller.uninstallSkillsAfterDestroy(^agent, skills)
+			} catch (e : Throwable) {
+				logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
+			}
+
+			// Detach the agent form the platform
+			listener.detachAgentFromPlatform
+			
+			// Force unregistration to the enclosing spaces
+			return enclosingContextsCopy
+		} catch (e : Throwable) {
+			logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
+			return Collections::emptyList
+		} finally {
+			// Clear the references
+			this.defaultContextInstance = null
+			this.externalContextInstances = null
+			this.agentInstance = null
+			this.state = AgentState::DEAD
+		}
+	}
+
+	/** Replies the agent associated to this life.
+	 */
+	def getAgent : Agent {
+		this.agentInstance
+	}
+
+	/** Change the agent associated to this life.
+	 */
+	def setAgent(^agent : Agent) {
+		this.^agentInstance = ^agent
+	}
+
+	/** Replies the agent state.
+	 */
+	def getState : AgentState {
+		this.state
+	}
+
+	/** Change the agent state.
+	 */
+	def setState(state : AgentState) {
+		assert state !== null
+		this.state = state
+	}
+
+	/** Set the inner context reference.
+	 *
+	 * @param innerContext the instance of inner context, or {@code null}
+	 * @return the previous context, or {@code null}.
+	 */
+	def setInnerContext(innerContext : JanusContext) : JanusContext {
+		var old = this.innerContextInstance
+		this.innerContextInstance = innerContext
+		return old
+	}
+
+	/** Replies the inner context reference.
+	 * 
+	 * @return the instance of inner context, or {@code null}
+	 */
+	def getInnerContext : JanusContext {
+		this.innerContextInstance
+	}
+
+	/** Replies the address of the agent into the default space of its inner context.
+	 * 
+	 * @return the address, never {@code null}.
+	 */
+	def getAddressInInnerDefaultSpace : Address {
+		var adr = this.innerSpaceAddress
+		if (adr === null) {
+			var aid = this.^agent.ID
+			var spaceid = new SpaceID(aid, UUID.randomUUID, typeof(OpenEventSpaceSpecification))
+			adr = new Address(spaceid, aid);
+			this.innerSpaceAddress = adr
+		}
+		return adr
+	}
+
+	/** Add a context in which the agent is located.
+	 *
+	 * @param context the context in which the agent is now located.
+	 * @param address the address of the agent in the default space of the given context.
+	 * @return the created reference, or {@code null} if the reference cannot be added (because the given context is already the default context).
+	 */
+	def addExternalContext(context : JanusContext, address : Address) : ContextReference {
+		assert context !== null
+		assert address !== null
+		if (this.defaultContextInstance === null || context.ID != this.defaultContextInstance.context.ID) {
+			var ref = new ContextReference(this, context, address)
+			synchronized (this) {
+				ensureExternalContextInstances.put(context.ID, ref)
+			}
+			return ref
+		}
+		return null
+	}
+
+	/** Remove a context in which the agent is located.
+	 */
+	def removeExternalContext(context : JanusContext) : ContextReference {
+		assert context !== null
+		synchronized (this) {
+			var contexts = this.externalContextInstances
+			if (contexts !== null) {
+				var ctx = contexts.remove(context.ID)
+				if (contexts.empty) {
+					this.externalContextInstances = null
+				}
+				return ctx
+			}
+		}
+		return null
+	}
+
+	/** Remove a context in which the agent is located.
+	 */
+	def removeExternalContext(context : ContextReference) : ContextReference {
+		assert context !== null
+		synchronized (this) {
+			var contexts = this.externalContextInstances
+			if (contexts !== null) {
+				var ctx = contexts.remove(context.context.ID)
+				if (contexts.empty) {
+					this.externalContextInstances = null
+				}
+				return ctx
+			}
+		}
+		return null
+	}
+
+	/** Replies the external contexts in which the agent is located.
+	 * The default context is not part of the replied collection.
+	 *
+	 * @see {@link #getEnclosingContexts()}
+	 */
+	def getExternalContexts : SynchronizedIterable<ContextReference> {
+		var contexts : Map<UUID, ContextReference>
+		synchronized (this) {
+			contexts = this.externalContextInstances
+		}
+		if (contexts === null) {
+			Collections3::emptySynchronizedSet
+		} else {
+			Collections3::unmodifiableSynchronizedIterable(contexts.values, this)
+		}
+		
+	}
+
+	/** Replies the number of external contexts in which the agent is located.
+	 * The default context is not counted.
+	 * 
+	 * @return the number of external contexts.
+	 */
+	def getExternalContextCount : int {
+		synchronized (this) {
+			if (this.externalContextInstances === null) {
+				return 0
+			}
+			return this.externalContextInstances.size
+		}
+	}
+
+	/** Replies all the contexts in which the agent is located, including the default context and
+	 * the external contexts.
+	 *
+	 * @see {@link #getExternalContexts()}
+	 */
+	def getEnclosingContexts : SynchronizedIterable<ContextReference> {
+		synchronized (this) {
+			if (this.defaultContextInstance !== null) {
+				var dcs = Collections::singleton(this.defaultContextInstance)
+				if (this.externalContextInstances === null) {
+					return Collections3::unmodifiableSynchronizedIterable(dcs, this)
+				} else {
+					var multi = new MultiCollection<ContextReference>
+					multi.addCollection(dcs)
+					multi.addCollection(this.externalContextInstances.values)
+					return Collections3::unmodifiableSynchronizedIterable(multi, this)
+				}
+			} else if (this.externalContextInstances === null) {
+				return Collections3::emptySynchronizedSet
+			} else {
+				return Collections3::unmodifiableSynchronizedIterable(this.externalContextInstances.values, this)
+			}
+		}
+	}
+
+
+	/** Replies the external context with the given identifier.
+	 *
+	 * @param identifer the identifier of the context.
+	 * @return the context, or {@code null} 
+	 */
+	def getExternalContext(identifier : UUID) : ContextReference {
+		synchronized (this) {
+			if (this.externalContextInstances !== null) {
+				return this.externalContextInstances.get(identifier)
+			}
+		}
+		return null
+	}
+
+	/** Change the default context of the agent.
+	 *
+	 * @param context the next context, never {@code null}.
+	 * @param address the address of the agent into the default space of the given context.
+	 * @return the reference to the previous default context.
+	 */
+	def setDefaultContext(context : JanusContext, address : Address) : ContextReference {
+		assert context !== null
+		assert address !== null
+		var oldDefaultSpace = this.defaultContextInstance
+		this.defaultContextInstance = new ContextReference(this, context, address)
+		removeExternalContext(context)
+		return oldDefaultSpace
+	}
+
+	private def ensureExternalContextInstances : Map<UUID, ContextReference> {
+		if (this.externalContextInstances === null) {
+			this.externalContextInstances = newTreeMap(null)
+		}
+		this.externalContextInstances
+	}
+
+	/** Replies the default context of the agent.
+	 * 
+	 * @return the default context, never {@code null}.
+	 */
+	def getDefaultContext : ContextReference {
+		this.defaultContextInstance
+	}
+
+}
+
+/** 
+ * Describes any information that is required by Janus for supporting the agent's life. 
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 2.0.6.0
+ */
+public final class ContextReference implements Comparable<ContextReference> {
+
+	val life : WeakReference<AgentLife>
+
+	val contextInstance : WeakReference<JanusContext>
+
+	var defaultAddress : Address
+
+	/** Constructor.
+	 *
+	 * @param context the content to reference.
+	 * @param address the address of the agent in the default space of the given context.
+	 */
+	new (life : AgentLife, context : JanusContext, address : Address) {
+		assert life !== null
+		assert context !== null
+		assert address !== null
+		this.life = new WeakReference(life)
+		this.contextInstance = new WeakReference(context)
+		this.defaultAddress = address
+	}
+
+	override toString : String {
+		var context = this.contextInstance?.get
+		if(context === null) "[?]" else context.toString
+		}
+	
+		override compareTo(o : ContextReference) : int {
+		if(o === null) return Integer::MAX_VALUE
+		return this.contextInstance.get.ID <=> o.contextInstance.get.ID
+	}
+
+	/** Replies the context.
+	 */
+	def getContext : JanusContext {
+			this.contextInstance.get
+	}
+
+	/** Replies the default space.
+	 */
+	def getDefaultSpace : OpenEventSpace {
+		this.contextInstance.get.defaultSpace
+	}
+
+	/** Replies the address of the agent into the default space.
+	 */
+	def getAddressInDefaultSpace : Address {
+			if (this.defaultAddress === null) {
+			this.defaultAddress = this.contextInstance.get.defaultSpace.getAddress(this.life.get.^agent.ID)
+		}
+		this.defaultAddress
+	}
+
+}

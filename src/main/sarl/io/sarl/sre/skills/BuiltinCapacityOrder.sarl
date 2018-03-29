@@ -1,0 +1,87 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.skills
+
+import io.sarl.lang.core.Skill
+
+/** 
+ * Hard-coded order for installing/uninstalling the builtin capacities.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 2.0.6.0
+ */
+final class BuiltinCapacitiesOrder {
+
+	private new {
+	}
+
+	/** Order of installation of the BIC skills.
+	 * 
+	 * <p>The order depends on the dependencies of the skill to the other capacities:
+	 * a skill using a capacity should be launched after the skill implemented this latest capacity.
+	 * 
+	 * <p>The skills that are not present in the table are assumed to be installed after all the others.
+	 */
+	public static val SKILL_INSTALLATION_ORDER : Class<? extends Skill>[] = newArrayList(
+		// MicroKernelSkill ->
+		typeof(MicroKernelSkill),
+		// LoggingSkill ->
+		typeof(LoggingSkill),
+		// TimeSkill ->
+		typeof(TimeSkill),
+		// InternalEventBusSkill -> Logging
+		typeof(InternalEventBusSkill),
+		// LifecycleSkill -> Logging
+		typeof(LifecycleSkill),
+		// SchedulesSkill -> Logging
+		typeof(SchedulesSkill),
+		// InnerContextAccessSkill -> InternalEventBus
+		typeof(InnerContextAccessSkill),
+		// BehaviorsSkill -> InternalEventBus, InternalSchedules (extends Schedules)
+		typeof(BehaviorsSkill),
+		// ExternalContextAccessSkill -> InternalEventBus, Behaviors
+		typeof(ExternalContextAccessSkill),
+		// DefaultContextInteractionsSkill ->
+		typeof(DefaultContextInteractionsSkill)
+	)
+
+	/** Replies the installation order of the given skill.
+	 * 
+	 * @param skill the skill.
+	 * @return the installation order.
+	 */
+	static def computeInstallationOrder(^skill : Skill) : int {
+		val len = BuiltinCapacitiesOrder::SKILL_INSTALLATION_ORDER.length
+		if (^skill instanceof JanusBuiltin) {
+			for (var i = 0; i < len; i++) {
+				val type = BuiltinCapacitiesOrder::SKILL_INSTALLATION_ORDER.get(i)
+				if (type.isInstance(^skill)) {
+					return i
+				}
+			}
+		}
+		return len
+	}
+
+}
