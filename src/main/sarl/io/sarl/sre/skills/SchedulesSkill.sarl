@@ -67,10 +67,12 @@ skill SchedulesSkill extends JanusBuiltin implements InternalSchedules {
 	}
 	
 	def getInstallationOrder : int {
-		if (BinFlags::installationOrder < 0) {
-			BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
+		synchronized (BinFlags) {
+			if (BinFlags::installationOrder < 0) {
+				BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
+			}
+			BinFlags::installationOrder
 		}
-		BinFlags::installationOrder
 	}
 
 	var executorService : ExecutorService

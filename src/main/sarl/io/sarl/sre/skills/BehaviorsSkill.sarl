@@ -55,10 +55,12 @@ skill BehaviorsSkill extends JanusBuiltin implements Behaviors {
 	}
 
 	def getInstallationOrder : int {
-		if (BinFlags::installationOrder < 0) {
-			BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
+		synchronized (BinFlags) {
+			if (BinFlags::installationOrder < 0) {
+				BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
+			}
+			BinFlags::installationOrder
 		}
-		BinFlags::installationOrder
 	}
 
 	protected override uninstall(stage : UninstallationStage) {

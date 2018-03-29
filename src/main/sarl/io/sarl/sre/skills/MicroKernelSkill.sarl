@@ -43,10 +43,12 @@ skill MicroKernelSkill extends JanusBuiltin implements MicroKernelCapacity {
 	}
 
 	override getInstallationOrder : int {
-		if (BinFlags::installationOrder < 0) {
-			BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
+		synchronized (BinFlags) {
+			if (BinFlags::installationOrder < 0) {
+				BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
+			}
+			BinFlags::installationOrder
 		}
-		BinFlags::installationOrder
 	}
 
 	private var kernel : WeakReference<Kernel>
