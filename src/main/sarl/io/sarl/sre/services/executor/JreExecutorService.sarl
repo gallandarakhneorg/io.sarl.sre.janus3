@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Singleton
+import io.sarl.sre.services.PreReleasableService
 
 /** 
  * Service that executes the tasks asynchronously (in threads) with the JRE executor service.
@@ -43,7 +44,7 @@ import javax.inject.Singleton
  * @mavenartifactid $ArtifactId$
  */
 @Singleton
-class JreExecutorService extends AbstractExecutorService {
+class JreExecutorService extends AbstractExecutorService implements PreReleasableService {
 
 	var jreSchedules : ScheduledExecutorService
 
@@ -105,7 +106,7 @@ class JreExecutorService extends AbstractExecutorService {
 		}
 	}
 
-	def onPreStop {
+	override onPreStop {
 		shutdown
 	}
 

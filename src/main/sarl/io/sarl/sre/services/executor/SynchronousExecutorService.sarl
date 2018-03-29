@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Singleton
+import io.sarl.sre.services.PreReleasableService
 
 /** 
  * Service that executes the tasks synchronously (without threads).
@@ -47,7 +48,7 @@ import javax.inject.Singleton
  * @since 2.0.6.0
  */
 @Singleton
-class SynchronousExecutorService extends AbstractExecutorService implements TimeListener {
+class SynchronousExecutorService extends AbstractExecutorService implements PreReleasableService, TimeListener {
 
 	@Inject
 	var timeService : TimeService

@@ -313,7 +313,6 @@ abstract class AbstractServiceManager implements IServiceManager {
 			if (!executed.contains(node.type)) {
 				executed += node.type
 				roots += node.nextServices
-				roots += node.nextWeakServices
 				assert node.service !== null
 				accessors.run(logger, node.service)
 			}
@@ -361,10 +360,6 @@ abstract class AbstractServiceManager implements IServiceManager {
 
 		def getNextServices : Collection<DependencyNode> {
 			this.nextServices
-		}
-
-		def getNextWeakServices : Collection<DependencyNode> {
-			this.nextWeakServices
 		}
 
 		def toString : String {

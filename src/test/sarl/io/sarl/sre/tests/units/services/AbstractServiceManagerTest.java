@@ -113,7 +113,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		this.manager.startServices(this.logger);
 		// Dependencies:
 		// 1 ->
-		// 2 -> 4, W5
+		// 2 -> 4, 5
 		// 3 Free
 		// 4 ->
 		// 5 -> 1
@@ -150,7 +150,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		this.manager.stopServices(this.logger);
 		// Dependencies:
 		// 1 ->
-		// 2 -> 4, W5
+		// 2 -> 4, 5
 		// 3 Free
 		// 4 ->
 		// 5 -> 1
@@ -238,7 +238,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		}
 		@Override
 		public Collection<Class<? extends Service>> getServiceDependencies() {
-			return Arrays.asList(Serv4.class);
+			return Arrays.asList(Serv4.class, Serv5.class);
 		}
 		@Override
 		protected void onStart() {
