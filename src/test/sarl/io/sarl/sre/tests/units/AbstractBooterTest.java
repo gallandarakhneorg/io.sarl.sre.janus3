@@ -166,22 +166,25 @@ public abstract class AbstractBooterTest<T extends Booter> extends AbstractJanus
 	}
 
 	@Test
+	public void getAgentClassLoader() throws Exception {
+		assertNotNull(this.booter.getAgentClassLoader());
+	}
+	
+	@Test
 	public void addToSystemClasspath() throws Exception {
-		ClassLoader clo = ClassLoader.getSystemClassLoader();
-		// This test has no sense if the class loader cannot be updated.
-		assumeTrue(clo instanceof URLClassLoader);
+		File input1 = new File("mypath");
+		File input2 = new File("mypath2");
 		
-		URLClassLoader cl = (URLClassLoader) clo;
-		URL[] original = cl.getURLs();
-		URL[] expected = new URL[original.length + 2];
-		System.arraycopy(original, 0, expected, 0, original.length);
-		expected[original.length] = new URL("file:/mypath");
-		expected[original.length + 1] = new URL("file:/mypath2");
+		this.booter.addToSystemClasspath(input1.toString()+File.pathSeparator+input2.toString());
 		
-		this.booter.addToSystemClasspath(File.separator+"mypath:"+File.separator+"mypath2");
-		
+		URLClassLoader cl = this.booter.getAgentClassLoader();
 		URL[] newcp = cl.getURLs();
-		assertContains(Arrays.asList(newcp), expected);
+		URL expected1 = input1.toURI().toURL();
+		expected1 = new URL(expected1.getProtocol(), expected1.getHost(), expected1.getFile() + "/");
+		assertArrayContains(newcp, expected1);
+		URL expected2 = input2.toURI().toURL();
+		expected2 = new URL(expected2.getProtocol(), expected2.getHost(), expected2.getFile() + "/");
+		assertArrayContains(newcp, expected2);
 	}
 
 	@Test

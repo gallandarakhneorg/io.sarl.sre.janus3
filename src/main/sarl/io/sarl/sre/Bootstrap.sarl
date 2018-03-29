@@ -108,6 +108,13 @@ interface Booter extends SREBootstrap {
 	 */
 	def addToSystemClasspath(entries : String)
 
+	/** Replies the URL class loader that is used for creating the agents.
+	 * 
+	 * @return the agent's class loader.
+	 * @since 2.0.8.0
+	 */
+	def getAgentClassLoader : URLClassLoader
+
 	/** 
 	 * Replies the console stream for logging messages from the boot mechanism.
 	 * 
@@ -845,7 +852,7 @@ class JanusBooter implements Booter {
 	 * @return the current class loader.
 	 * @since 0.7
 	 */
-	private def getCurrentClassLoader : URLClassLoader {
+	def getAgentClassLoader : URLClassLoader {
 		if (this.dynamicClassLoader === null) {
 			val cl = ClassLoader::systemClassLoader
 			if (cl instanceof URLClassLoader) {
@@ -865,7 +872,7 @@ class JanusBooter implements Booter {
 	 */
 	def getCurrentClasspath : String {
 		val path = new StringBuilder
-		for (url : currentClassLoader.URLs) {
+		for (url : agentClassLoader.URLs) {
 			if (path.length() > 0) {
 				path.append(File::pathSeparator)
 			}
@@ -900,9 +907,12 @@ class JanusBooter implements Booter {
 						// Without this "/" the class loader cannot find the resources.
 						if (URISchemeType::FILE.isURL(url)) {
 							val file = FileSystem::convertURLToFile(url)
-							if (file !== null && file.isDirectory) {
+							if (file !== null) {
 								try {
-									url = new URL(URISchemeType::FILE.name, "", file.absolutePath + "/")
+									var ext = FileSystem::extension(file)?.toLowerCase
+									if (file.isDirectory || (ext != ".jar" && ext != ".zip")) {
+										url = new URL(URISchemeType::FILE.name, "", file.absolutePath + "/")
+									}
 								} catch (e : MalformedURLException) {
 								}
 							}
@@ -913,14 +923,14 @@ class JanusBooter implements Booter {
 			}
 			val newcp = Array::newInstance(typeof(URL), cp.size) as URL[] 
 			cp.toArray(newcp)
-			this.dynamicClassLoader = URLClassLoader.newInstance(newcp, ClassLoader.getSystemClassLoader());
+			this.dynamicClassLoader = URLClassLoader.newInstance(newcp, agentClassLoader);
 		}
 	}
 
 	private def loadAgentClass(fullyQualifiedName : String) : Class<? extends Agent> {
 		var type : Class<?> 
 		try {
-			type = getCurrentClassLoader.loadClass(fullyQualifiedName)
+			type = agentClassLoader.loadClass(fullyQualifiedName)
 		} catch (e : Exception) {
 			showError(MessageFormat::format(
 					Messages::Boot_1,
