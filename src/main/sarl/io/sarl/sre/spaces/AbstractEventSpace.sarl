@@ -38,6 +38,7 @@ import java.text.MessageFormat
 import java.util.Map
 import java.util.UUID
 import javax.inject.Inject
+import java.util.Iterator
 
 /** 
  * Abstract implementation of an event space.
@@ -191,13 +192,13 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 	 * @param scope the scope.
 	 * @return the matching participants.
 	 */
-	protected def getScopedParticipants(scope : Scope<? super Address>) : Iterable<Participant> {
+	protected def getScopedParticipants(scope : Scope<? super Address>) : Iterator<Participant> {
 		if (scope === null || scope === Scopes::allParticipants) {
-			this.internalParticipantStructure.values
+			this.internalParticipantStructure.values.iterator
 		} else if (scope instanceof AddressScope) {
-			scope.addresses.map[it.lazyParticipant].filter[it !== null]
+			scope.addresses.map[it.lazyParticipant].filter[it !== null].iterator
 		} else {
-			this.internalParticipantStructure.values.filter [scope.matches(it.address)]
+			this.internalParticipantStructure.values.filter [scope.matches(it.address)].iterator
 		}
 	}
 	
@@ -219,7 +220,8 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 		// to never block the sender process.
 		synchronized (mutex) {
 			val participants = getScopedParticipants(scope)
-			for (participant : participants) {
+			while (participants.hasNext) {
+				var participant = participants.next
 				var receptionTask : Runnable = [
 					participant.getParticipant.receiveEvent(^event)
 				]
