@@ -22,15 +22,14 @@ package io.sarl.sre
 
 import com.google.common.util.concurrent.Service
 import com.google.inject.BindingAnnotation
+import io.sarl.lang.annotation.PrivateAPI
+import io.sarl.lang.core.Agent
+import io.sarl.lang.core.AgentContext
 import io.sarl.sre.services.IServiceManager
 import io.sarl.sre.services.context.ContextService
 import io.sarl.sre.services.lifecycle.KernelAgentLifecycleListener
 import io.sarl.sre.services.lifecycle.LifecycleService
-import io.sarl.sre.services.logging.LoggerCreator
 import io.sarl.sre.services.logging.LoggingService
-import io.sarl.lang.annotation.PrivateAPI
-import io.sarl.lang.core.Agent
-import io.sarl.lang.core.AgentContext
 import java.lang.Thread.UncaughtExceptionHandler
 import java.lang.annotation.Retention
 import java.lang.annotation.Target
@@ -77,21 +76,17 @@ class Kernel {
 
 	val contextService : ContextService
 
-	val loggerCreator : LoggerCreator
-
 	/** 
 	 * Constructs a Janus kernel.
 	 * 
 	 * @param serviceManager is the instance of the service manager that must be used by the kernel.
 	 *     The service manager must already have registered services inside itself.
 	 * @param exceptionHandler is the handler of the uncaught exceptions.
-	 * @param loggerCreator the creator of logger.
 	 */
 	@Inject
-	new (serviceManager : IServiceManager, exceptionHandler : UncaughtExceptionHandler, loggerCreator : LoggerCreator) {
+	new (serviceManager : IServiceManager, exceptionHandler : UncaughtExceptionHandler) {
 		// Initialize the fields
 		this.serviceManager = serviceManager
-		this.loggerCreator = loggerCreator
 		this.loggingService = this.serviceManager.getService(typeof(LoggingService))
 		this.spawnService = this.serviceManager.getService(typeof(LifecycleService))
 		this.contextService = this.serviceManager.getService(typeof(ContextService))

@@ -76,9 +76,6 @@ public class KernelTest extends AbstractJanusTest {
 	private ContextService context;
 
 	@Nullable
-	private LoggerCreator loggerCreator;
-
-	@Nullable
 	private JanusContext rootContext;
 
 	@Nullable
@@ -89,7 +86,6 @@ public class KernelTest extends AbstractJanusTest {
 		this.rootContext = mock(JanusContext.class);
 		this.handler = mock(UncaughtExceptionHandler.class);
 		this.logger = mock(LoggingService.class);
-		this.loggerCreator = mock(LoggerCreator.class);
 		this.lifecycle = mock(LifecycleService.class);
 		this.context = mock(ContextService.class);
 		when(this.context.getRootContext()).thenReturn(this.rootContext);
@@ -106,7 +102,7 @@ public class KernelTest extends AbstractJanusTest {
 			}
 			return null;
 		});
-		this.kernel = new Kernel(this.serviceManager, this.handler, this.loggerCreator);
+		this.kernel = new Kernel(this.serviceManager, this.handler);
 		verify(this.lifecycle).addKernelAgentLifecycleListener(any());
 		verify(this.serviceManager).startServices(any());
 	}
