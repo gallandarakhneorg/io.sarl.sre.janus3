@@ -20,7 +20,7 @@
  */
 package io.sarl.sre.services.logging
 
-import io.sarl.sre.JanusConfig
+import io.sarl.sre.boot.factories.LoggingFactory
 import java.io.PrintStream
 import java.util.logging.Level
 import java.util.logging.LogRecord
@@ -39,29 +39,20 @@ import org.arakhne.afc.inputoutput.stream.WriterOutputStream
  */
 class LoggerCreator {
 
-	static val FORMAT_PROPERTY_KEY = "java.util.logging.SimpleFormatter.format"
+	val defaultLevel : Level
 
-	/**
-	 * The parameters for the format string are:
-	 * <ul>
-	 * <li><code>%1</code>: the date,</li>
-	 * <li><code>%2</code>: the name of the calling function,</li>
-	 * <li><code>%3</code>: the name of the logger,</li>
-	 * <li><code>%4</code>: the logging level,</li>
-	 * <li><code>%5</code>: the message, and</li>
-	 * <li><code>%6</code>: the throwable.</li>
-	 * </ul>
-	 */
-	static val JANUS_FORMAT = "[%4$s, %1$tl:%1$tM:%1$tS%1$tp, %3$s] %5$s%6$s%n"
+	val defaultProgramName : String
 
-	/** 
-	 * Change the configuration of the root logger for using the Janus format for the messages.
+	/** Build a logger creator.
+	 *
+	 * @param defaultFormat the default format for the log lines.
+	 * @param defaultLevel the logging level for new loggers.
+	 * @param defaultProgramName the default name of the program.
 	 */
-	static def useJanusMessageFormat {
-		val format = System::getProperty(FORMAT_PROPERTY_KEY, null)
-		if (format === null || format.empty) {
-			System::setProperty(FORMAT_PROPERTY_KEY, JANUS_FORMAT)
-		}
+	new (defaultFormat : String, defaultLevel : Level, defaultProgramName : String) {
+		this.defaultLevel = defaultLevel
+		this.defaultProgramName = defaultProgramName
+		jreLogLineFormat = defaultFormat
 	}
 
 	/** 
@@ -70,7 +61,7 @@ class LoggerCreator {
 	 * @param name the name of the new logger.
 	 * @param output the output.
 	 * @return the logger.
-	 * @since 2.0.7.0
+	 * @since 0.7.0
 	 */
 	def createConsoleLogger(name : String, output : PrintStream) : Logger {
 		val logger = Logger::getLogger(name)
@@ -80,8 +71,7 @@ class LoggerCreator {
 		}
 		logger.addHandler(nhandler)
 		logger.useParentHandlers = false
-		val level = loggingLevelFromProperties
-		logger.level = level
+		logger.level = this.defaultLevel
 		return logger
 	}
 
@@ -89,7 +79,7 @@ class LoggerCreator {
 	 * Create a logger with the given name for the platform.
 	 * 
 	 * @return the logger.
-	 * @since 2.0.7.0
+	 * @since 0.7.0
 	 */
 	def createPlatformLogger() : Logger {
 		val logger = Logger::anonymousLogger
@@ -110,42 +100,31 @@ class LoggerCreator {
 	/** 
 	 * Create a logger with the given name for a platform module (kernel or agent).
 	 * 
-	 * <p>The level of logging is influence by {@link JanusConfig#VERBOSE_LEVEL_NAME}.
-	 * 
-	 * @param name the name of the new logger.
+	 * @param name the name of the new logger. If {@code null}, the default program name is used.
 	 * @param parent the parent logger.
 	 * @return the logger.
-	 * @since 2.0.7.0
+	 * @since 0.7.0
 	 */
-	def createModuleLogger(name : String, parent : Logger) : Logger {
-		val logger = Logger::getLogger(name)
+	def createModuleLogger(name : String = null, parent : Logger) : Logger {
+		val thename = if (name.isNullOrEmpty) this.defaultProgramName else name
+		val logger = Logger::getLogger(thename)
 		if (parent !== null) {
 			logger.parent = parent
 		}
 		logger.useParentHandlers = true
-		val level = loggingLevelFromProperties
-		logger.level = level
+		logger.level = this.defaultLevel
 		return logger
 	}
 
 	/** 
-	 * Extract the logging level from the system properties.
-	 * 
-	 * @return the logging level.
+	 * Change the format of the log lines that is used by the new JRE loggers.
+	 * See {@link Logger} for details on the syntax.
+	 *
+	 * @param format the log line's format.
 	 */
-	static def getLoggingLevelFromProperties : Level {
-		val verboseLevel = JanusConfig::getSystemProperty(JanusConfig::VERBOSE_LEVEL_NAME, JanusConfig::VERBOSE_LEVEL_VALUE)
-		return verboseLevel.parseLoggingLevel
-	}
-
-	/** 
-	 * Change the logging level into the system properties.
-	 * 
-	 * @return the logging level.
-	 * @since 2.0.7.0
-	 */
-	static def setLoggingLevelFromProperties(level : Level) : void {
-		JanusConfig::setProperty(JanusConfig::VERBOSE_LEVEL_NAME, Integer.toString(level.toInt))
+	static def setJreLogLineFormat(format : String) {
+		assert !format.isNullOrEmpty
+		System::setProperty(LoggingFactory::JRE_FORMAT_PROPERTY_KEY, format)
 	}
 
 	/** 
@@ -161,6 +140,7 @@ class LoggerCreator {
 		switch (level.toLowerCase) {
 		case "none",
 		case "false",
+		case "off",
 		case "0":
 			return Level::OFF
 		case "severe",
@@ -309,7 +289,7 @@ class LoggerCreator {
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	static class OutputStreamConsoleHandler extends StreamHandler {
 
@@ -366,7 +346,7 @@ class LoggerCreator {
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	static class StandardOutputConsoleHandler extends OutputStreamConsoleHandler {
 
@@ -389,7 +369,7 @@ class LoggerCreator {
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	static class StandardErrorOutputConsoleHandler extends OutputStreamConsoleHandler {
 

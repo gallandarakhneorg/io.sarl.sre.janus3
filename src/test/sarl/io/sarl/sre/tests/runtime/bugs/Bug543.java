@@ -1,15 +1,16 @@
 /*
  * $Id$
  *
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
  *
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
+ * Copyright (C) 2014-2018 the original authors or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +35,7 @@ import io.sarl.lang.core.Capacity;
 import io.sarl.lang.core.Skill;
 import io.sarl.lang.core.UnimplementedCapacityException;
 import io.sarl.lang.util.ClearableReference;
-import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
+import io.sarl.sre.tests.testutils.AbstractSreRunTest;
 
 /**
  * Unit test for the issue #543: Incomplete reset of the hidden buffers to skills.
@@ -46,11 +47,11 @@ import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
  * @see https://github.com/sarl/sarl/issues/543
  */
 @SuppressWarnings("all")
-public class Bug543 extends AbstractJanusRunTest {
+public class Bug543 extends AbstractSreRunTest {
 
 	@Test
 	public void setSkill() throws Exception {
-		runJanus(TAgent1.class, false);
+		runSre(TAgent1.class, false);
 		assertEquals(2, getNumberOfResults());
 		assertEquals("1", getResult(String.class, 0));
 		assertEquals("2", getResult(String.class, 1));
@@ -58,7 +59,7 @@ public class Bug543 extends AbstractJanusRunTest {
 
 	@Test
 	public void clearSkill() throws Exception {
-		runJanus(TAgent2.class, false);
+		runSre(TAgent2.class, false);
 		assertEquals(2, getNumberOfResults());
 		assertEquals("1", getResult(String.class, 0));
 		UnimplementedCapacityException ex = getResult(UnimplementedCapacityException.class, 1);
@@ -68,7 +69,7 @@ public class Bug543 extends AbstractJanusRunTest {
 
 	@Test
 	public void doubleHiddenGetters() throws Exception {
-		runJanus(TAgent3.class, false);
+		runSre(TAgent3.class, false);
 		assertEquals(1, getNumberOfResults());
 		assertEquals(Boolean.TRUE, getResult(Boolean.class, 0));
 	}

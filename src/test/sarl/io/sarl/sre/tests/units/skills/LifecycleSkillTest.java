@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.skills;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -42,13 +44,13 @@ import org.mockito.ArgumentCaptor;
 
 import io.sarl.lang.core.Address;
 import io.sarl.lang.core.Agent;
-import io.sarl.sre.services.context.JanusContext;
+import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.AgentState;
 import io.sarl.sre.services.lifecycle.LifecycleService;
 import io.sarl.sre.services.lifecycle.SpawnResult;
 import io.sarl.sre.skills.LifecycleSkill;
-import io.sarl.sre.tests.testutils.AbstractJanusTest;
+import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 
 /**
@@ -58,7 +60,7 @@ import io.sarl.tests.api.Nullable;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class LifecycleSkillTest extends AbstractJanusTest {
+public class LifecycleSkillTest extends AbstractSreTest {
 
 	@Nullable
 	private LifecycleService service;
@@ -67,7 +69,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 	private UUID spawnerID;
 
 	@Nullable
-	private JanusContext context;
+	private Context context;
 
 	@Nullable
 	private Agent agent;
@@ -79,7 +81,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 	public void setUp() {
 		this.spawnerID = UUID.randomUUID();
 		this.service = mock(LifecycleService.class);
-		this.context = mock(JanusContext.class);
+		this.context = mock(Context.class);
 		when(this.context.getID()).thenReturn(UUID.randomUUID());
 		this.agent = spy(new MyAgent(this.context.getID(), this.spawnerID));
 		AgentLife.getLife(agent).setDefaultContext(this.context, mock(Address.class));
@@ -119,7 +121,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		
 		ArgumentCaptor<Integer> argument0 = ArgumentCaptor.forClass(Integer.class);
 		ArgumentCaptor<UUID> argument1 = ArgumentCaptor.forClass(UUID.class);
-		ArgumentCaptor<JanusContext> argument2 = ArgumentCaptor.forClass(JanusContext.class);
+		ArgumentCaptor<Context> argument2 = ArgumentCaptor.forClass(Context.class);
 		ArgumentCaptor<UUID> argument3 = ArgumentCaptor.forClass(UUID.class);
 		ArgumentCaptor<Class> argument4 = ArgumentCaptor.forClass(Class.class);
 		ArgumentCaptor<Object> argument5 = ArgumentCaptor.forClass(Object.class);
@@ -169,7 +171,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		
 		ArgumentCaptor<Integer> argument0 = ArgumentCaptor.forClass(Integer.class);
 		ArgumentCaptor<UUID> argument1 = ArgumentCaptor.forClass(UUID.class);
-		ArgumentCaptor<JanusContext> argument2 = ArgumentCaptor.forClass(JanusContext.class);
+		ArgumentCaptor<Context> argument2 = ArgumentCaptor.forClass(Context.class);
 		ArgumentCaptor<UUID> argument3 = ArgumentCaptor.forClass(UUID.class);
 		ArgumentCaptor<Class> argument4 = ArgumentCaptor.forClass(Class.class);
 		ArgumentCaptor<Object> argument5 = ArgumentCaptor.forClass(Object.class);
@@ -188,7 +190,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		UUID agentID = UUID.randomUUID();
 		SpawnResult result = new SpawnResult(Collections.singletonList(agentID), Collections.emptyList());
 		when(this.service.spawnAgent(anyInt(), any(), any(), any(), any(), any())).thenReturn(result);
-		JanusContext otherContext = mock(JanusContext.class);
+		Context otherContext = mock(Context.class);
 		
 		UUID id = this.skill.spawnInContext(MyAgent.class, otherContext, 1, "value");
 		
@@ -202,7 +204,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		UUID agentID = UUID.randomUUID();
 		SpawnResult result = new SpawnResult(Collections.singletonList(agentID), Collections.emptyList());
 		when(this.service.spawnAgent(anyInt(), any(), any(), any(), any(), any())).thenReturn(result);
-		JanusContext otherContext = mock(JanusContext.class);
+		Context otherContext = mock(Context.class);
 
 		forceAlive();
 		
@@ -212,7 +214,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		
 		ArgumentCaptor<Integer> argument0 = ArgumentCaptor.forClass(Integer.class);
 		ArgumentCaptor<UUID> argument1 = ArgumentCaptor.forClass(UUID.class);
-		ArgumentCaptor<JanusContext> argument2 = ArgumentCaptor.forClass(JanusContext.class);
+		ArgumentCaptor<Context> argument2 = ArgumentCaptor.forClass(Context.class);
 		ArgumentCaptor<UUID> argument3 = ArgumentCaptor.forClass(UUID.class);
 		ArgumentCaptor<Class> argument4 = ArgumentCaptor.forClass(Class.class);
 		ArgumentCaptor<Object> argument5 = ArgumentCaptor.forClass(Object.class);
@@ -233,7 +235,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		UUID agentID3 = UUID.randomUUID();
 		SpawnResult result = new SpawnResult(Arrays.asList(agentID1, agentID2, agentID3), Collections.emptyList());
 		when(this.service.spawnAgent(anyInt(), any(), any(), any(), any(), any())).thenReturn(result);
-		JanusContext otherContext = mock(JanusContext.class);
+		Context otherContext = mock(Context.class);
 
 		Iterable<UUID> id = this.skill.spawnInContext(3, MyAgent.class, otherContext, 1, "value");
 		
@@ -249,7 +251,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		UUID agentID3 = UUID.randomUUID();
 		SpawnResult result = new SpawnResult(Arrays.asList(agentID1, agentID2, agentID3), Collections.emptyList());
 		when(this.service.spawnAgent(anyInt(), any(), any(), any(), any(), any())).thenReturn(result);
-		JanusContext otherContext = mock(JanusContext.class);
+		Context otherContext = mock(Context.class);
 
 		forceAlive();
 
@@ -264,7 +266,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		
 		ArgumentCaptor<Integer> argument0 = ArgumentCaptor.forClass(Integer.class);
 		ArgumentCaptor<UUID> argument1 = ArgumentCaptor.forClass(UUID.class);
-		ArgumentCaptor<JanusContext> argument2 = ArgumentCaptor.forClass(JanusContext.class);
+		ArgumentCaptor<Context> argument2 = ArgumentCaptor.forClass(Context.class);
 		ArgumentCaptor<UUID> argument3 = ArgumentCaptor.forClass(UUID.class);
 		ArgumentCaptor<Class> argument4 = ArgumentCaptor.forClass(Class.class);
 		ArgumentCaptor<Object> argument5 = ArgumentCaptor.forClass(Object.class);
@@ -283,7 +285,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		UUID agentID = UUID.randomUUID();
 		SpawnResult result = new SpawnResult(Collections.singletonList(agentID), Collections.emptyList());
 		when(this.service.spawnAgent(anyInt(), any(), any(), any(), any(), any())).thenReturn(result);
-		JanusContext otherContext = mock(JanusContext.class);
+		Context otherContext = mock(Context.class);
 		
 		UUID id = this.skill.spawnInContextWithID(MyAgent.class, agentID, otherContext, 1, "value");
 		
@@ -297,7 +299,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		UUID agentID = UUID.randomUUID();
 		SpawnResult result = new SpawnResult(Collections.singletonList(agentID), Collections.emptyList());
 		when(this.service.spawnAgent(anyInt(), any(), any(), any(), any(), any())).thenReturn(result);
-		JanusContext otherContext = mock(JanusContext.class);
+		Context otherContext = mock(Context.class);
 
 		forceAlive();
 
@@ -307,7 +309,7 @@ public class LifecycleSkillTest extends AbstractJanusTest {
 		
 		ArgumentCaptor<Integer> argument0 = ArgumentCaptor.forClass(Integer.class);
 		ArgumentCaptor<UUID> argument1 = ArgumentCaptor.forClass(UUID.class);
-		ArgumentCaptor<JanusContext> argument2 = ArgumentCaptor.forClass(JanusContext.class);
+		ArgumentCaptor<Context> argument2 = ArgumentCaptor.forClass(Context.class);
 		ArgumentCaptor<UUID> argument3 = ArgumentCaptor.forClass(UUID.class);
 		ArgumentCaptor<Class> argument4 = ArgumentCaptor.forClass(Class.class);
 		ArgumentCaptor<Object> argument5 = ArgumentCaptor.forClass(Object.class);

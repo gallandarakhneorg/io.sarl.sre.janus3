@@ -44,7 +44,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /** 
- * This class represents the Kernel of the Janus platform.
+ * This class represents the Kernel of the SRE platform.
  * 
  * <p><strong>The Kernel is a singleton.</strong>
  * 
@@ -63,7 +63,7 @@ import javax.inject.Singleton
 @Singleton
 class Kernel {
 
-	// value is true because the Janus kernel is running as soon as it is created. 
+	// value is true because the SRE kernel is running as soon as it is created. 
 	val isRunning = new AtomicBoolean(true)
 
 	val stopListener = new KernelStoppingListener(this)
@@ -77,7 +77,7 @@ class Kernel {
 	val contextService : ContextService
 
 	/** 
-	 * Constructs a Janus kernel.
+	 * Constructs a SRE kernel.
 	 * 
 	 * @param serviceManager is the instance of the service manager that must be used by the kernel.
 	 *     The service manager must already have registered services inside itself.
@@ -100,7 +100,7 @@ class Kernel {
 		this.spawnService.addKernelAgentLifecycleListener(this.stopListener)
 
 		// Start the services NOW to ensure that the default context and space
-		// of the Janus agent are catched by the modules;
+		// of the SRE agent are catched by the modules;
 		this.serviceManager.startServices(getLogger)
 	}
 
@@ -214,7 +214,7 @@ class Kernel {
 	}
 
 	/** 
-	 * Replies the Janus context of the kernel.
+	 * Replies the SRE context of the kernel.
 	 * 
 	 * @return the context for the kernel.
 	 */
@@ -248,7 +248,7 @@ class Kernel {
 				// THIS AVOID THE STOP FUNCTION TO BE INTERRUPTED
 				// BECAUSE THE EXECUTORSERVICE WAS SHUTTED DOWN.
 				val thread = Executors::defaultThreadFactory().newThread(this)
-				thread.name = "Janus kernel shutdown" // $NON-NLS-1$
+				thread.name = "SRE kernel shutdown" // $NON-NLS-1$
 				thread.daemon = false
 				thread.uncaughtExceptionHandler = this
 				thread.start

@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.skills;
 
 import static org.junit.Assert.assertFalse;
@@ -52,10 +54,10 @@ import io.sarl.lang.core.SpaceID;
 import io.sarl.lang.util.SynchronizedIterable;
 import io.sarl.sre.capacities.InternalEventBusCapacity;
 import io.sarl.sre.services.context.ContextService;
-import io.sarl.sre.services.context.JanusContext;
+import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.skills.InnerContextAccessSkill;
-import io.sarl.sre.tests.testutils.AbstractJanusTest;
+import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.ManualMocking;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.Collections3;
@@ -69,7 +71,7 @@ import io.sarl.util.OpenEventSpaceSpecification;
  * @mavenartifactid $ArtifactId$
  */
 @ManualMocking
-public class InnerContextSkillTest extends AbstractJanusTest {
+public class InnerContextSkillTest extends AbstractSreTest {
 
 	@Nullable
 	private ContextService service;
@@ -81,7 +83,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 	private SpaceID innerSpaceID;
 
 	@Nullable
-	private JanusContext context;
+	private Context context;
 
 	@Nullable
 	private Agent agent;
@@ -94,7 +96,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 		this.parentID = UUID.randomUUID();
 		this.innerSpaceID = new SpaceID(this.parentID, UUID.randomUUID(), OpenEventSpaceSpecification.class);
 		this.service = mock(ContextService.class);
-		this.context = mock(JanusContext.class);
+		this.context = mock(Context.class);
 		when(this.context.getID()).thenReturn(UUID.randomUUID());
 		this.agent = spy(new MyAgent(this.context.getID(), this.parentID));
 		SpaceID defaultSpaceID = new SpaceID(this.context.getID(), this.parentID, OpenEventSpaceSpecification.class);
@@ -107,7 +109,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getInnerContext_init() {
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		when(this.service.createContext(any(), any())).thenReturn(ctx);
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(ctx.getDefaultSpace()).thenReturn(space);
@@ -125,7 +127,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 	
 	@Test
 	public void getInnerContext_twoCalls() {
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		when(this.service.createContext(any(), any())).thenReturn(ctx);
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(ctx.getDefaultSpace()).thenReturn(space);
@@ -143,15 +145,15 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 		verify(this.service, only()).createContext(any(), any());
 	}
 
-	private JanusContext forceInnerContextCreation() {
+	private Context forceInnerContextCreation() {
 		assumeNotNull(this.context, this.innerSpaceID, this.parentID, this.service, this.skill, this.agent);
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(space.getSpaceID()).thenReturn(this.innerSpaceID);
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		when(ctx.getID()).thenReturn(this.parentID);
 		when(ctx.getDefaultSpace()).thenReturn(space);
 		when(this.service.createContext(any(), any())).thenReturn(ctx);
-		return (JanusContext) this.skill.getInnerContext();
+		return (Context) this.skill.getInnerContext();
 	}
 	
 	@Test
@@ -190,7 +192,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void isInnerDefaultSpaceSpace_withInnerContextInstance() {
-		JanusContext innerContext = forceInnerContextCreation();
+		Context innerContext = forceInnerContextCreation();
 		SpaceID otherId = new SpaceID(this.parentID, UUID.randomUUID(), OpenEventSpaceSpecification.class);
 		Space otherSpace = mock(Space.class);
 		when(otherSpace.getSpaceID()).thenReturn(otherId);
@@ -211,7 +213,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void isInInnerDefaultSpace_withInnerContextInstance() {
-		JanusContext innerContext = forceInnerContextCreation();
+		Context innerContext = forceInnerContextCreation();
 		SpaceID otherId = new SpaceID(this.parentID, UUID.randomUUID(), OpenEventSpaceSpecification.class);
 		
 		Address adr1 = new Address(innerContext.getDefaultSpace().getSpaceID(), UUID.randomUUID());
@@ -233,7 +235,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getMemberAgentCount_withInnerContextInstance_noAgent() {
-		JanusContext innerContext = forceInnerContextCreation();
+		Context innerContext = forceInnerContextCreation();
 		when(innerContext.getDefaultSpace().getParticipants()).thenReturn(
 				Collections3.synchronizedSet(Collections.singleton(this.parentID), this));
 		assertEquals(0, this.skill.getMemberAgentCount());
@@ -241,7 +243,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getMemberAgentCount_withInnerContextInstance_twoAgents() {
-		JanusContext innerContext = forceInnerContextCreation();
+		Context innerContext = forceInnerContextCreation();
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
 		Set<UUID> ids = new HashSet<>(Arrays.asList(this.parentID, id1, id2));
@@ -257,7 +259,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getMemberAgents_withInnerContextInstance_noAgent() {
-		JanusContext innerContext = forceInnerContextCreation();
+		Context innerContext = forceInnerContextCreation();
 		when(innerContext.getDefaultSpace().getParticipants()).thenReturn(
 				Collections3.synchronizedSet(Collections.singleton(this.parentID), this));
 		assertFalse(this.skill.getMemberAgents().iterator().hasNext());
@@ -265,7 +267,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getMemberAgents_withInnerContextInstance_twoAgents() {
-		JanusContext innerContext = forceInnerContextCreation();
+		Context innerContext = forceInnerContextCreation();
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
 		Set<UUID> ids = new HashSet<>(Arrays.asList(this.parentID, id1, id2));
@@ -282,7 +284,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void hasMemberAgent_withInnerContextInstance_noAgent() {
-		JanusContext innerContext = forceInnerContextCreation();
+		Context innerContext = forceInnerContextCreation();
 		when(innerContext.getDefaultSpace().getParticipants()).thenReturn(
 				Collections3.synchronizedSet(Collections.singleton(this.parentID), this));
 		assertFalse(this.skill.hasMemberAgent());
@@ -290,7 +292,7 @@ public class InnerContextSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void hasMemberAgent_withInnerContextInstance_twoAgents() {
-		JanusContext innerContext = forceInnerContextCreation();
+		Context innerContext = forceInnerContextCreation();
 		UUID id1 = UUID.randomUUID();
 		UUID id2 = UUID.randomUUID();
 		Set<UUID> ids = new HashSet<>(Arrays.asList(this.parentID, id1, id2));

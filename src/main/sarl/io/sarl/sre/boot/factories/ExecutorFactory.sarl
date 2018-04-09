@@ -1,0 +1,175 @@
+/* 
+ * $Id$
+ * 
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ * 
+ * Copyright (C) 2014-2018 the original authors or authors.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.boot.factories
+
+import java.util.logging.Level
+import org.eclipse.xtend.lib.annotations.Accessors
+import io.bootique.config.ConfigurationFactory
+import io.sarl.sre.services.logging.LoggerCreator
+
+/** 
+ * Configuration factory for specifying the executor configuration.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 0.8.0
+ */
+class ExecutorFactory {
+
+	/** 
+	 * Prefix for the configuration entries of the executor modules.
+	 */
+	public static val EXECUTOR_PREFIX = Factories::SARL_ROOT_PROPERTY_PREFIX + "executor"
+
+	/** 
+	 * Name of the property that contains the verbosity level of the executor's internal errors.
+	 * 
+	 * @see #INTERNAL_ERROR_VERBOSE_LEVEL_VALUE
+	 */
+	public static val INTERNAL_ERROR_VERBOSE_LEVEL_NAME = EXECUTOR_PREFIX + ".internalErrorVerboseLevel"
+
+	/** 
+	 * The default verbosity level of the executor's internal errors.
+	 * 
+	 * @see #INTERNAL_ERROR_VERBOSE_LEVEL_NAME
+	 */
+	public static val INTERNAL_ERROR_VERBOSE_LEVEL_VALUE = "config"
+
+	/** 
+	 * Name of the property that contains the maximal number of threads in the pool.
+	 * 
+	 * @see #MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE
+	 */
+	public static val MAX_NUMBER_OF_THREADS_IN_EXECUTOR_NAME = EXECUTOR_PREFIX + ".maxThreads"
+
+	/** 
+	 * Indicates the maximal number of threads to keep in the pool.
+	 * 
+	 * @see #MAX_NUMBER_OF_THREADS_IN_EXECUTOR_NAME
+	 */
+	public static val MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE = 1024
+
+	/** 
+	 * Name of the property that contains the minimal number of threads in the pool.
+	 * 
+	 * @see #MIN_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE
+	 */
+	public static val MIN_NUMBER_OF_THREADS_IN_EXECUTOR_NAME = EXECUTOR_PREFIX + ".minThreads"
+
+	/** 
+	 * Indicates the minimal number of threads to keep in the pool, even if they are idle.
+	 * 
+	 * @see #MIN_NUMBER_OF_THREADS_IN_EXECUTOR_NAME
+	 */
+	public static val MIN_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE = 16
+
+	/** 
+	 * Name of the property that contains the duration for keeping the iddle threads alive (in seconds).
+	 * 
+	 * @since 0.5.0
+	 */
+	public static val THREAD_KEEP_ALIVE_DURATION_NAME = EXECUTOR_PREFIX + ".keepAliveDuration"
+
+	/** 
+	 * Indicates the duration for keeping the iddle threads alive (in seconds).
+	 * 
+	 * @since 0.5.0
+	 */
+	public static val THREAD_KEEP_ALIVE_DURATION_VALUE = 60
+
+	/** 
+	 * Name of the property that contains the numbers of seconds that the kernel is waiting for thread terminations before timeout.
+	 * 
+	 * @see #KERNEL_THREAD_TIMEOUT_VALUE
+	 */
+	public static val KERNEL_THREAD_TIMEOUT_NAME = EXECUTOR_PREFIX + ".timeout"
+
+	/** 
+	 * Indicates the numbers of seconds that the kernel is waiting for thread terminations before timeout.
+	 * 
+	 * @see #KERNEL_THREAD_TIMEOUT_NAME
+	 */
+	public static val THREAD_TIMEOUT_VALUE = 30
+
+	var internalErrorVerboseLevel : String
+	var internalErrorVerboseLevelObject : Level
+
+	@Accessors
+	var maxThreads : int = MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE
+
+	@Accessors
+	var minThreads : int = MIN_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE
+
+	@Accessors
+	var keepAliveDuration : int = THREAD_KEEP_ALIVE_DURATION_VALUE
+
+	@Accessors
+	var timeout : int = io.sarl.sre.boot.factories.ExecutorFactory.THREAD_TIMEOUT_VALUE
+
+	/** Replies the configuration factory for the executor.
+	 *
+	 * @param configFactory the general configuration factory.
+	 * @return the executor configuration factory.
+	 */
+	static def getConfigurationFactory(configFactory : ConfigurationFactory) : ExecutorFactory {
+		assert configFactory !== null
+		configFactory.config(typeof(ExecutorFactory), EXECUTOR_PREFIX)
+	}
+
+	/** 
+	 * Replies the verbosity level of the internal errors.
+	 * 
+	 * @return the verbose level.
+	 */
+	def setInternalErrorVerboseLevel(level : String) {
+		var levelObject = LoggerCreator::parseLoggingLevel(level)
+		this.internalErrorVerboseLevel = levelObject.name.toLowerCase
+		this.internalErrorVerboseLevelObject = levelObject
+	}
+
+	/** 
+	 * Replies the verbosity level of the internal errors.
+	 * 
+	 * @return the verbose level
+	 */
+	def getInternalErrorVerboseLevel : String {
+		if (this.internalErrorVerboseLevel === null) {
+			this.internalErrorVerboseLevel = INTERNAL_ERROR_VERBOSE_LEVEL_VALUE
+			this.internalErrorVerboseLevelObject = null
+		}
+		return this.internalErrorVerboseLevel
+	}
+
+	/** 
+	 * Replies the verbosity level of the internal errors.
+	 * 
+	 * @return the verbose level
+	 */
+	def getInternalErrorVerboseLevelObject : Level {
+		if (this.internalErrorVerboseLevelObject === null) {
+			this.internalErrorVerboseLevelObject = LoggerCreator::parseLoggingLevel(getInternalErrorVerboseLevel)
+		}
+		return this.internalErrorVerboseLevelObject
+	}
+
+}

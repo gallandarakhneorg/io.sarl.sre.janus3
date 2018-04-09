@@ -33,7 +33,7 @@ import io.sarl.lang.core.SpaceID
 import io.sarl.lang.util.ClearableReference
 import io.sarl.lang.util.SynchronizedIterable
 import io.sarl.sre.capacities.InternalEventBusCapacity
-import io.sarl.sre.services.context.JanusContext
+import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.Collections3
 import io.sarl.util.OpenEventSpace
@@ -48,13 +48,13 @@ import org.arakhne.afc.util.MultiCollection
 import static extension io.sarl.lang.core.SREutils.*
 
 /**
- * Describes any information that is required by Janus for supporting the agent's life. 
+ * Describes any information that is required by the SRE for supporting the agent's life. 
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 @SuppressWarnings("use_reserved_sarl_annotation")
 @PrivateAPI(isCallerOnly = true)
@@ -64,7 +64,7 @@ final class AgentLife {
 
 	var agentInstance : Agent
 
-	volatile var innerContextInstance : JanusContext
+	volatile var innerContextInstance : Context
 	
 	volatile var innerSpaceAddress : Address
 
@@ -76,7 +76,7 @@ final class AgentLife {
 
 	var eventBusCapacity : ClearableReference<Skill>
 
-	/** Replies the data structure which is specific to the Janus SRE.
+	/** Replies the data structure which is specific to the SRE.
 	 */
 	static def getLife(^agent : Agent) : AgentLife {
 		var life = ^agent.getSreSpecificData(typeof(AgentLife))
@@ -130,7 +130,7 @@ final class AgentLife {
 	 * @param spawningContext the context in which the agent is spawn.
 	 * @return the internal event bus.
 	 */
-	protected def attachAgentToPlatform(spawningContext : JanusContext) : InternalEventBusCapacity {
+	protected def attachAgentToPlatform(spawningContext : Context) : InternalEventBusCapacity {
 		// Set up the internal bus
 		val eb = this.eventBus
 		//
@@ -155,7 +155,7 @@ final class AgentLife {
 	 * @return {@code true} is successful, i.e. the {@code AgentSpawned} could be fired.
 	 */
 	def start(skillUninstaller : SkillUninstaller, logger : LoggingService,
-		spawningAgent : UUID, spawningContext : JanusContext, initializationParameters : Object*) : boolean {
+		spawningAgent : UUID, spawningContext : Context, initializationParameters : Object*) : boolean {
 		this.state = AgentState::INITIALIZING
 		try {
 			try {
@@ -311,7 +311,7 @@ final class AgentLife {
 	 * @param innerContext the instance of inner context, or {@code null}
 	 * @return the previous context, or {@code null}.
 	 */
-	def setInnerContext(innerContext : JanusContext) : JanusContext {
+	def setInnerContext(innerContext : Context) : Context {
 		var old = this.innerContextInstance
 		this.innerContextInstance = innerContext
 		return old
@@ -321,7 +321,7 @@ final class AgentLife {
 	 * 
 	 * @return the instance of inner context, or {@code null}
 	 */
-	def getInnerContext : JanusContext {
+	def getInnerContext : Context {
 		this.innerContextInstance
 	}
 
@@ -346,7 +346,7 @@ final class AgentLife {
 	 * @param address the address of the agent in the default space of the given context.
 	 * @return the created reference, or {@code null} if the reference cannot be added (because the given context is already the default context).
 	 */
-	def addExternalContext(context : JanusContext, address : Address) : ContextReference {
+	def addExternalContext(context : Context, address : Address) : ContextReference {
 		assert context !== null
 		assert address !== null
 		if (this.defaultContextInstance === null || context.ID != this.defaultContextInstance.context.ID) {
@@ -361,7 +361,7 @@ final class AgentLife {
 
 	/** Remove a context in which the agent is located.
 	 */
-	def removeExternalContext(context : JanusContext) : ContextReference {
+	def removeExternalContext(context : Context) : ContextReference {
 		assert context !== null
 		synchronized (this) {
 			var contexts = this.externalContextInstances
@@ -471,7 +471,7 @@ final class AgentLife {
 	 * @param address the address of the agent into the default space of the given context.
 	 * @return the reference to the previous default context.
 	 */
-	def setDefaultContext(context : JanusContext, address : Address) : ContextReference {
+	def setDefaultContext(context : Context, address : Address) : ContextReference {
 		assert context !== null
 		assert address !== null
 		var oldDefaultSpace = this.defaultContextInstance
@@ -498,19 +498,19 @@ final class AgentLife {
 }
 
 /** 
- * Describes any information that is required by Janus for supporting the agent's life. 
+ * Describes any information that is required by the SRE for supporting the agent's life. 
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 public final class ContextReference implements Comparable<ContextReference> {
 
 	val life : WeakReference<AgentLife>
 
-	val contextInstance : WeakReference<JanusContext>
+	val contextInstance : WeakReference<Context>
 
 	var defaultAddress : Address
 
@@ -519,7 +519,7 @@ public final class ContextReference implements Comparable<ContextReference> {
 	 * @param context the content to reference.
 	 * @param address the address of the agent in the default space of the given context.
 	 */
-	new (life : AgentLife, context : JanusContext, address : Address) {
+	new (life : AgentLife, context : Context, address : Address) {
 		assert life !== null
 		assert context !== null
 		assert address !== null
@@ -540,7 +540,7 @@ public final class ContextReference implements Comparable<ContextReference> {
 
 	/** Replies the context.
 	 */
-	def getContext : JanusContext {
+	def getContext : Context {
 			this.contextInstance.get
 	}
 

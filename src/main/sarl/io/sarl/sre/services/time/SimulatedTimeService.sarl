@@ -33,7 +33,7 @@ import org.arakhne.afc.util.ListenerCollection
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.7.0
+ * @since 0.7.0
  */
 @Singleton
 class SimulatedTimeService extends AbstractDependentService implements TimeService {

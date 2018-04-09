@@ -1,15 +1,16 @@
 /*
  * $Id$
  *
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
  *
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
+ * Copyright (C) 2014-2018 the original authors or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +39,7 @@ import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.core.Agent;
 import io.sarl.lang.core.Behavior;
 import io.sarl.lang.core.Event;
-import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
+import io.sarl.sre.tests.testutils.AbstractSreRunTest;
 
 /**
  * Unit test for the issue #224: Equivalent of Skill.install for the Behavior class.
@@ -50,7 +51,7 @@ import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
  * @see https://github.com/sarl/sarl/issues/224
  */
 @SuppressWarnings("all")
-public class Bug224 extends AbstractJanusRunTest {
+public class Bug224 extends AbstractSreRunTest {
 
 	@SarlSpecification(SARLVersion.SPECIFICATION_RELEASE_VERSION_STRING)
 	public static class MyBehavior extends Behavior {
@@ -82,7 +83,7 @@ public class Bug224 extends AbstractJanusRunTest {
 
 	@Test
 	public void registerInInitialize() throws Exception {
-		runJanus(RegisteredInInitializeAgent.class, false);
+		runSre(RegisteredInInitializeAgent.class, false);
 		assertEquals(1, getNumberOfResults());
 		MyBehavior beh = getResult(MyBehavior.class, 0);
 		assertEquals(1, beh.initializeEvaluations.intValue());
@@ -111,7 +112,7 @@ public class Bug224 extends AbstractJanusRunTest {
 
 	@Test
 	public void registerInHandler() throws Exception {
-		runJanus(RegisteredInHandlerAgent.class, false);
+		runSre(RegisteredInHandlerAgent.class, false);
 		assertEquals(1, getNumberOfResults());
 		MyBehavior beh = getResult(MyBehavior.class, 0);
 		assertEquals(1, beh.initializeEvaluations.intValue());
@@ -148,7 +149,7 @@ public class Bug224 extends AbstractJanusRunTest {
 
 	@Test
 	public void registerInDestroy() throws Exception {
-		runJanus(RegisteredInDestroyAgent.class, false);
+		runSre(RegisteredInDestroyAgent.class, false);
 		assertEquals(1, getNumberOfResults());
 		MyBehavior beh = getResult(MyBehavior.class, 0);
 		assertEquals(0, beh.initializeEvaluations.intValue());
@@ -183,7 +184,7 @@ public class Bug224 extends AbstractJanusRunTest {
 
 	@Test
 	public void unregisterInInitialize() throws Exception {
-		runJanus(UnregisteredInInitializeAgent.class, false);
+		runSre(UnregisteredInInitializeAgent.class, false);
 		assertEquals(1, getNumberOfResults());
 		MyBehavior beh = getResult(MyBehavior.class, 0);
 		assertEquals(1, beh.initializeEvaluations.intValue());
@@ -213,7 +214,7 @@ public class Bug224 extends AbstractJanusRunTest {
 
 	@Test
 	public void unregisterInHandler() throws Exception {
-		runJanus(UnregisteredInHandlerAgent.class, false);
+		runSre(UnregisteredInHandlerAgent.class, false);
 		assertEquals(1, getNumberOfResults());
 		MyBehavior beh = getResult(MyBehavior.class, 0);
 		assertEquals(1, beh.initializeEvaluations.intValue());
@@ -251,7 +252,7 @@ public class Bug224 extends AbstractJanusRunTest {
 
 	@Test
 	public void unregisterInDestroy() throws Exception {
-		runJanus(UnregisteredInDestroyAgent.class, false, true, NO_TIMEOUT);
+		runSre(UnregisteredInDestroyAgent.class, false, true, NO_TIMEOUT);
 		assertEquals(1, getNumberOfResults());
 		MyBehavior beh = getResult(MyBehavior.class, 0);
 		assertEquals(1, beh.initializeEvaluations.intValue());

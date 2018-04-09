@@ -26,13 +26,13 @@ import java.util.Set
 import java.util.Comparator
 
 /** 
- * Describes any information that is required by Janus for supporting the agent trait's life. 
+ * Describes any information that is required by SRE for supporting the agent trait's life. 
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 abstract class AgentTraitLife {
 

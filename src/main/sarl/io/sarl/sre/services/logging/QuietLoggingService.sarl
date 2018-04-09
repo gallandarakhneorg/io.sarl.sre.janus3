@@ -21,7 +21,6 @@
 package io.sarl.sre.services.logging
 
 import com.google.common.util.concurrent.Service
-import io.sarl.sre.JanusConfig
 import io.sarl.sre.services.AbstractDependentService
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -54,7 +53,7 @@ class QuietLoggingService extends AbstractDependentService implements LoggingSer
 	/** Change the creator of logger used by this service.
 	 *
 	 * @param loggerCreator the creator.
-	 * @since 2.0.7.0
+	 * @since 0.7.0
 	 */
 	@Inject
 	def setLoggerCreator(loggerCreator : LoggerCreator) {
@@ -72,7 +71,6 @@ class QuietLoggingService extends AbstractDependentService implements LoggingSer
 	override getKernelLogger : Logger {
 		if (this.kernelLoggerInstance === null) {
 			this.kernelLoggerInstance = this.loggerCreator.createModuleLogger(
-				JanusConfig::JANUS_DEFAULT_PLATFORM_NAME,
 				getPlatformLogger)
 		}
 		this.kernelLoggerInstance

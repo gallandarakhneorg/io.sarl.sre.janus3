@@ -33,7 +33,7 @@ import java.util.Queue
 import java.util.logging.Logger
 
 /**
- * Manager of services for the Janus platform.
+ * Manager of services for the SRE platform.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -88,7 +88,7 @@ interface IServiceManager {
 }
 
 /** 
- * Abstract implementation of a service manager for the Janus platform.
+ * Abstract implementation of a service manager for the SRE platform.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$

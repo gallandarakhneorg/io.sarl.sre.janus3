@@ -37,10 +37,10 @@ import java.util.UUID
  */
 class MemoryBasedContextService extends AbstractInjectionBasedContextService {
 
-	var contextRepository : Map<UUID, JanusContext>
+	var contextRepository : Map<UUID, Context>
 
-	protected def getContextInternalStructure : Map<UUID, JanusContext> {
-		var repository : Map<UUID, JanusContext>
+	protected def getContextInternalStructure : Map<UUID, Context> {
+		var repository : Map<UUID, Context>
 		synchronized (mutex) {
 			repository = this.contextRepository
 			if (repository === null) {

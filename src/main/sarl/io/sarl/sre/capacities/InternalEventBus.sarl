@@ -27,7 +27,7 @@ import io.sarl.lang.util.SynchronizedIterable
 /** 
  * Capacity that provides an event bus to notify the different components of an agent.
  * 
- * <p><strong>This capacity is provided by the Janus kernel, not SARL.</strong>
+ * <p><strong>This capacity is provided by the SRE kernel, not SARL.</strong>
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -46,7 +46,7 @@ capacity InternalEventBusCapacity {
 	 * @param listener the listener on the SARL events.
 	 * @param filter the filter function.
 	 * @param callback function which is invoked just after the first registration of the object. It could be {@code null}.
-	 * @since 2.0.5.0
+	 * @since 0.5.0
 	 */
 	def registerEventBusListener(listener : Object, filter : (Event)=>boolean = null, callback : (Object) => void = null)
 
@@ -55,7 +55,7 @@ capacity InternalEventBusCapacity {
 	 * 
 	 * @param listener the listener on the SARL events.
 	 * @param callback function which is invoked just before the object is unregistered.
-	 * @since 2.0.5.0
+	 * @since 0.5.0
 	 */
 	def unregisterEventBusListener(listener : Object, callback : (Object)=>void = null)
 
@@ -64,7 +64,7 @@ capacity InternalEventBusCapacity {
 	 * 
 	 * @param listenerType the type of the listeners on the SARL events.
 	 * @param callback function which is invoked just before the object is unregistered.
-	 * @since 2.0.7.0
+	 * @since 0.7.0
 	 */
 	def unregisterEventBusListener(listenerType : Class<?>, callback : (Object)=>void = null)
 
@@ -86,7 +86,7 @@ capacity InternalEventBusCapacity {
 	 * @param listener the sole receiver of the event. If {@code null}, all the listeners on the event bus will
 	 *     receive the event. If not {@code null}, only the given listener will receive the event.
 	 * @return the events that were received during the execution of this function. These events are not fired into the agent context yet.
-	 * @since 2.0.7.0
+	 * @since 0.7.0
 	 */
 	def fireEventAndWait(^event : Event, gatherEvents : boolean, thrownExceptions : boolean,
 		listener : Object) : Iterable<Event>
@@ -117,7 +117,7 @@ capacity InternalEventBusCapacity {
 	 * <p>Any exception thrown by an event handler is catch by the associated thread.
 	 *
 	 * <p>The event is not fired if the agent's state does not allow it.
-	 * See {@link io.janusproject.sre.services.lifecycle.AgentState}. 
+	 * See {@link io.sarl.sre.services.lifecycle.AgentState}. 
 	 * 
 	 * @param event the event to fire.
 	 */

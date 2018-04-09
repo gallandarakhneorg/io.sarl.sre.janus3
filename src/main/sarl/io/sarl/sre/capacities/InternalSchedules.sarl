@@ -24,13 +24,13 @@ import io.sarl.core.Schedules
 import io.sarl.lang.core.Behavior
 
 /** 
- * Capacity for executing tasks with specific functions for the Janus platform.
+ * Capacity for executing tasks with specific functions for the SRE platform.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 capacity InternalSchedules extends Schedules {
 

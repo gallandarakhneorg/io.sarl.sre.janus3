@@ -21,11 +21,11 @@
 package io.sarl.sre.services.infrastructure
 
 import com.google.common.util.concurrent.Service
-import io.sarl.sre.services.AbstractJanusService
+import io.sarl.sre.services.AbstractSreService
 import javax.inject.Singleton
 
 /** 
- * This class supports the management of the Janus infrastructure inside a closed environment.
+ * This class supports the management of the SRE infrastructure inside a closed environment.
  * 
  * <p>This service is thread-safe.
  * 
@@ -35,7 +35,7 @@ import javax.inject.Singleton
  * @mavenartifactid $ArtifactId$
  */
 @Singleton
-class BasicInfrastructureService extends AbstractJanusService implements InfrastructureService {
+class BasicInfrastructureService extends AbstractSreService implements InfrastructureService {
 	
 	def getServiceType : Class<? extends Service> {
 		typeof(InfrastructureService)

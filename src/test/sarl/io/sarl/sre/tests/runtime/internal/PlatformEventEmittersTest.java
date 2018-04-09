@@ -1,15 +1,16 @@
 /*
  * $Id$
  *
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
  *
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
+ * Copyright (C) 2014-2018 the original authors or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,7 +62,7 @@ import io.sarl.lang.core.Behavior;
 import io.sarl.lang.core.Event;
 import io.sarl.lang.core.SpaceID;
 import io.sarl.sre.tests.runtime.bugs.Bug546;
-import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
+import io.sarl.sre.tests.testutils.AbstractSreRunTest;
 import io.sarl.util.OpenEventSpace;
 import io.sarl.util.OpenEventSpaceSpecification;
 
@@ -90,7 +91,7 @@ import io.sarl.util.OpenEventSpaceSpecification;
 public class PlatformEventEmittersTest {
 
 	@SuppressWarnings("all")
-	public static class InitializeTest extends AbstractJanusRunTest {
+	public static class InitializeTest extends AbstractSreRunTest {
 
 		@SarlSpecification
 		public static class MyAgent extends TestingAgent {
@@ -135,14 +136,14 @@ public class PlatformEventEmittersTest {
 		
 		@Test
 		public void withinAgentAndBehavior() throws Exception {
-			runJanus(MyAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(MyAgent.class, false, true, STANDARD_TIMEOUT);
 			assertContains(getResults(), "AGENT", "BEHAVIOR");
 		}
 
 	}
 
 	@SuppressWarnings("all")
-	public static class DestroyTest extends AbstractJanusRunTest {
+	public static class DestroyTest extends AbstractSreRunTest {
 
 		@SarlSpecification
 		public static class MyAgent extends TestingAgent {
@@ -196,14 +197,14 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void withinAgentAndBehavior() throws Exception {
-			runJanus(MyAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(MyAgent.class, false, true, STANDARD_TIMEOUT);
 			assertContains(getResults(), "AGENT", "BEHAVIOR");
 		}
 
 	}
 
 	@SuppressWarnings("all")
-	public static class AgentSpawnedTest extends AbstractJanusRunTest {
+	public static class AgentSpawnedTest extends AbstractSreRunTest {
 
 		@SarlSpecification
 		public static class MyWaiterAgent extends TestingAgent {
@@ -277,7 +278,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertEquals(5, getNumberOfResults());
 			assertEquals("SPAWNER", getResult(String.class, 0));
@@ -296,7 +297,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class AgentKilledTest extends AbstractJanusRunTest {
+	public static class AgentKilledTest extends AbstractSreRunTest {
 
 		@SarlSpecification
 		public static class MyWaiterAgent extends TestingAgent {
@@ -369,7 +370,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertEquals(4, getNumberOfResults());
 			assertEquals("SPAWNER", getResult(String.class, 0));
@@ -387,7 +388,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class MemberJoinedAtTheSameTimeAsAgentSpawnedTest extends AbstractJanusRunTest {
+	public static class MemberJoinedAtTheSameTimeAsAgentSpawnedTest extends AbstractSreRunTest {
 
 		@SarlSpecification
 		public static class MyWaiterAgent extends TestingAgent {
@@ -460,7 +461,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertEquals(5, getNumberOfResults());
 			assertEquals("SPAWNER", getResult(String.class, 0));
@@ -479,7 +480,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class MemberLeftAtTheSameTimeAsAgentKilledTest extends AbstractJanusRunTest {
+	public static class MemberLeftAtTheSameTimeAsAgentKilledTest extends AbstractSreRunTest {
 
 		@SarlSpecification
 		public static class MyWaiterAgent extends TestingAgent {
@@ -543,7 +544,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertEquals(4, getNumberOfResults());
 			assertEquals("SPAWNER", getResult(String.class, 0));
@@ -560,7 +561,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class MemberJoinedTest extends AbstractJanusRunTest {
+	public static class MemberJoinedTest extends AbstractSreRunTest {
 
 		private static String simpleName(String name) {
 			int index = name.lastIndexOf("$");
@@ -703,7 +704,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(RootAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(RootAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertContains(getResults(),
 					"ROOT:ChildAgent", // Spawning
@@ -714,7 +715,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class MemberLeftTest extends AbstractJanusRunTest {
+	public static class MemberLeftTest extends AbstractSreRunTest {
 
 		private static String simpleName(String name) {
 			int index = name.lastIndexOf("$");
@@ -856,7 +857,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(RootAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(RootAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertTrue(getResults().contains("ROOT:Child2Agent")); // Suicide of Child2
 			assertTrue(getResults().contains("CHILD1:Child2Agent")); // Suicide of Child2
@@ -865,7 +866,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class ContextJoinedTest extends AbstractJanusRunTest {
+	public static class ContextJoinedTest extends AbstractSreRunTest {
 		
 		@SarlSpecification
 		public static class RootAgent extends TestingAgent {
@@ -1000,7 +1001,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(RootAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(RootAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertContains(getResults(),
 					"CHILD2"); // Child2 joined the inner context of ROOT
@@ -1009,7 +1010,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class ContextLeftTest extends AbstractJanusRunTest {
+	public static class ContextLeftTest extends AbstractSreRunTest {
 
 		@SarlSpecification
 		public static class Bye extends Event {
@@ -1166,7 +1167,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(RootAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(RootAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertContains(getResults(),
 					"CHILD2"); // Child2 left the inner context of ROOT
@@ -1175,7 +1176,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class SpaceCreatedTest extends AbstractJanusRunTest {
+	public static class SpaceCreatedTest extends AbstractSreRunTest {
 
 		private static class Data {
 			public String label;
@@ -1259,7 +1260,7 @@ public class PlatformEventEmittersTest {
 
 		@Test
 		public void run() throws Exception {
-			runJanus(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
+			runSre(MyWaiterAgent.class, false, true, STANDARD_TIMEOUT);
 			
 			assertEquals(2, getNumberOfResults());
 			Data data1 = getResult(Data.class, 0);
@@ -1298,7 +1299,7 @@ public class PlatformEventEmittersTest {
 	}
 
 	@SuppressWarnings("all")
-	public static class SpaceDestroyedTest extends AbstractJanusRunTest {
+	public static class SpaceDestroyedTest extends AbstractSreRunTest {
 
 		@Test
 		@Ignore("Destruction of spaces is not yet implemented")

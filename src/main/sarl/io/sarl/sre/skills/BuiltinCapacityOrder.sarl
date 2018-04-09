@@ -29,7 +29,7 @@ import io.sarl.lang.core.Skill
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 final class BuiltinCapacitiesOrder {
 
@@ -73,7 +73,7 @@ final class BuiltinCapacitiesOrder {
 	 */
 	static def computeInstallationOrder(^skill : Skill) : int {
 		val len = BuiltinCapacitiesOrder::SKILL_INSTALLATION_ORDER.length
-		if (^skill instanceof JanusBuiltin) {
+		if (^skill instanceof BuiltinSkill) {
 			for (var i = 0; i < len; i++) {
 				val type = BuiltinCapacitiesOrder::SKILL_INSTALLATION_ORDER.get(i)
 				if (type.isInstance(^skill)) {

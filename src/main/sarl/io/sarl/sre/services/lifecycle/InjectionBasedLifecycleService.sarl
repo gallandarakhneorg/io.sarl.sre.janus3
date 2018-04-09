@@ -33,7 +33,7 @@ import javax.inject.Provider
 import io.sarl.lang.annotation.PrivateAPI
 
 /** 
- * Implementation of a spawning service that is based on the other services of the Janus platform.
+ * Implementation of a spawning service that is based on the other services of the SRE platform.
  * 
  * @author $Author: srodriguez$
  * @author $Author: sgalland$

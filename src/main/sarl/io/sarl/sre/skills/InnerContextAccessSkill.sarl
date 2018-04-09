@@ -39,7 +39,7 @@ import static io.sarl.sre.skills.InnerContextAccessSkill.BinFlags.*
 import static extension io.sarl.sre.services.lifecycle.AgentLife.*
 
 /** 
- * Janus implementation of SARL's {@link InnerContextAccess} built-in capacity.
+ * SRE implementation of SARL's {@link InnerContextAccess} built-in capacity.
  *
  * <p>The inner context instance is stored into the {@link AgentLife}.
  * 
@@ -50,7 +50,7 @@ import static extension io.sarl.sre.services.lifecycle.AgentLife.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill InnerContextAccessSkill extends JanusBuiltin implements InnerContextAccess {
+skill InnerContextAccessSkill extends BuiltinSkill implements InnerContextAccess {
 
 	uses InternalEventBusCapacity
 

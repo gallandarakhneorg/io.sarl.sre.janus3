@@ -21,6 +21,7 @@
 package io.sarl.sre.services.context
 
 import com.google.inject.Injector
+import io.bootique.config.ConfigurationFactory
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
@@ -28,7 +29,7 @@ import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
 import io.sarl.lang.core.SpaceSpecification
 import io.sarl.lang.util.SynchronizedIterable
-import io.sarl.sre.JanusConfig
+import io.sarl.sre.boot.factories.ExecutorFactory
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.spaces.AbstractSpace
 import io.sarl.sre.spaces.SpaceListener
@@ -76,13 +77,13 @@ abstract class SpaceRepository implements SpaceListener {
 	 *
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
+	 * @param configFactory accessor to the configuration.
 	 */
 	@Inject
-	new (injector : Injector, executor : ExecutorService) {
+	new (injector : Injector, executor : ExecutorService, configFactory : ConfigurationFactory) {
 		this.injector = injector
 		this.executor = executor
-		this.destroyDelay = JanusConfig::getSystemPropertyAsInteger(
-			JanusConfig::SPACE_KEEP_ALIVE_DURATION_NAME, JanusConfig::SPACE_KEEP_ALIVE_DURATION_VALUE)
+		this.destroyDelay = ExecutorFactory::getConfigurationFactory(configFactory).keepAliveDuration
 	}
 
 	/** Replies the internal map that contains the spaces */
@@ -516,7 +517,7 @@ interface SpaceRepositoryListener extends EventListener {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.7.0
+ * @since 0.7.0
  */
 interface SpaceRepositoryListenerFactory {
 

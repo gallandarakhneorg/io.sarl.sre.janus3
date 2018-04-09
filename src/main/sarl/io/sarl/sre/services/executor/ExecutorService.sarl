@@ -30,7 +30,7 @@ import java.util.function.Consumer
 import java.util.logging.Logger
 
 /** 
- * This class enables the Janus kernel to be distributed other a network.
+ * This class enables the SRE kernel to be distributed other a network.
  * 
  * @author $Author: srodriguez$
  * @author $Author: sgalland$
@@ -43,7 +43,7 @@ interface ExecutorService extends DependentService {
 	/** This function ask to the executor service to give the execution resource
 	 * to another thread if possible.
 	 * 
-	 * @since 2.0.7.0
+	 * @since 0.7.0
 	 */
 	static def yield : void {
 		try {
@@ -59,7 +59,7 @@ interface ExecutorService extends DependentService {
 	 * @param postCommand is the command to be run when the early-exit exception is catch.
 	 *    This command may be used for running post actions on the same thread as the one which
 	 *    does an early exit.
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	static def neverReturn(postCommand : Runnable = null) {
 		throw new EarlyExitException(postCommand)
@@ -211,7 +211,7 @@ interface ExecutorService extends DependentService {
 	 * @param task the task to submit.
 	 * @param thrownExceptions indicates if the exceptions in the given tasks are thrown forward by this function.
 	 * @param logger the logger to use for errors.
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	def executeBlockingTasks(logger : Logger = null, thrownExceptions : boolean = false, task : Collection<Runnable>)
 	
@@ -228,7 +228,7 @@ interface ExecutorService extends DependentService {
 	 * @param logger the logger to use for errors.
 	 * @param collection the collection of elements to iterate on.
 	 * @param task the task to submit. Be sure that the task is synchronized on the given collection.
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	def applyBlockingConsumer(logger : Logger = null, collection : Iterable<T>, task : Consumer<? super T>) with T
 
@@ -265,7 +265,7 @@ interface ExecutorService extends DependentService {
 	 * @param runGroupSize the number of tasks to be run by a single thread.
 	 * @return the number of successful runs.
 	 * @throws InterruptedException when the function cannot wait for task termination.
-	 * @since 2.0.5.0
+	 * @since 0.5.0
 	 */
 	def executeBlockingTask(logger : Logger = null, nbExecutions : int, runGroupSize : int,
 		task : Runnable) : int

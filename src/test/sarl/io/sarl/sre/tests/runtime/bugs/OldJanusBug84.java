@@ -1,15 +1,16 @@
 /*
  * $Id$
  *
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
  *
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
+ * Copyright (C) 2014-2018 the original authors or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,21 +21,15 @@
 
 package io.sarl.sre.tests.runtime.bugs;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
-
-import java.net.InetAddress;
 import java.util.UUID;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import io.sarl.sre.Boot;
-import io.sarl.sre.Kernel;
-import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
 import io.sarl.core.Lifecycle;
 import io.sarl.lang.SARLVersion;
 import io.sarl.lang.annotation.SarlSpecification;
+import io.sarl.sre.Kernel;
+import io.sarl.sre.tests.testutils.AbstractSreRunTest;
 
 /**
  * Unit test for the issue #84: Problem with calling killMe in Initialize behavior of an agent.
@@ -46,11 +41,11 @@ import io.sarl.lang.annotation.SarlSpecification;
  * @see https://github.com/janus-project/janusproject/issues/84
  */
 @SuppressWarnings("all")
-public class OldJanusBug84 extends AbstractJanusRunTest {
+public class OldJanusBug84 extends AbstractSreRunTest {
 
 	@Test
 	public void killMeInInit() throws Exception {
-		Kernel kern = runJanus(KilledInInitAgent.class, false, true, STANDARD_TIMEOUT);
+		Kernel kern = runSre(KilledInInitAgent.class, false, true, STANDARD_TIMEOUT);
 		assertNoErrorLog(kern);
 		assertContains(getResults());
 	}

@@ -34,7 +34,7 @@ import static io.sarl.sre.skills.LoggingSkill.BinFlags.*
 import java.util.function.Supplier
 
 /** 
- * Janus implementation of SARL's {@link Logging} built-in capacity.
+ * SRE implementation of SARL's {@link Logging} built-in capacity.
  * 
  * @author $Author: srodriguez$
  * @author $Author: ngaud$
@@ -43,7 +43,7 @@ import java.util.function.Supplier
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill LoggingSkill extends JanusBuiltin implements Logging {
+skill LoggingSkill extends BuiltinSkill implements Logging {
 
 	private static class BinFlags {
 		static var installationOrder = -1

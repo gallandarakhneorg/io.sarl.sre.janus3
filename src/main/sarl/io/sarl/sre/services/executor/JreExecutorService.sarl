@@ -20,7 +20,9 @@
  */
 package io.sarl.sre.services.executor
 
-import io.sarl.sre.JanusConfig
+import io.bootique.config.ConfigurationFactory
+import io.sarl.sre.boot.factories.ExecutorFactory
+import io.sarl.sre.services.PreReleasableService
 import java.lang.Thread.UncaughtExceptionHandler
 import java.lang.ref.WeakReference
 import java.util.Collection
@@ -33,7 +35,6 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Singleton
-import io.sarl.sre.services.PreReleasableService
 
 /** 
  * Service that executes the tasks asynchronously (in threads) with the JRE executor service.
@@ -51,6 +52,8 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 	var uncaughtExceptionHandler : UncaughtExceptionHandler
 
 	var purgeTask : ScheduledFuture<?>
+
+	var configuration : ExecutorFactory
 
 	/** 
 	 * Change the JRE service for scheduled tasks.
@@ -89,6 +92,25 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 		this.uncaughtExceptionHandler
 	}
 
+	/** 
+	 * Change the bootique configuration factory.
+	 * 
+	 * @param factory the configuration factory.
+	 */
+	@Inject
+	def setConfigurationFactory(factory : ConfigurationFactory) {
+		this.configuration = ExecutorFactory::getConfigurationFactory(factory)
+	}
+
+	/** 
+	 * Replies the configuration factory.
+	 * 
+	 * @param the configuration factory.
+	 */
+	def getConfigurationFactory : ExecutorFactory {
+		this.configuration
+	}
+
 	protected def onStart {
 		assert this.jreSchedules !== null
 		var uncaughtHandler = getUncaughtExceptionHandler
@@ -99,8 +121,7 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 		var es = executorService
 		var ses = scheduledExecutorService
 		if (es instanceof ThreadPoolExecutor || ses instanceof ThreadPoolExecutor) {
-			val delay = JanusConfig::getSystemPropertyAsInteger(JanusConfig::KERNEL_THREAD_TIMEOUT_NAME,
-					2 * JanusConfig.KERNEL_THREAD_TIMEOUT_VALUE)
+			val delay = configurationFactory.timeout * 2
 			this.purgeTask = scheduledExecutorService.scheduleWithFixedDelay(new Purger(this),
 				delay, delay, TimeUnit::SECONDS)
 		}
@@ -138,11 +159,11 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 	 * @param logger the logger to use.
 	 * @return the task.
 	 */
-	protected def wrap(runnable : Runnable, logger : Logger) : JanusRunnable {
-		if (runnable instanceof JanusRunnable) {
+	protected def wrap(runnable : Runnable, logger : Logger) : SreRunnable {
+		if (runnable instanceof SreRunnable) {
 			return runnable
 		}
-		return new JanusRunnable(runnable, logger)
+		return new SreRunnable(runnable, logger)
 	}
 
 	/** Create a task with the given callable.
@@ -152,11 +173,11 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 	 * @param logger the logger to use.
 	 * @return the task.
 	 */
-	protected def wrap(callable : Callable<T>, logger : Logger) : JanusCallable<T> with T {
-		if (callable instanceof JanusCallable<?>) {
-			return callable as JanusCallable<T>
+	protected def wrap(callable : Callable<T>, logger : Logger) : SreCallable<T> with T {
+		if (callable instanceof SreCallable<?>) {
+			return callable as SreCallable<T>
 		}
-		return new JanusCallable(callable, logger)
+		return new SreCallable(callable, logger)
 	}
 
 	def executeBlockingTasks(logger : Logger, thrownExceptions : boolean = false,
@@ -263,7 +284,7 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 		}
 
 		def toString : String {
-			"Janus Thread Purger"
+			"SARL Thread Purger"
 		}
 
 	}

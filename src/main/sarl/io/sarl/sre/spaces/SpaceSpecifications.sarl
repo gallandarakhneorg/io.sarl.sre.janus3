@@ -34,14 +34,14 @@ import java.security.acl.Acl
 import java.security.acl.Permission
 
 /** 
- * Specification for standard event spaces into Janus. 
+ * Specification for standard event spaces into the SRE. 
  * 
  * @author $Author: srodriguez$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-class JanusEventSpaceSpecification implements EventSpaceSpecification {
+class SreEventSpaceSpecification implements EventSpaceSpecification {
 
 	val injector : Injector
 	
@@ -63,14 +63,14 @@ class JanusEventSpaceSpecification implements EventSpaceSpecification {
 }
 
 /** 
- * Event space specification related to Janus 
+ * Event space specification related to the SRE. 
  * 
  * @author $Author: srodriguez$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-class JanusOpenEventSpaceSpecification implements OpenEventSpaceSpecification {
+class SreOpenEventSpaceSpecification implements OpenEventSpaceSpecification {
 
 	var injector : Injector
 
@@ -103,7 +103,7 @@ class JanusOpenEventSpaceSpecification implements OpenEventSpaceSpecification {
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-class JanusRestrictedAccessEventSpaceSpecification implements RestrictedAccessEventSpaceSpecification {
+class SreRestrictedAccessEventSpaceSpecification implements RestrictedAccessEventSpaceSpecification {
 
 	var injector : Injector
 

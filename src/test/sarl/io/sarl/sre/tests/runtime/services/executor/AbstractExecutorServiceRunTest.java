@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.runtime.services.executor;
 
 import static org.junit.Assert.assertNotNull;
@@ -24,20 +26,17 @@ import static org.junit.Assert.assertNotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import io.sarl.sre.Boot;
 import io.sarl.core.AgentTask;
 import io.sarl.core.Destroy;
 import io.sarl.core.Schedules;
 import io.sarl.lang.SARLVersion;
 import io.sarl.lang.annotation.PerceptGuardEvaluator;
 import io.sarl.lang.annotation.SarlSpecification;
-import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
+import io.sarl.sre.tests.testutils.AbstractSreRunTest;
 
 /**
  * @author $Author: sgalland$
@@ -46,11 +45,11 @@ import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public abstract class AbstractExecutorServiceRunTest extends AbstractJanusRunTest {
+public abstract class AbstractExecutorServiceRunTest extends AbstractSreRunTest {
 
 	@Test
 	public void execute() throws Exception {
-		runJanus(ExecuteAgent.class, false, true, 60);
+		runSre(ExecuteAgent.class, false, true, 60);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertNumberOfResults(1);
@@ -83,7 +82,7 @@ public abstract class AbstractExecutorServiceRunTest extends AbstractJanusRunTes
 
 	@Test
 	public void in() throws Exception {
-		runJanus(InAgent.class, false, true, 60);
+		runSre(InAgent.class, false, true, 60);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertNumberOfResults(1);
@@ -116,7 +115,7 @@ public abstract class AbstractExecutorServiceRunTest extends AbstractJanusRunTes
 
 	@Test
 	public void every() throws Exception {
-		runJanus(EveryAgent.class, false, true, 60);
+		runSre(EveryAgent.class, false, true, 60);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertNumberOfResults(1);
@@ -169,7 +168,7 @@ public abstract class AbstractExecutorServiceRunTest extends AbstractJanusRunTes
 
 	@Test
 	public void atFixedDelay() throws Exception {
-		runJanus(AtFixedDelayAgent.class, false, true, 60);
+		runSre(AtFixedDelayAgent.class, false, true, 60);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertNumberOfResults(1);
@@ -222,7 +221,7 @@ public abstract class AbstractExecutorServiceRunTest extends AbstractJanusRunTes
 
 	@Test
 	public void getActiveTasks() throws Exception {
-		runJanus(GetActiveTasksAgent.class, false, true, 60);
+		runSre(GetActiveTasksAgent.class, false, true, 60);
 		assertNumberOfResults(3);
 		List<String> actives1 = getResult(List.class, 0);
 		assertContains(actives1, "T1");
@@ -279,7 +278,7 @@ public abstract class AbstractExecutorServiceRunTest extends AbstractJanusRunTes
 
 	@Test
 	public void cancel() throws Exception {
-		runJanus(CancelTaskAgent.class, false, true, 60);
+		runSre(CancelTaskAgent.class, false, true, 60);
 		assertNumberOfResults(4);
 		List<String> actives1 = getResult(List.class, 0);
 		assertContains(actives1, "T1");

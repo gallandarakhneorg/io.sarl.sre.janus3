@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.services.lifecycle;
 
 import static org.junit.Assert.assertFalse;
@@ -55,7 +57,7 @@ import io.sarl.lang.util.SynchronizedIterable;
 import io.sarl.sarlspecification.SarlSpecificationChecker;
 import io.sarl.sre.capacities.InternalEventBusCapacity;
 import io.sarl.sre.services.context.ExternalContextMemberListener;
-import io.sarl.sre.services.context.JanusContext;
+import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.executor.ExecutorService;
 import io.sarl.sre.services.lifecycle.AbstractLifecycleService;
 import io.sarl.sre.services.lifecycle.AgentLife;
@@ -69,7 +71,7 @@ import io.sarl.sre.services.lifecycle.SkillUninstaller;
 import io.sarl.sre.services.lifecycle.SpawnDisabledException;
 import io.sarl.sre.services.lifecycle.SpawnResult;
 import io.sarl.sre.services.logging.LoggingService;
-import io.sarl.sre.tests.testutils.AbstractJanusTest;
+import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.Collections3;
 import io.sarl.util.OpenEventSpace;
@@ -82,7 +84,7 @@ import io.sarl.util.OpenEventSpaceSpecification;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> extends AbstractJanusTest {
+public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> extends AbstractSreTest {
 
 	@Nullable
 	protected UUID contextId;
@@ -97,7 +99,7 @@ public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleSe
 	protected Agent agent2;
 
 	@Nullable
-	protected JanusContext outContext;
+	protected Context outContext;
 
 	@Nullable
 	private ExecutorService executor;
@@ -120,7 +122,7 @@ public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleSe
 	@Before
 	public void setUp() {
 		this.contextId = UUID.randomUUID();
-		this.outContext = mock(JanusContext.class);
+		this.outContext = mock(Context.class);
 		this.eventBus = spy(new MyEventBus());
 		when(this.outContext.getID()).thenReturn(this.contextId);
 		OpenEventSpace space = mock(OpenEventSpace.class);
@@ -150,7 +152,7 @@ public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleSe
 	}
 	
 	private void createInnerContext(UUID... ids) {
-		JanusContext innerContext = mock(JanusContext.class);
+		Context innerContext = mock(Context.class);
 		AgentLife.getLife(this.agent).setInnerContext(innerContext);
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(innerContext.getDefaultSpace()).thenReturn(space);
@@ -160,9 +162,9 @@ public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleSe
 		when(space.getParticipants()).thenReturn(Collections3.unmodifiableSynchronizedSet(set, this));
 	}
 
-	private JanusContext createOuterContext(Agent agent) {
+	private Context createOuterContext(Agent agent) {
 		UUID contextId = UUID.randomUUID();
-		JanusContext context = mock(JanusContext.class);
+		Context context = mock(Context.class);
 		when(context.getID()).thenReturn(contextId);
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(context.getDefaultSpace()).thenReturn(space);
@@ -261,7 +263,7 @@ public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleSe
 
 		// Agent spawned
 		ArgumentCaptor<UUID> capSpawningAgent = ArgumentCaptor.forClass(UUID.class);
-		ArgumentCaptor<JanusContext> capParentContext = ArgumentCaptor.forClass(JanusContext.class);
+		ArgumentCaptor<Context> capParentContext = ArgumentCaptor.forClass(Context.class);
 		ArgumentCaptor<Class<? extends Agent>> capAgentType = ArgumentCaptor.forClass(Class.class);
 		ArgumentCaptor<List<Agent>> capAgents = ArgumentCaptor.forClass(List.class);
 		ArgumentCaptor<Object[]> capParams = ArgumentCaptor.forClass(Object[].class);
@@ -312,10 +314,10 @@ public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleSe
 		this.service.addKernelAgentLifecycleListener(listener2);
 
 		startService();
-		JanusContext defaultContext = createOuterContext(this.agent2);
+		Context defaultContext = createOuterContext(this.agent2);
 		AgentLife.getLife(this.agent2).setDefaultContext(defaultContext,
 				new Address(defaultContext.getDefaultSpace().getSpaceID(), this.agent.getID()));
-		JanusContext outerContext = createOuterContext(this.agent2);
+		Context outerContext = createOuterContext(this.agent2);
 		AgentLife.getLife(this.agent2).addExternalContext(outerContext,
 				new Address(outerContext.getDefaultSpace().getSpaceID(), this.agent.getID()));
 

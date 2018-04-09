@@ -65,7 +65,7 @@ interface DependentService extends Service {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.7.0
+ * @since 0.7.0
  */
 interface PreReleasableService extends Service {
 
@@ -85,7 +85,7 @@ interface PreReleasableService extends Service {
  * @mavenartifactid $ArtifactId$
  */
 @Singleton
-abstract class AbstractDependentService extends AbstractJanusService implements DependentService {
+abstract class AbstractDependentService extends AbstractSreService implements DependentService {
 
 	def getServiceDependencies : Collection<Class<? extends Service>> {
 		Collections::emptyList

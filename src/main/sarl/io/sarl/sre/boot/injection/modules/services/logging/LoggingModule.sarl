@@ -1,0 +1,120 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.boot.injection.modules.services.logging
+
+import com.google.inject.AbstractModule
+import com.google.inject.Injector
+import com.google.inject.Provides
+import com.google.inject.Singleton
+import com.google.inject.name.Named
+import io.sarl.sre.boot.factories.BootFactory
+import io.sarl.sre.boot.factories.LoggingFactory
+import io.sarl.sre.services.logging.JreLoggingService
+import io.sarl.sre.services.logging.LoggerCreator
+import io.sarl.sre.services.logging.LoggingService
+import io.sarl.sre.services.logging.QuietLoggingService
+import java.util.logging.Level
+
+import static io.sarl.sre.boot.factories.LoggingFactory.*
+import static extension io.sarl.sre.boot.injection.api.ModuleUtil.*
+
+/** 
+ * Module for the logging services.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+class LoggingModule extends AbstractModule {
+
+	protected override configure {
+		binder() => [
+			associateEnvironmentVariable(VERBOSE_LEVEL_NAME)
+			associateEnvironmentVariable(FORMAT_NAME)
+		]
+	}
+
+	/** 
+	 * Replies the verbose level.
+	 * 
+	 * @param configFactory accessor to the bootique factory.
+	 * @return the verbose level.
+	 */
+	@Provides
+	@Named(VERBOSE_LEVEL_NAME)
+	@Singleton
+	def getVerboseLevelObject(configFactory : LoggingFactory) : Level {
+		configFactory.levelObject
+	}
+
+	/** 
+	 * Replies the verbose level.
+	 * 
+	 * @param configFactory accessor to the bootique factory.
+	 * @return the verbose level.
+	 */
+	@Provides
+	@Named(VERBOSE_LEVEL_NAME)
+	@Singleton
+	def getVerboseLevel(configFactory : LoggingFactory) : String {
+		configFactory.level
+	}
+
+	/** 
+	 * Replies the verbose level.
+	 * 
+	 * @param configFactory accessor to the bootique factory.
+	 * @param injector the injector of the members.
+	 * @return the verbose level.
+	 */
+	@Provides
+	@Singleton
+	def getLoggingService(configFactory : LoggingFactory, injector : Injector) : LoggingService {
+		var level = configFactory.levelObject
+		var srv : LoggingService
+		if (level != Level::OFF) {
+			srv = new JreLoggingService
+		} else {
+			srv = new QuietLoggingService
+		}
+		injector.injectMembers(srv)
+		return srv
+	}
+
+	/** 
+	 * Replies the creator of loggers.
+	 * 
+	 * @param loggingFactory accessor to the logging bootique factory.
+	 * @param bootFactory accessor to the boot bootique factory.
+	 * @param injector the injector of the members.
+	 * @return the logger creator.
+	 */
+	@Provides
+	@Singleton
+	def getLoggerCreator(loggingFactory : LoggingFactory, bootFactory : BootFactory,
+		injector : Injector) : LoggerCreator {
+		var creator = new LoggerCreator(loggingFactory.format, loggingFactory.levelObject, bootFactory.programName)
+		injector.injectMembers(creator)
+		return creator
+	}
+	
+}

@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.Service
 import io.sarl.sre.KernelScope
 import io.sarl.sre.services.AbstractDependentService
 import io.sarl.sre.services.context.ExternalContextMemberListener
-import io.sarl.sre.services.context.JanusContext
+import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.lang.core.Agent
@@ -42,7 +42,7 @@ import org.arakhne.afc.util.ListenerCollection
 import static extension io.sarl.sre.services.lifecycle.AgentLife.*
 
 /** 
- * Implementation of a spawning service that is based on the other services of the Janus platform.
+ * Implementation of a spawning service that is based on the other services of the SRE platform.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -181,7 +181,7 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 	 * @param agents the spawned agents.
 	 * @param initializationParameters the initialization parameters.
 	 */
-	protected def fireAgentSpawned(spawningAgent : UUID, context : JanusContext,
+	protected def fireAgentSpawned(spawningAgent : UUID, context : Context,
 		agentClazz : Class<? extends Agent>, agents : List<Agent>, initializationParameters : Object*) {
 		for (listener : this.globalListeners.getListeners(typeof(LifecycleServiceListener))) {
 			listener.agentSpawned(spawningAgent, context, agentClazz, agents, initializationParameters)
@@ -216,7 +216,7 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 		}
 	}
 
-	def spawnAgent(nbAgents : int, spawningAgent : UUID, parent : JanusContext, agentId : UUID,
+	def spawnAgent(nbAgents : int, spawningAgent : UUID, parent : Context, agentId : UUID,
 		agentClazz : Class<? extends Agent>, params : Object*) : SpawnResult {
 		val agents = new ArrayList<Agent>(nbAgents)
 		val errors = new ArrayList<Throwable>()
@@ -287,7 +287,7 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 	 * @param agentClazz the type of the spawned agents.
 	 * @param spawnedAgents the spawnedAgents.
 	 */
-	protected def fireAgentSpawningEvents(spawningAgent : UUID, parent : JanusContext,
+	protected def fireAgentSpawningEvents(spawningAgent : UUID, parent : Context,
 		agentClazz : Class<? extends Agent>, params : Object[], spawnedAgents : List<Agent>) {
 		spawningAgent.fireAgentSpawned(parent, agentClazz, spawnedAgents, params)
 		val spaceID = parent.defaultSpace.spaceID
@@ -314,7 +314,7 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 	 * @return {@code true} if the given context is the root context, and it is empty.
 	 * @Otherwise {@code false}.
 	 */
-	protected static def isEmptyRootContext(context : JanusContext) {
+	protected static def isEmptyRootContext(context : Context) {
 		context !== null && context.rootContext && context.defaultSpace.participants.empty
 	}
 

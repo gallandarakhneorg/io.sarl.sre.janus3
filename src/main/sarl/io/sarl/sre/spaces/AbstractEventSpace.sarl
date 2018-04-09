@@ -160,7 +160,7 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 	 * 
 	 * @param eventSource the source of the event.
 	 * @param event the event to emit.
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	protected def ensureEventSource(eventSource : UUID, ^event : Event) {
 		if (^event.source === null) {
@@ -237,7 +237,7 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	public static class Participant {
 		

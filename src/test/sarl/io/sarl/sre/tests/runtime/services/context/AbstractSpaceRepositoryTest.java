@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.runtime.services.context;
 
 import static org.junit.Assert.assertNotNull;
@@ -35,7 +37,7 @@ import io.sarl.lang.core.Space;
 import io.sarl.lang.core.SpaceID;
 import io.sarl.lang.core.SpaceSpecification;
 import io.sarl.lang.util.SynchronizedSet;
-import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
+import io.sarl.sre.tests.testutils.AbstractSreRunTest;
 import io.sarl.util.Collections3;
 import io.sarl.util.OpenEventSpace;
 import io.sarl.util.OpenEventSpaceSpecification;
@@ -47,11 +49,11 @@ import io.sarl.util.OpenEventSpaceSpecification;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public abstract class AbstractSpaceRepositoryTest extends AbstractJanusRunTest {
+public abstract class AbstractSpaceRepositoryTest extends AbstractSreRunTest {
 
 	@Test
 	public void createSpace() throws Exception {
-		runJanus(CreateSpaceTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(CreateSpaceTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertContains(results, "FOUND");
@@ -88,7 +90,7 @@ public abstract class AbstractSpaceRepositoryTest extends AbstractJanusRunTest {
 
 	@Test
 	public void getOrCreateSpaceWithID() throws Exception {
-		runJanus(GetOrCreateSpaceWithIDTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(GetOrCreateSpaceWithIDTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertContains(results, "FOUND1", "FOUND2");
@@ -132,7 +134,7 @@ public abstract class AbstractSpaceRepositoryTest extends AbstractJanusRunTest {
 
 	@Test
 	public void getOrCreateSpaceWithSpec() throws Exception {
-		runJanus(GetOrCreateSpaceWithSpecTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(GetOrCreateSpaceWithSpecTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertContains(results, "FOUND2", "IS_DEFAULT_SPACE");
@@ -230,7 +232,7 @@ public abstract class AbstractSpaceRepositoryTest extends AbstractJanusRunTest {
 
 	@Test
 	public void getSpace() throws Exception {
-		runJanus(GetSpaceTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(GetSpaceTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertContains(results, "FOUND", "IS_DEFAULT_SPACE");
@@ -271,7 +273,7 @@ public abstract class AbstractSpaceRepositoryTest extends AbstractJanusRunTest {
 
 	@Test
 	public void getSpaces() throws Exception {
-		runJanus(GetSpacesTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(GetSpacesTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertContains(results, "1/OpenEventSpaceSpecification", "2/OpenEventSpaceSpecification", "2/MySpaceSpec");
@@ -307,7 +309,7 @@ public abstract class AbstractSpaceRepositoryTest extends AbstractJanusRunTest {
 
 	@Test
 	public void getSpacesClass() throws Exception {
-		runJanus(GetSpacesClassTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(GetSpacesClassTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertContains(results, "1/OpenEventSpaceSpecification", "2/OpenEventSpaceSpecification",

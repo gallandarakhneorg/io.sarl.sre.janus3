@@ -37,7 +37,7 @@ import io.sarl.core.Initialize
 import io.sarl.core.Destroy
 
 /** 
- * Janus implementation of SARL's {@link Behaviors} built-in capacity.
+ * SRE implementation of SARL's {@link Behaviors} built-in capacity.
  * 
  * @author $Author: srodriguez$
  * @author $Author: ngaud$
@@ -46,7 +46,7 @@ import io.sarl.core.Destroy
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill BehaviorsSkill extends JanusBuiltin implements Behaviors {
+skill BehaviorsSkill extends BuiltinSkill implements Behaviors {
 
 	uses InternalEventBusCapacity, InternalSchedules
 

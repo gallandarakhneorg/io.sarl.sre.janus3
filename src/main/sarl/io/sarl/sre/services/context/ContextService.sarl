@@ -32,7 +32,7 @@ import java.util.EventListener
 import java.util.UUID
 
 /** 
- * This service enables to store the contexts and to manage the spaces in the Janus platform.
+ * This service enables to store the contexts and to manage the spaces in the SRE platform.
  * 
  * @author $Author: srodriguez$
  * @author $Author: sgalland$
@@ -47,7 +47,7 @@ interface ContextService extends DependentService {
 	 *
 	 * @return the root context.
 	 */
-	def getRootContext : JanusContext
+	def getRootContext : Context
 
 	/** 
 	 * Create a new context instance and do not register it into the repository.
@@ -57,7 +57,7 @@ interface ContextService extends DependentService {
 	 * @param rootContext indicates if the created context is a root context.
 	 * @return the context.
 	 */
-	def createContextWithoutRegistration(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : JanusContext
+	def createContextWithoutRegistration(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : Context
 
 	/**
 	 * Create a new context instance and register it into the internal repository.
@@ -66,7 +66,7 @@ interface ContextService extends DependentService {
 	 * @param defaultSpaceID the id of the default space of the context to create.
 	 * @return the context.
 	 */
-	def createContext(contextID : UUID, defaultSpaceID : UUID) : JanusContext
+	def createContext(contextID : UUID, defaultSpaceID : UUID) : Context
 
 	/** 
 	 * Replies an existing context instance.
@@ -74,14 +74,14 @@ interface ContextService extends DependentService {
 	 * @param contextID the id of the context to create
 	 * @return the context, {@code null}.
 	 */
-	def getContext(contextID : UUID) : JanusContext
+	def getContext(contextID : UUID) : Context
 	/** 
 	 * Remove the context instance.
 	 * 
 	 * @param contextID the id of the context to remove
 	 * @return the removed context, {@code null}.
 	 */
-	def removeContext(contextID : UUID) : JanusContext
+	def removeContext(contextID : UUID) : Context
 
 }
 
@@ -157,7 +157,7 @@ interface InternalContextMembershipListener extends EventListener {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.7.0
+ * @since 0.7.0
  */
 interface InternalContextMembershipListenerFactory {
 

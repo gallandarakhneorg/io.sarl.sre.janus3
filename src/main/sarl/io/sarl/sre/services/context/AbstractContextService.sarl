@@ -56,28 +56,28 @@ abstract class AbstractContextService extends AbstractDependentService implement
 	 *
 	 * @param context the new root context.
 	 */
-	public abstract def setRootContext(context : JanusContext);
+	public abstract def setRootContext(context : Context)
 
 	/** Replies the internal data structure for storing the contexts.
 	 *
 	 * <p>This function is not thread-safe.
 	 */
-	protected abstract def getContextInternalStructure : Map<UUID, JanusContext>
+	protected abstract def getContextInternalStructure : Map<UUID, Context>
 
-	final def createContextWithoutRegistration(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : JanusContext {
+	final def createContextWithoutRegistration(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : Context {
 		assert contextID !== null, "The contextID cannot be null"
 		assert defaultSpaceID !== null, "The defaultSpaceUUID cannot be null"
 		return contextID.newContextInstance(defaultSpaceID, rootContext)
 	}
 	
-	final def createContext(contextID : UUID, defaultSpaceID : UUID) : JanusContext {
+	final def createContext(contextID : UUID, defaultSpaceID : UUID) : Context {
 		assert contextID !== null, "The contextID cannot be null"
 		assert this.rootContext !== null, "No root context yet"
 		if (contextID == this.rootContext.ID) {
 			return this.rootContext
 		}
 		val repository = contextInternalStructure
-		var existingContext : JanusContext
+		var existingContext : Context
 		synchronized(mutex) {
 			existingContext = repository.get(contextID)
 		}
@@ -92,27 +92,27 @@ abstract class AbstractContextService extends AbstractDependentService implement
 		return context
 	}
 
-	def getContext(contextID : UUID) : JanusContext {
+	def getContext(contextID : UUID) : Context {
 		assert contextID !== null, "The contextID cannot be null"
 		assert rootContext !== null, "The root context cannot be null"
 		if (contextID == this.rootContext.ID) {
 			return this.rootContext
 		}
 		val repository = contextInternalStructure
-		var existingContext : JanusContext
+		var existingContext : Context
 		synchronized (mutex) {
 			existingContext = repository.get(contextID)
 		}
 		return existingContext
 	}
 
-	def removeContext(contextID : UUID) : JanusContext {
+	def removeContext(contextID : UUID) : Context {
 		assert contextID !== null, "The contextID cannot be null"
 		if (contextID == this.rootContext.ID) {
 			return null
 		}
 		val repository = contextInternalStructure
-		var existingContext : JanusContext
+		var existingContext : Context
 		synchronized (mutex) {
 			existingContext = repository.remove(contextID)
 		}
@@ -129,6 +129,6 @@ abstract class AbstractContextService extends AbstractDependentService implement
 	 * @param rootContext indicates if the new context is a root context.
 	 */
 	protected abstract def newContextInstance(contextID : UUID, defaultSpaceID : UUID,
-		rootContext : boolean) : JanusContext
+		rootContext : boolean) : Context
 
 }

@@ -39,7 +39,7 @@ import javax.inject.Inject
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 abstract class AbstractExecutorService extends AbstractDependentService implements ExecutorService {
 
@@ -149,7 +149,7 @@ abstract class AbstractExecutorService extends AbstractDependentService implemen
 	 * @param nbExecutions number of runs
 	 * @param runGroupSize the size of a parallel group
 	 */
-	protected final def executeInThreadsAndWait(task : JanusRunnable, nbExecutions : int,
+	protected final def executeInThreadsAndWait(task : SreRunnable, nbExecutions : int,
 		runGroupSize : int) : int {
 		assert runGroupSize >= 1
 		val es = executorService
@@ -227,11 +227,11 @@ abstract class AbstractExecutorService extends AbstractDependentService implemen
 	 * @param logger the logger to use.
 	 * @return the task.
 	 */
-	protected def wrap(consumer : Consumer<? super T>, logger : Logger) : JanusConsumer<T> with T {
-		if (consumer instanceof JanusConsumer<?>) {
-			return consumer as JanusConsumer<T>
+	protected def wrap(consumer : Consumer<? super T>, logger : Logger) : SreConsumer<T> with T {
+		if (consumer instanceof SreConsumer<?>) {
+			return consumer as SreConsumer<T>
 		}
-		return new JanusConsumer(consumer, logger)
+		return new SreConsumer(consumer, logger)
 	}
 
 	override applyBlockingConsumer(logger : Logger, collection : Iterable<T>, task : Consumer<? super T>) with T {

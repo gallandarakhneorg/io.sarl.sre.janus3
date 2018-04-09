@@ -28,14 +28,14 @@ import javax.inject.Inject
 import static io.sarl.sre.skills.TimeSkill.BinFlags.*
 
 /** 
- * Janus implementation of SARL's {@link Time} built-in capacity.
+ * SRE implementation of SARL's {@link Time} built-in capacity.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill TimeSkill extends JanusBuiltin implements Time {
+skill TimeSkill extends BuiltinSkill implements Time {
 
 	private static class BinFlags {
 		static var installationOrder = -1

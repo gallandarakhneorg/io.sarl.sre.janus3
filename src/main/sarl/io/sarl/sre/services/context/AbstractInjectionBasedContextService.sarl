@@ -44,7 +44,7 @@ abstract class AbstractInjectionBasedContextService extends AbstractContextServi
 
 	var injector : Injector
 
-	var rootContextInstance : JanusContext
+	var rootContextInstance : Context
 
 	var contextFactory : ContextFactory
 
@@ -65,7 +65,7 @@ abstract class AbstractInjectionBasedContextService extends AbstractContextServi
 	}
 
 	@Inject
-	public def setRootContext(@KernelScope rootContext : JanusContext) {
+	public def setRootContext(@KernelScope rootContext : Context) {
 		this.rootContextInstance = rootContext
 	}
 		
@@ -81,11 +81,11 @@ abstract class AbstractInjectionBasedContextService extends AbstractContextServi
 		#[ typeof(LoggingService) ]
 	}
 	
-	def getRootContext : JanusContext {
+	def getRootContext : Context {
 		this.rootContextInstance
 	}
 
-	protected def newContextInstance(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : JanusContext {
+	protected def newContextInstance(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : Context {
 		assert this.contextFactory !== null
 		assert this.injector !== null
 		var context = this.contextFactory.newInstance(contextID, defaultSpaceID, rootContext)

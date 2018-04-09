@@ -47,11 +47,11 @@ final class EarlyExitException extends RuntimeException {
 	/** Run any post treatment that is associated with the early-exist action.
 	 *
 	 * @param logger the logger to use for outputing the errors.
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	def runPostTreatment(logger : Logger) {
 		if (this.postCommand !== null) {
-			var protectedRun = new JanusRunnable(this.postCommand, logger)
+			var protectedRun = new SreRunnable(this.postCommand, logger)
 			protectedRun.run
 		}
 	}

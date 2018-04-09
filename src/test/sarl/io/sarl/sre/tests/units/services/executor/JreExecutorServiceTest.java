@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.services.executor;
 
 import static org.junit.Assert.assertSame;
@@ -42,8 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import io.sarl.sre.services.executor.JanusCallable;
-import io.sarl.sre.services.executor.JanusRunnable;
+import io.sarl.sre.services.executor.SreCallable;
+import io.sarl.sre.services.executor.SreRunnable;
 import io.sarl.sre.services.executor.JreExecutorService;
 import io.sarl.tests.api.Nullable;
 
@@ -88,8 +90,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 
 		ArgumentCaptor<Runnable> capturedRunnable = ArgumentCaptor.forClass(Runnable.class);
 		verify(this.executor).submit(capturedRunnable.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 
@@ -108,8 +110,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 
 		ArgumentCaptor<Runnable> capturedRunnable = ArgumentCaptor.forClass(Runnable.class);
 		verify(this.executor).submit(capturedRunnable.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		
@@ -132,8 +134,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 
 		ArgumentCaptor<Runnable> capturedRunnable = ArgumentCaptor.forClass(Runnable.class);
 		verify(this.executor).submit(capturedRunnable.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 
@@ -156,8 +158,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 
 		ArgumentCaptor<Runnable> capturedRunnable = ArgumentCaptor.forClass(Runnable.class);
 		verify(this.executor).submit(capturedRunnable.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		
@@ -181,8 +183,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<Runnable> capturedRunnable = ArgumentCaptor.forClass(Runnable.class);
 		ArgumentCaptor<Future<?>> capturedFuture = ArgumentCaptor.forClass(Future.class);
 		verify(this.executor).submit(capturedRunnable.capture(), capturedFuture.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		assertSame(future, capturedFuture.getValue());
@@ -207,8 +209,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<Runnable> capturedRunnable = ArgumentCaptor.forClass(Runnable.class);
 		ArgumentCaptor<Future<?>> capturedFuture = ArgumentCaptor.forClass(Future.class);
 		verify(this.executor).submit(capturedRunnable.capture(), capturedFuture.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		assertSame(future, capturedFuture.getValue());
@@ -232,8 +234,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 
 		ArgumentCaptor<Callable> capturedCallable = ArgumentCaptor.forClass(Callable.class);
 		verify(this.executor).submit(capturedCallable.capture());
-		assertInstanceOf(JanusCallable.class, capturedCallable.getValue());
-		JanusCallable jc = (JanusCallable) capturedCallable.getValue();
+		assertInstanceOf(SreCallable.class, capturedCallable.getValue());
+		SreCallable jc = (SreCallable) capturedCallable.getValue();
 		assertSame(logger, jc.getLogger());
 		assertSame(run, jc.getWrappedCallable());
 
@@ -256,8 +258,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 
 		ArgumentCaptor<Callable> capturedCallable = ArgumentCaptor.forClass(Callable.class);
 		verify(this.executor).submit(capturedCallable.capture());
-		assertInstanceOf(JanusCallable.class, capturedCallable.getValue());
-		JanusCallable jc = (JanusCallable) capturedCallable.getValue();
+		assertInstanceOf(SreCallable.class, capturedCallable.getValue());
+		SreCallable jc = (SreCallable) capturedCallable.getValue();
 		assertSame(logger, jc.getLogger());
 		assertSame(run, jc.getWrappedCallable());
 		
@@ -282,8 +284,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<Long> capturedDelay = ArgumentCaptor.forClass(Long.class);
 		ArgumentCaptor<TimeUnit> capturedUnit = ArgumentCaptor.forClass(TimeUnit.class);
 		verify(this.scheduledExecutor).schedule(capturedRunnable.capture(), capturedDelay.capture(), capturedUnit.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		Assert.assertEquals(34, capturedDelay.getValue().longValue());
@@ -310,8 +312,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<Long> capturedDelay = ArgumentCaptor.forClass(Long.class);
 		ArgumentCaptor<TimeUnit> capturedUnit = ArgumentCaptor.forClass(TimeUnit.class);
 		verify(this.scheduledExecutor).schedule(capturedRunnable.capture(), capturedDelay.capture(), capturedUnit.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		Assert.assertEquals(34, capturedDelay.getValue().longValue());
@@ -338,8 +340,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<Long> capturedDelay = ArgumentCaptor.forClass(Long.class);
 		ArgumentCaptor<TimeUnit> capturedUnit = ArgumentCaptor.forClass(TimeUnit.class);
 		verify(this.scheduledExecutor).schedule(capturedCallable.capture(), capturedDelay.capture(), capturedUnit.capture());
-		assertInstanceOf(JanusCallable.class, capturedCallable.getValue());
-		JanusCallable jc = (JanusCallable) capturedCallable.getValue();
+		assertInstanceOf(SreCallable.class, capturedCallable.getValue());
+		SreCallable jc = (SreCallable) capturedCallable.getValue();
 		assertSame(logger, jc.getLogger());
 		assertSame(run, jc.getWrappedCallable());
 		Assert.assertEquals(34, capturedDelay.getValue().longValue());
@@ -366,8 +368,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<Long> capturedDelay = ArgumentCaptor.forClass(Long.class);
 		ArgumentCaptor<TimeUnit> capturedUnit = ArgumentCaptor.forClass(TimeUnit.class);
 		verify(this.scheduledExecutor).schedule(capturedCallable.capture(), capturedDelay.capture(), capturedUnit.capture());
-		assertInstanceOf(JanusCallable.class, capturedCallable.getValue());
-		JanusCallable jc = (JanusCallable) capturedCallable.getValue();
+		assertInstanceOf(SreCallable.class, capturedCallable.getValue());
+		SreCallable jc = (SreCallable) capturedCallable.getValue();
 		assertSame(logger, jc.getLogger());
 		assertSame(run, jc.getWrappedCallable());
 		Assert.assertEquals(34, capturedDelay.getValue().longValue());
@@ -396,8 +398,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<TimeUnit> capturedUnit = ArgumentCaptor.forClass(TimeUnit.class);
 		verify(this.scheduledExecutor).scheduleAtFixedRate(capturedRunnable.capture(), capturedDelay.capture(), 
 				capturedPeriod.capture(), capturedUnit.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		Assert.assertEquals(12, capturedDelay.getValue().longValue());
@@ -427,8 +429,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<TimeUnit> capturedUnit = ArgumentCaptor.forClass(TimeUnit.class);
 		verify(this.scheduledExecutor).scheduleAtFixedRate(capturedRunnable.capture(), capturedDelay.capture(), 
 				capturedPeriod.capture(), capturedUnit.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		Assert.assertEquals(12, capturedDelay.getValue().longValue());
@@ -458,8 +460,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<TimeUnit> capturedUnit = ArgumentCaptor.forClass(TimeUnit.class);
 		verify(this.scheduledExecutor).scheduleWithFixedDelay(capturedRunnable.capture(), capturedDelay.capture(), 
 				capturedPeriod.capture(), capturedUnit.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		Assert.assertEquals(12, capturedDelay.getValue().longValue());
@@ -489,8 +491,8 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		ArgumentCaptor<TimeUnit> capturedUnit = ArgumentCaptor.forClass(TimeUnit.class);
 		verify(this.scheduledExecutor).scheduleWithFixedDelay(capturedRunnable.capture(), capturedDelay.capture(), 
 				capturedPeriod.capture(), capturedUnit.capture());
-		assertInstanceOf(JanusRunnable.class, capturedRunnable.getValue());
-		JanusRunnable jr = (JanusRunnable) capturedRunnable.getValue();
+		assertInstanceOf(SreRunnable.class, capturedRunnable.getValue());
+		SreRunnable jr = (SreRunnable) capturedRunnable.getValue();
 		assertSame(logger, jr.getLogger());
 		assertSame(run, jr.getWrappedRunnable());
 		Assert.assertEquals(12, capturedDelay.getValue().longValue());

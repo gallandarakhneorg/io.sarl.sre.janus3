@@ -1,0 +1,174 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.boot.injection.modules.services.executor
+
+import com.google.inject.AbstractModule
+import com.google.inject.Injector
+import com.google.inject.Provides
+import io.sarl.sre.boot.factories.ExecutorFactory
+import io.sarl.sre.boot.factories.LoggingFactory
+import io.sarl.sre.services.executor.QuietThreadExecutorPolicy
+import io.sarl.sre.services.executor.VerboseThreadExecutorPolicy
+import io.sarl.sre.services.logging.LoggingService
+import java.lang.Thread.UncaughtExceptionHandler
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionHandler
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
+
+import static io.sarl.sre.boot.factories.ExecutorFactory.*
+import static extension io.sarl.sre.boot.injection.api.ModuleUtil.*
+
+/** 
+ * Abstract module for the execution services.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+abstract class AbstractExecutorModule extends AbstractModule {
+
+	protected override configure {
+		binder() => [
+			associateEnvironmentVariable(INTERNAL_ERROR_VERBOSE_LEVEL_NAME)
+			associateEnvironmentVariable(MAX_NUMBER_OF_THREADS_IN_EXECUTOR_NAME)
+			associateEnvironmentVariable(MIN_NUMBER_OF_THREADS_IN_EXECUTOR_NAME)
+			associateEnvironmentVariable(THREAD_KEEP_ALIVE_DURATION_NAME)
+			associateEnvironmentVariable(KERNEL_THREAD_TIMEOUT_NAME)
+		]
+	}
+
+	/**
+	 * Construct a {@code VerboseThreadExecutorPolicy}.
+	 * 
+	 * @param logService the service for logging.
+	 * @return the policy.
+	 */
+	@Provides
+	@Singleton
+	def getVerboseThreadExecutorPolicy(logService : LoggingService) : VerboseThreadExecutorPolicy {
+		new VerboseThreadExecutorPolicy(logService)
+	}
+
+	/** 
+	 * Construct a {@code QuietThreadExecutorPolicy}.
+	 * 
+	 * @return the policy.
+	 */
+	@Provides
+	@Singleton
+	def getQuietThreadExecutorPolicy : QuietThreadExecutorPolicy {
+		new QuietThreadExecutorPolicy
+	}
+
+	/**
+	 * Construct a handler for tasks that cannot be executed by a ThreadPoolExecutor.
+	 * 
+	 * @param loggingFactory accessor to the logging bootique factory.
+	 * @param executorFactory accessor to the execution bootique factory.
+	 * @param injector the current injector
+	 * @return the handler.
+	 */
+	@Provides
+	@Singleton
+	def getRejectedExecutionHandler(loggingFactory : LoggingFactory, executorFactory : ExecutorFactory,
+		injector : Injector) : RejectedExecutionHandler {
+		var level = loggingFactory.levelObject
+		var ielevel = executorFactory.internalErrorVerboseLevelObject
+		if (level.intValue <= ielevel.intValue) {
+			injector.getProvider(typeof(VerboseThreadExecutorPolicy)).get
+		} else {
+			injector.getProvider(typeof(QuietThreadExecutorPolicy)).get
+		}
+	}
+
+	/**
+	 * Construct a handler for exceptions that are not catched.
+	 * 
+	 * @param loggingFactory accessor to the logging bootique factory.
+	 * @param executorFactory accessor to the execution bootique factory.
+	 * @param injector the current injector
+	 * @return the handler.
+	 */
+	@Provides
+	@Singleton
+	def getUncaughtExceptionHandler(loggingFactory : LoggingFactory, executorFactory : ExecutorFactory,
+		injector : Injector) : UncaughtExceptionHandler {
+		var level = loggingFactory.levelObject
+		var ielevel = executorFactory.internalErrorVerboseLevelObject
+		if (level.intValue <= ielevel.intValue) {
+			injector.getProvider(typeof(VerboseThreadExecutorPolicy)).get
+		} else {
+			injector.getProvider(typeof(QuietThreadExecutorPolicy)).get
+		}
+	}
+
+	/**
+	 * Construct a JVM executor service.
+	 * 
+	 * @param configFactory accessor to the execution bootique factory.
+	 * @param rejectedExecutionHandler the handler for rejected executions.
+	 * @return the service.
+	 */
+	@Provides
+	@Singleton
+	def getJvmExecutorService(configFactory : ExecutorFactory,
+		rejectedExecutionHandler : RejectedExecutionHandler) : ExecutorService {
+		val minPoolSize = configFactory.minThreads
+		val maxPoolSize = configFactory.maxThreads
+		val keepAliveDuration = configFactory.keepAliveDuration
+		var min = Math::max(0, Math::min(minPoolSize, maxPoolSize))
+		var max = Math::max(1, Math::max(minPoolSize, maxPoolSize))
+		val executor = new ThreadPoolExecutor(min, max, keepAliveDuration, TimeUnit::SECONDS,
+			new SynchronousQueue)
+		if (rejectedExecutionHandler !== null) {
+			executor.rejectedExecutionHandler = rejectedExecutionHandler
+		}
+		return executor
+	}
+
+	/** 
+	 * Construct a JVM scheduled executor service.
+	 * 
+	 * @param configFactory accessor to the execution bootique factory.
+	 * @param rejectedExecutionHandler the handler for rejected executions.
+	 * @return the service.
+	 */
+	@Provides
+	@Singleton
+	def getJvmScheduledExecutorService(configFactory : ExecutorFactory,
+		rejectedExecutionHandler : RejectedExecutionHandler) : ScheduledExecutorService {
+		val minPoolSize = configFactory.minThreads
+		val maxPoolSize = configFactory.maxThreads
+		var max = Math::max(1, Math::min(minPoolSize, maxPoolSize))
+		val executor = Executors.newScheduledThreadPool(max)
+		if (rejectedExecutionHandler !== null && executor instanceof ThreadPoolExecutor) {
+			(executor as ThreadPoolExecutor).rejectedExecutionHandler = rejectedExecutionHandler
+		}
+		return executor
+	}
+
+}

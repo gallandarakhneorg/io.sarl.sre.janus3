@@ -44,7 +44,7 @@ import static extension io.sarl.sre.services.lifecycle.AgentLife.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill DefaultContextInteractionsSkill extends JanusBuiltin implements DefaultContextInteractions {
+skill DefaultContextInteractionsSkill extends BuiltinSkill implements DefaultContextInteractions {
 
 	private static class BinFlags {
 		static var installationOrder = -1

@@ -36,7 +36,7 @@ import static io.sarl.sre.skills.MicroKernelSkill.BinFlags.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill MicroKernelSkill extends JanusBuiltin implements MicroKernelCapacity {
+skill MicroKernelSkill extends BuiltinSkill implements MicroKernelCapacity {
 
 	private static class BinFlags {
 		static var installationOrder = -1

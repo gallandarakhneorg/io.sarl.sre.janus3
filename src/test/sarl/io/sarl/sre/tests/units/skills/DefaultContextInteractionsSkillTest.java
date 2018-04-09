@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.skills;
 
 import static org.junit.Assert.assertFalse;
@@ -38,10 +40,10 @@ import io.sarl.lang.core.Agent;
 import io.sarl.lang.core.Event;
 import io.sarl.lang.core.Scope;
 import io.sarl.lang.core.SpaceID;
-import io.sarl.sre.services.context.JanusContext;
+import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.skills.DefaultContextInteractionsSkill;
-import io.sarl.sre.tests.testutils.AbstractJanusTest;
+import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.OpenEventSpace;
 import io.sarl.util.OpenEventSpaceSpecification;
@@ -53,7 +55,7 @@ import io.sarl.util.OpenEventSpaceSpecification;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
+public class DefaultContextInteractionsSkillTest extends AbstractSreTest {
 
 	@Nullable
 	private UUID contextId;
@@ -77,7 +79,7 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getDefaultContext() {
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		AgentLife.getLife(this.agent).setDefaultContext(ctx, mock(Address.class));
 
 		assertSame(ctx, this.skill.getDefaultContext());
@@ -85,7 +87,7 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getDefaultSpace() {
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(ctx.getDefaultSpace()).thenReturn(space);
 		AgentLife.getLife(this.agent).setDefaultContext(ctx, mock(Address.class));
@@ -96,7 +98,7 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 	@Test
 	public void getDefaultAddress() {
 		Address adr = mock(Address.class);
-		AgentLife.getLife(this.agent).setDefaultContext(mock(JanusContext.class), adr);
+		AgentLife.getLife(this.agent).setDefaultContext(mock(Context.class), adr);
 
 		assertSame(adr, this.skill.getDefaultAddress());
 	}
@@ -104,10 +106,10 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 	@Test
 	public void isDefaultContextAgentContext() {
 		UUID id0 = UUID.randomUUID();
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		when(ctx0.getID()).thenReturn(id0);
 		UUID id1 = UUID.randomUUID();
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(id1);
 		AgentLife.getLife(this.agent).setDefaultContext(ctx1, mock(Address.class));
 
@@ -118,10 +120,10 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 	@Test
 	public void isDefaultContextUUID() {
 		UUID id0 = UUID.randomUUID();
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		when(ctx0.getID()).thenReturn(id0);
 		UUID id1 = UUID.randomUUID();
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(id1);
 		AgentLife.getLife(this.agent).setDefaultContext(ctx1, mock(Address.class));
 
@@ -131,12 +133,12 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void isDefaultSpaceSpace() {
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		OpenEventSpace space0 = mock(OpenEventSpace.class);
 		SpaceID id0 = mock(SpaceID.class);
 		when(space0.getSpaceID()).thenReturn(id0);
 		when(ctx0.getDefaultSpace()).thenReturn(space0);
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		OpenEventSpace space1 = mock(OpenEventSpace.class);
 		SpaceID id1 = mock(SpaceID.class);
 		when(space1.getSpaceID()).thenReturn(id1);
@@ -149,12 +151,12 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void isDefaultSpaceSpaceID() {
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		OpenEventSpace space0 = mock(OpenEventSpace.class);
 		SpaceID id0 = mock(SpaceID.class);
 		when(space0.getSpaceID()).thenReturn(id0);
 		when(ctx0.getDefaultSpace()).thenReturn(space0);
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		OpenEventSpace space1 = mock(OpenEventSpace.class);
 		SpaceID id1 = mock(SpaceID.class);
 		when(space1.getSpaceID()).thenReturn(id1);
@@ -167,12 +169,12 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void isDefaultSpaceUUID() {
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		OpenEventSpace space0 = mock(OpenEventSpace.class);
 		UUID id0 = UUID.randomUUID();
 		when(space0.getSpaceID()).thenReturn(new SpaceID(UUID.randomUUID(), id0, OpenEventSpaceSpecification.class));
 		when(ctx0.getDefaultSpace()).thenReturn(space0);
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		OpenEventSpace space1 = mock(OpenEventSpace.class);
 		UUID id1 = UUID.randomUUID();
 		when(space1.getSpaceID()).thenReturn(new SpaceID(UUID.randomUUID(), id1, OpenEventSpaceSpecification.class));
@@ -199,7 +201,7 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 		OpenEventSpace space1 = mock(OpenEventSpace.class);
 		when(space1.getSpaceID()).thenReturn(id1);
 
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		when(ctx0.getDefaultSpace()).thenReturn(space1);
 		AgentLife.getLife(this.agent).setDefaultContext(ctx0, mock(Address.class));
 
@@ -210,7 +212,7 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 	@Test
 	public void emit_noScope() {
 		OpenEventSpace space = mock(OpenEventSpace.class);
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		when(ctx.getDefaultSpace()).thenReturn(space);
 		Event event = spy(new Event() {});
 		AgentLife.getLife(this.agent).setDefaultContext(ctx, mock(Address.class));
@@ -230,7 +232,7 @@ public class DefaultContextInteractionsSkillTest extends AbstractJanusTest {
 	@Test
 	public void emit_scope() {
 		OpenEventSpace space = mock(OpenEventSpace.class);
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		when(ctx.getDefaultSpace()).thenReturn(space);
 		AgentLife.getLife(this.agent).setDefaultContext(ctx, mock(Address.class));
 		Event event = spy(new Event() {});

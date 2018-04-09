@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.services.context;
 
 import static org.junit.Assert.assertFalse;
@@ -31,9 +33,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.sarl.sre.services.context.AbstractContextService;
-import io.sarl.sre.services.context.JanusContext;
+import io.sarl.sre.services.context.Context;
 import io.sarl.lang.core.SpaceID;
-import io.sarl.sre.tests.testutils.AbstractJanusTest;
+import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.OpenEventSpace;
 import io.sarl.util.OpenEventSpaceSpecification;
@@ -44,13 +46,13 @@ import io.sarl.util.OpenEventSpaceSpecification;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractContextServiceTest<T extends AbstractContextService> extends AbstractJanusTest {
+public abstract class AbstractContextServiceTest<T extends AbstractContextService> extends AbstractSreTest {
 
 	@Nullable
-	protected JanusContext context;
+	protected Context context;
 
 	@Nullable
-	protected JanusContext rootContext;
+	protected Context rootContext;
 
 	@Nullable
 	protected UUID rootContextId;
@@ -64,13 +66,13 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 	@Before
 	public void setUp() {
 		this.rootContextId = UUID.randomUUID();
-		this.rootContext = mock(JanusContext.class);
+		this.rootContext = mock(Context.class);
 		when(this.rootContext.getID()).thenReturn(this.rootContextId);
 		this.rootSpaceId = UUID.randomUUID();
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(space.getSpaceID()).thenReturn(new SpaceID(this.rootContextId, this.rootSpaceId, OpenEventSpaceSpecification.class));
 		when(this.rootContext.getDefaultSpace()).thenReturn(space);
-		this.context = mock(JanusContext.class);
+		this.context = mock(Context.class);
 		this.service = newService();
 		this.service.setRootContext(this.rootContext);
 	}
@@ -88,7 +90,7 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 	public void createContextWithoutRegistration_root() {
 		UUID contextId = UUID.randomUUID();
 		UUID spaceId = UUID.randomUUID();
-		JanusContext context = this.service.createContextWithoutRegistration(contextId, spaceId, true);
+		Context context = this.service.createContextWithoutRegistration(contextId, spaceId, true);
 
 		assertSame(this.context, context);
 		assertEquals(contextId, context.getID());
@@ -102,7 +104,7 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 	public void createContextWithoutRegistration_notRoot() {
 		UUID contextId = UUID.randomUUID();
 		UUID spaceId = UUID.randomUUID();
-		JanusContext context = this.service.createContextWithoutRegistration(contextId, spaceId, false);
+		Context context = this.service.createContextWithoutRegistration(contextId, spaceId, false);
 
 		assertSame(this.context, context);
 		assertEquals(contextId, context.getID());
@@ -114,7 +116,7 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 
 	@Test
 	public void createContext_root() {
-		JanusContext context = this.service.createContext(this.rootContextId, this.rootSpaceId);
+		Context context = this.service.createContext(this.rootContextId, this.rootSpaceId);
 		assertSame(this.rootContext, context);
 	}
 
@@ -123,7 +125,7 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 		UUID contextId = UUID.randomUUID();
 		UUID spaceId = UUID.randomUUID();
 	
-		JanusContext context = this.service.createContext(contextId, spaceId);
+		Context context = this.service.createContext(contextId, spaceId);
 		
 		assertSame(this.context, context);
 		assertEquals(contextId, context.getID());
@@ -138,9 +140,9 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 		UUID contextId = UUID.randomUUID();
 		UUID spaceId = UUID.randomUUID();
 	
-		JanusContext originalContext = this.service.createContext(contextId, spaceId);
+		Context originalContext = this.service.createContext(contextId, spaceId);
 		
-		JanusContext context = this.service.createContext(contextId, spaceId);
+		Context context = this.service.createContext(contextId, spaceId);
 
 		assertSame(originalContext, context);
 		assertSame(this.context, context);
@@ -163,7 +165,7 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 		
 		assertNull(this.service.getContext(contextId));
 		
-		JanusContext context = this.service.createContext(contextId, spaceId);
+		Context context = this.service.createContext(contextId, spaceId);
 		assertSame(context, this.service.getContext(contextId));
 	}
 
@@ -190,7 +192,7 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 	public void removeContext_knownContext() {
 		UUID contextId = UUID.randomUUID();
 		UUID spaceId = UUID.randomUUID();
-		JanusContext context = this.service.createContext(contextId, spaceId);
+		Context context = this.service.createContext(contextId, spaceId);
 
 		assertSame(context, this.service.removeContext(contextId));
 	}

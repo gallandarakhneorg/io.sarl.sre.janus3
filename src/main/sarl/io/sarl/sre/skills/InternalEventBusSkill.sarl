@@ -44,7 +44,7 @@ import static io.sarl.sre.skills.InternalEventBusSkill.BinFlags.*
 import static extension io.sarl.sre.services.lifecycle.AgentLife.*
 
 /** 
- * Janus implementation of an internal skill that provides an event dispatcher to notify the different components/behaviors of an
+ * SRE implementation of an internal skill that provides an event dispatcher to notify the different components/behaviors of an
  * agent.
  * 
  * @author $Author: srodriguez$
@@ -54,7 +54,7 @@ import static extension io.sarl.sre.services.lifecycle.AgentLife.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill InternalEventBusSkill extends JanusBuiltin implements InternalEventBusCapacity {
+skill InternalEventBusSkill extends BuiltinSkill implements InternalEventBusCapacity {
 
 	uses Logging
 
@@ -301,7 +301,7 @@ class EventBus {
 	 *
 	 * @param type the type of listener.
 	 * @return {@code true} if a listener of the given type is registered.
-	 * @since 2.0.5.0
+	 * @since 0.5.0
 	 */
 	def hasRegisteredEventListener(type : Class<?>) : boolean {
 		synchronized (this.behaviorGuardEvaluatorRegistry) {
@@ -315,7 +315,7 @@ class EventBus {
 	 * @param type the type of the listeners.
 	 * @param collection the collection of listeners that is filled by this function.
 	 * @return the number of listeners added to the collection.
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
 	def getRegisteredEventListeners(type : Class<T>) : SynchronizedIterable<T> with T {
 		synchronized (this.behaviorGuardEvaluatorRegistry) {
@@ -361,7 +361,7 @@ class EventBus {
 	 * @param type type of the objects whose {@code PerceptGuardEvaluator} methods should be unregistered.
 	 * @param callback function which is invoked just before the object is unregistered.
 	 * @throws IllegalArgumentException if the object was not previously registered.
-	 * @since 2.0.7.0
+	 * @since 0.7.0
 	 */
 	def unregister(type : Class<?>, callback : (Object)=>void) {
 		synchronized (this.behaviorGuardEvaluatorRegistry) {

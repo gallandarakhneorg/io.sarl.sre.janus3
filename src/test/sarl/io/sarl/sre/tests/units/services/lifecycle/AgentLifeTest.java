@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.services.lifecycle;
 
 import static org.junit.Assert.assertFalse;
@@ -47,7 +49,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import io.sarl.sre.capacities.InternalEventBusCapacity;
-import io.sarl.sre.services.context.JanusContext;
+import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.ContextReference;
 import io.sarl.sre.services.lifecycle.SkillUninstaller;
@@ -62,7 +64,7 @@ import io.sarl.lang.core.Skill;
 import io.sarl.lang.core.SpaceID;
 import io.sarl.lang.util.SynchronizedIterable;
 import io.sarl.sre.services.lifecycle.AgentState;
-import io.sarl.sre.tests.testutils.AbstractJanusTest;
+import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.OpenEventSpace;
 import io.sarl.util.OpenEventSpaceSpecification;
@@ -75,7 +77,7 @@ import junit.framework.AssertionFailedError;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class AgentLifeTest extends AbstractJanusTest {
+public class AgentLifeTest extends AbstractSreTest {
 
 	@Nullable
 	private MySkill eventBus;
@@ -120,16 +122,16 @@ public class AgentLifeTest extends AbstractJanusTest {
 
 	@Test
 	public void setInnerContext() {
-		JanusContext ctx1;
-		JanusContext ctx2;
-		JanusContext ctx3;
+		Context ctx1;
+		Context ctx2;
+		Context ctx3;
 		
-		ctx2 = mock(JanusContext.class);
+		ctx2 = mock(Context.class);
 		ctx1 = this.life.setInnerContext(ctx2);
 		assertNull(ctx1);
 		assertSame(ctx2, this.life.getInnerContext());
 
-		ctx3 = mock(JanusContext.class);
+		ctx3 = mock(Context.class);
 		ctx1 = this.life.setInnerContext(ctx3);
 		assertSame(ctx2, ctx1);
 		assertSame(ctx3, this.life.getInnerContext());
@@ -163,7 +165,7 @@ public class AgentLifeTest extends AbstractJanusTest {
 
 	@Test
 	public void getEnclosingContexts_1() {
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		Address adr = mock(Address.class);
 		this.life.setDefaultContext(ctx, adr);
 		SynchronizedIterable<ContextReference> context = this.life.getEnclosingContexts();
@@ -188,10 +190,10 @@ public class AgentLifeTest extends AbstractJanusTest {
 	@Test
 	public void getEnclosingContexts_2() {
 		UUID[] minmax = sortIds(UUID.randomUUID(), UUID.randomUUID());
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(minmax[0]);
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(minmax[1]);
 		Address adr2 = mock(Address.class);
 		this.life.addExternalContext(ctx1, adr1);
@@ -216,13 +218,13 @@ public class AgentLifeTest extends AbstractJanusTest {
 	@Test
 	public void getEnclosingContexts_3() {
 		UUID[] minmax = sortIds(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		when(ctx0.getID()).thenReturn(minmax[0]);
 		Address adr0 = mock(Address.class);
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(minmax[1]);
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(minmax[2]);
 		Address adr2 = mock(Address.class);
 		this.life.setDefaultContext(ctx0, adr0);
@@ -253,13 +255,13 @@ public class AgentLifeTest extends AbstractJanusTest {
 	@Test
 	public void getEnclosingContexts_4() {
 		UUID[] minmax = sortIds(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		when(ctx0.getID()).thenReturn(minmax[2]);
 		Address adr0 = mock(Address.class);
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(minmax[0]);
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(minmax[1]);
 		Address adr2 = mock(Address.class);
 		this.life.setDefaultContext(ctx0, adr0);
@@ -295,7 +297,7 @@ public class AgentLifeTest extends AbstractJanusTest {
 
 	@Test
 	public void getExternalContexts_1() {
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		Address adr = mock(Address.class);
 		this.life.setDefaultContext(ctx, adr);
 		SynchronizedIterable<ContextReference> context = this.life.getExternalContexts();
@@ -307,10 +309,10 @@ public class AgentLifeTest extends AbstractJanusTest {
 	@Test
 	public void getExternalContexts_2() {
 		UUID[] minmax = sortIds(UUID.randomUUID(), UUID.randomUUID());
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(minmax[0]);
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(minmax[1]);
 		Address adr2 = mock(Address.class);
 		this.life.addExternalContext(ctx1, adr1);
@@ -335,13 +337,13 @@ public class AgentLifeTest extends AbstractJanusTest {
 	@Test
 	public void getExternalContexts_3() {
 		UUID[] minmax = sortIds(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		when(ctx0.getID()).thenReturn(minmax[0]);
 		Address adr0 = mock(Address.class);
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(minmax[1]);
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(minmax[2]);
 		Address adr2 = mock(Address.class);
 		this.life.setDefaultContext(ctx0, adr0);
@@ -371,7 +373,7 @@ public class AgentLifeTest extends AbstractJanusTest {
 
 	@Test
 	public void getExternalContextCount_1() {
-		JanusContext ctx = mock(JanusContext.class);
+		Context ctx = mock(Context.class);
 		Address adr = mock(Address.class);
 		this.life.setDefaultContext(ctx, adr);
 		assertEquals(0, this.life.getExternalContextCount());
@@ -380,10 +382,10 @@ public class AgentLifeTest extends AbstractJanusTest {
 	@Test
 	public void getExternalContextCount_2() {
 		UUID[] minmax = sortIds(UUID.randomUUID(), UUID.randomUUID());
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(minmax[0]);
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(minmax[1]);
 		Address adr2 = mock(Address.class);
 		this.life.addExternalContext(ctx1, adr1);
@@ -394,13 +396,13 @@ public class AgentLifeTest extends AbstractJanusTest {
 	@Test
 	public void getExternalContextCount_3() {
 		UUID[] minmax = sortIds(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
-		JanusContext ctx0 = mock(JanusContext.class);
+		Context ctx0 = mock(Context.class);
 		when(ctx0.getID()).thenReturn(minmax[0]);
 		Address adr0 = mock(Address.class);
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(minmax[1]);
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(minmax[2]);
 		Address adr2 = mock(Address.class);
 		this.life.setDefaultContext(ctx0, adr0);
@@ -412,11 +414,11 @@ public class AgentLifeTest extends AbstractJanusTest {
 
 	@Test
 	public void setDefaultContext() {
-		JanusContext ctx;
-		ctx = mock(JanusContext.class);
+		Context ctx;
+		ctx = mock(Context.class);
 		this.life.setDefaultContext(ctx, mock(Address.class));
 		assertSame(ctx, this.life.getDefaultContext().getContext());
-		ctx = mock(JanusContext.class);
+		ctx = mock(Context.class);
 		ContextReference ref = this.life.setDefaultContext(ctx, mock(Address.class));
 		assertSame(ctx, this.life.getDefaultContext().getContext());
 		assertNotNull(ref);
@@ -425,12 +427,12 @@ public class AgentLifeTest extends AbstractJanusTest {
 
 	@Test
 	public void getDefaultContext() {
-		JanusContext ctx;
+		Context ctx;
 		assertNull(this.life.getDefaultContext());
-		ctx = mock(JanusContext.class);
+		ctx = mock(Context.class);
 		this.life.setDefaultContext(ctx, mock(Address.class));
 		assertSame(ctx, this.life.getDefaultContext().getContext());
-		ctx = mock(JanusContext.class);
+		ctx = mock(Context.class);
 		this.life.setDefaultContext(ctx, mock(Address.class));
 		assertSame(ctx, this.life.getDefaultContext().getContext());
 	}
@@ -438,10 +440,10 @@ public class AgentLifeTest extends AbstractJanusTest {
 	@Test
 	public void addExternalContext() {
 		UUID[] minmax = sortIds(UUID.randomUUID(), UUID.randomUUID());
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(minmax[0]);
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(minmax[1]);
 		Address adr2 = mock(Address.class);
 		ContextReference ref1 = this.life.addExternalContext(ctx1, adr1);
@@ -472,11 +474,11 @@ public class AgentLifeTest extends AbstractJanusTest {
 	}
 
 	@Test
-	public void removeExternalContextJanusContext() {
-		JanusContext ctx1 = mock(JanusContext.class);
+	public void removeExternalContextContext() {
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(UUID.randomUUID());
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(UUID.randomUUID());
 		Address adr2 = mock(Address.class);
 		this.life.addExternalContext(ctx1, adr1);
@@ -498,10 +500,10 @@ public class AgentLifeTest extends AbstractJanusTest {
 
 	@Test
 	public void removeExternalContextContextReference() {
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(UUID.randomUUID());
 		Address adr1 = mock(Address.class);
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(UUID.randomUUID());
 		Address adr2 = mock(Address.class);
 		ContextReference ref1 = this.life.addExternalContext(ctx1, adr1);
@@ -529,7 +531,7 @@ public class AgentLifeTest extends AbstractJanusTest {
 		when(logger.getKernelLogger()).thenReturn(loglog);
 		UUID parent = UUID.randomUUID();
 		UUID spawner = UUID.randomUUID();
-		JanusContext spawningContext = mock(JanusContext.class);
+		Context spawningContext = mock(Context.class);
 		when(spawningContext.getID()).thenReturn(parent);
 		Object[] params = new Object[] { UUID.randomUUID(), UUID.randomUUID().toString() };
 		
@@ -558,7 +560,7 @@ public class AgentLifeTest extends AbstractJanusTest {
 		}).when(loglog).log(any(Level.class), anyString(), any(Throwable.class));
 		UUID parent = UUID.randomUUID();
 		UUID spawner = UUID.randomUUID();
-		JanusContext spawningContext = mock(JanusContext.class);
+		Context spawningContext = mock(Context.class);
 		when(spawningContext.getID()).thenReturn(parent);
 		Object[] params = new Object[] { UUID.randomUUID(), UUID.randomUUID().toString() };
 		OpenEventSpace defaultSpace = mock(OpenEventSpace.class);

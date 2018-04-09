@@ -32,9 +32,9 @@ import java.util.function.Consumer
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
-abstract class JanusExecutable {
+abstract class SreExecutable {
 
 	val logger : Logger
 
@@ -86,15 +86,15 @@ abstract class JanusExecutable {
 }
 
 /** 
- * A specific Janus runnable that is catching the {@link EarlyExitException}.
+ * A specific SRE runnable that is catching the {@link EarlyExitException}.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
-class JanusRunnable extends JanusExecutable implements Runnable {
+class SreRunnable extends SreExecutable implements Runnable {
 
 	val runnable : Runnable
 	var success = false
@@ -182,16 +182,16 @@ class JanusRunnable extends JanusExecutable implements Runnable {
 }
 
 /** 
- * A specific Janus callable that is catching the {@link EarlyExitException}.
+ * A specific SRE callable that is catching the {@link EarlyExitException}.
  * 
  * @param <T> the type of the result.
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
-class JanusCallable<T> extends JanusExecutable implements Callable<T> {
+class SreCallable<T> extends SreExecutable implements Callable<T> {
 
 	val callable : Callable<T>
 
@@ -288,16 +288,16 @@ class JanusCallable<T> extends JanusExecutable implements Callable<T> {
 }
 
 /** 
- * A specific Janus consumer that is catching the {@link EarlyExitException}.
+ * A specific SRE consumer that is catching the {@link EarlyExitException}.
  * 
  * @param <T> the type of the result.
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.7.0
+ * @since 0.7.0
  */
-class JanusConsumer<T> extends JanusExecutable implements Consumer<T> {
+class SreConsumer<T> extends SreExecutable implements Consumer<T> {
 
 	val consumer : Consumer<T>
 

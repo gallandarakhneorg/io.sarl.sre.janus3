@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.services.lifecycle;
 
 import static org.junit.Assert.assertFalse;
@@ -33,7 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.sarl.sre.services.lifecycle.BasicSkillUninstaller;
-import io.sarl.sre.skills.JanusBuiltin;
+import io.sarl.sre.skills.BuiltinSkill;
 import io.sarl.core.InnerContextAccess;
 import io.sarl.core.Lifecycle;
 import io.sarl.lang.core.Agent;
@@ -45,7 +47,7 @@ import io.sarl.lang.core.Skill;
 import io.sarl.lang.core.Space;
 import io.sarl.lang.core.SpaceID;
 import io.sarl.lang.util.SynchronizedIterable;
-import io.sarl.sre.tests.testutils.AbstractJanusTest;
+import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 
 /**
@@ -55,7 +57,7 @@ import io.sarl.tests.api.Nullable;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class BasicSkillUninstallerTest extends AbstractJanusTest {
+public class BasicSkillUninstallerTest extends AbstractSreTest {
 
 	@Nullable
 	private BasicSkillUninstaller installer;
@@ -141,7 +143,7 @@ public class BasicSkillUninstallerTest extends AbstractJanusTest {
 		}
 	}
 
-	private static class InnerSkill extends JanusBuiltin implements InnerContextAccess {
+	private static class InnerSkill extends BuiltinSkill implements InnerContextAccess {
 
 		private final AtomicInteger orderSource;
 		public Integer installOrder = null;
@@ -211,7 +213,7 @@ public class BasicSkillUninstallerTest extends AbstractJanusTest {
 		
 	}
 
-	private static class LifeSkill extends JanusBuiltin implements Lifecycle {
+	private static class LifeSkill extends BuiltinSkill implements Lifecycle {
 
 		private final AtomicInteger orderSource;
 		public Integer installOrder = null;

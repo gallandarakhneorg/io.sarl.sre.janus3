@@ -44,7 +44,7 @@ import io.sarl.lang.util.ClearableReference
 import io.sarl.sre.services.context.ExternalContextMemberListener
 import io.sarl.sre.services.context.InternalContextMembershipListener
 import io.sarl.sre.services.context.InternalContextMembershipListenerFactory
-import io.sarl.sre.services.context.JanusContext
+import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.context.SpaceRepositoryListener
 import io.sarl.sre.services.context.SpaceRepositoryListenerFactory
 import io.sarl.sre.services.lifecycle.ContextReference
@@ -105,7 +105,7 @@ class SpaceEventEmitter implements SpaceRepositoryListener {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.7.0
+ * @since 0.7.0
  */
 class SpaceEventEmitterFactory implements SpaceRepositoryListenerFactory {
 
@@ -131,7 +131,7 @@ class AgentEventEmitter implements LifecycleServiceListener {
 		this.logger = logger
 	}
 
-	override agentSpawned(spawningAgent : UUID, parent : JanusContext, agentType : Class<? extends Agent>,
+	override agentSpawned(spawningAgent : UUID, parent : Context, agentType : Class<? extends Agent>,
 		spawnedAgents : List<Agent>, initializationParameters : Object[]) {
 		val identifiers = spawnedAgents.map[it.ID]
 		this.logger.config [MessageFormat::format(Messages::AgentEventEmitter_0, identifiers)]
@@ -296,7 +296,7 @@ class SubHolonContextEventEmitter implements InternalContextMembershipListener {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.7.0
+ * @since 0.7.0
  */
 class SubHolonContextEventEmitterFactory implements InternalContextMembershipListenerFactory {
 

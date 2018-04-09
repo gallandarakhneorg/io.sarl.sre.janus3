@@ -1,15 +1,16 @@
 /*
  * $Id$
  *
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
  *
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
+ * Copyright (C) 2014-2018 the original authors or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +34,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import io.sarl.sre.Kernel;
-import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
+import io.sarl.sre.tests.testutils.AbstractSreRunTest;
 import io.sarl.core.AgentKilled;
 import io.sarl.core.AgentTask;
 import io.sarl.core.DefaultContextInteractions;
@@ -69,7 +70,7 @@ public class Bug546 {
 
 	private static final int NB_EVENTS = 15000;
 
-	public static class AgentKillTest extends AbstractJanusRunTest {
+	public static class AgentKillTest extends AbstractSreRunTest {
 		
 		protected static class Hello extends Event {
 		}
@@ -188,12 +189,12 @@ public class Bug546 {
 
 		@Test
 		public void launchTest() throws Exception {
-			runJanus(InitAndWaitAgent.class, false, true, EXTRA_TIMEOUT);
+			runSre(InitAndWaitAgent.class, false, true, EXTRA_TIMEOUT);
 		}
 
 	}
 
-	public static class LargeEventSetTest extends AbstractJanusRunTest {
+	public static class LargeEventSetTest extends AbstractSreRunTest {
 
 		public static final class MyEvent extends Event {
 
@@ -201,7 +202,7 @@ public class Bug546 {
 
 		@Test
 		public void sendHugeNumberEvents() throws Exception {
-			runJanus(InitAndWaitAgent.class, false, true, EXTRA_TIMEOUT);
+			runSre(InitAndWaitAgent.class, false, true, EXTRA_TIMEOUT);
 		}
 
 		@SarlSpecification

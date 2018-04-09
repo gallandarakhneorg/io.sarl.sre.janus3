@@ -27,7 +27,7 @@ import io.sarl.lang.core.Agent
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Skill
 import io.sarl.lang.core.Skill.UninstallationStage
-import io.sarl.sre.skills.JanusBuiltin
+import io.sarl.sre.skills.BuiltinSkill
 import io.sarl.util.Comparators
 import java.util.Comparator
 import org.arakhne.afc.util.ListUtil
@@ -40,7 +40,7 @@ import org.arakhne.afc.util.MultiCollection
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 @ImplementedBy(typeof(BasicSkillUninstaller))
 interface SkillUninstaller {
@@ -68,7 +68,7 @@ interface SkillUninstaller {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 @SuppressWarnings("use_reserved_sarl_annotation")
 @PrivateAPI(isCallerOnly = true)
@@ -90,12 +90,12 @@ class BasicSkillUninstaller implements SkillUninstaller {
 		// Get the registered skills
 		val skills = SREutils.getSkillRepository(^agent)
 		if (skills !== null) {
-			val builtinSkills = <JanusBuiltin>newArrayList
+			val builtinSkills = <BuiltinSkill>newArrayList
 			val otherSkills = <Skill>newTreeSet(Comparators::objectComparator)
 			var comparator = if (inReverseOrder) REVERSE_ORDER_COMPARATOR else ORDER_COMPARATOR
 			skills.values.forEach [ skillReference |
 				val ^skill = skillReference.get
-				if (^skill instanceof JanusBuiltin) {
+				if (^skill instanceof BuiltinSkill) {
 					ListUtil::add(builtinSkills, comparator, ^skill, false, false)
 				} else if (^skill !== null) {
 					otherSkills += ^skill
@@ -161,9 +161,9 @@ class BasicSkillUninstaller implements SkillUninstaller {
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
 	 */
-	private static class OrderComparator implements Comparator<JanusBuiltin> {
+	private static class OrderComparator implements Comparator<BuiltinSkill> {
 
-		override compare(outsideElement : JanusBuiltin, insideElement : JanusBuiltin) : int {
+		override compare(outsideElement : BuiltinSkill, insideElement : BuiltinSkill) : int {
 			// insideElement is always the data already in the list, according to the documentation of ListUtil#add()
 			var cmp = Integer::compare(outsideElement.installationOrder, insideElement.installationOrder)
 			if (cmp !== 0) {
@@ -186,7 +186,7 @@ class BasicSkillUninstaller implements SkillUninstaller {
 	 */
 	private static class ReverseOrderComparator extends OrderComparator {
 
-		override compare(outsideElement : JanusBuiltin, insideElement : JanusBuiltin) : int {
+		override compare(outsideElement : BuiltinSkill, insideElement : BuiltinSkill) : int {
 			-super.compare(outsideElement, insideElement)
 		}
 

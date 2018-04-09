@@ -25,6 +25,7 @@ import io.sarl.sre.services.executor.ExecutorService
 import java.util.Map
 import java.util.UUID
 import javax.inject.Inject
+import io.bootique.config.ConfigurationFactory
 
 /** 
  * A repository of spaces specific to a given context.
@@ -45,18 +46,21 @@ class LocalSpaceRepository extends SpaceRepository {
 	 * 
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
+	 * @param configFactory accessor to the configuration.
 	 */
 	@Inject
-	new (injector : Injector, executor : ExecutorService) {
-		this(injector, executor, null)
+	new (injector : Injector, executor : ExecutorService, configFactory : ConfigurationFactory) {
+		this(injector, executor, configFactory, null)
 	}
 	/** Constructor.
 	 * 
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
+	 * @param configFactory accessor to the configuration.
 	 */
-	new (injector : Injector, executor : ExecutorService, internalStructure : Map<UUID, SpaceDescription>) {
-		super(injector, executor)
+	new (injector : Injector, executor : ExecutorService, configFactory : ConfigurationFactory,
+		internalStructure : Map<UUID, SpaceDescription>) {
+		super(injector, executor, configFactory)
 		if (internalStructure !== null) {
 			this.spaces = internalStructure
 		} else {

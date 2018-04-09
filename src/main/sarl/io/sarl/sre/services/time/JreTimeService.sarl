@@ -33,7 +33,7 @@ import org.arakhne.afc.util.ListenerCollection
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 @Singleton
 class JreTimeService extends AbstractDependentService implements TimeService {

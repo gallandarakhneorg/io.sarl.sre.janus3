@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.runtime.services.lifecycle;
 
 import static org.junit.Assert.assertNotNull;
@@ -38,7 +40,7 @@ import io.sarl.lang.annotation.PerceptGuardEvaluator;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.core.AgentContext;
 import io.sarl.lang.core.Event;
-import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
+import io.sarl.sre.tests.testutils.AbstractSreRunTest;
 
 /**
  * @author $Author: sgalland$
@@ -47,7 +49,7 @@ import io.sarl.sre.tests.testutils.AbstractJanusRunTest;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest {
+public abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 
 	/**
 	 * @author $Author: sgalland$
@@ -138,7 +140,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void spawnAgent_1() throws Exception {
-		runJanus(OneAgentSpawnTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(OneAgentSpawnTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(1, results.size());
@@ -168,7 +170,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void spawnAgent_3() throws Exception {
-		runJanus(ThreeAgentSpawnTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(ThreeAgentSpawnTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(3, results.size());
@@ -198,7 +200,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void killAgent_duringInitialize() throws Exception {
-		runJanus(InitializeKillTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(InitializeKillTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(1, results.size());
@@ -230,7 +232,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void killAgent_duringInitializeAfterSpawn() throws Exception {
-		runJanus(InitializeSpawnKillTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(InitializeSpawnKillTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(3, results.size());
@@ -264,7 +266,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void killAgent_duringEventHandling() throws Exception {
-		runJanus(EventHanlderKillTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(EventHanlderKillTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(2, results.size());
@@ -308,7 +310,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void killAgent_duringTask() throws Exception {
-		runJanus(TaskKillTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(TaskKillTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(2, results.size());
@@ -340,7 +342,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void killAgent_duringDestroy() throws Exception {
-		runJanus(DestroyKillTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(DestroyKillTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(2, results.size());
@@ -383,7 +385,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void isKillableAgent_noChild_noInnerContext() throws Exception {
-		runJanus(NoChildNoInnerContextIsKillableTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(NoChildNoInnerContextIsKillableTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(2, results.size());
@@ -417,7 +419,7 @@ public abstract class AbstractLifecycleServiceTest extends AbstractJanusRunTest 
 
 	@Test
 	public void isKillableAgent_noChild_innerContext() throws Exception {
-		runJanus(NoChildInnerContextIsKillableTestAgent.class, false, true, STANDARD_TIMEOUT);
+		runSre(NoChildInnerContextIsKillableTestAgent.class, false, true, STANDARD_TIMEOUT);
 		List<Object> results = getResults();
 		assertNotNull(results);
 		assertEquals(2, results.size());

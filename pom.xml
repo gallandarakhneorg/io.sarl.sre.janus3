@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.janusproject.lite</groupId>
-	<artifactId>io.janusproject.lite.plugin</artifactId>
+	<groupId>io.sarl.sre.lite</groupId>
+	<artifactId>io.sarl.sre.lite</artifactId>
 	<version>0.8.0-SNAPSHOT</version>
-	<name>Janus Lite Project</name>
+	<name>Lite SARL Run-time Environment</name>
 
 	<properties>
 		<sarl.version>0.8.0-SNAPSHOT</sarl.version>
-		<cliRunnerMainClass>io.sarl.sre.Boot</cliRunnerMainClass>
+		<cliRunnerMainClass>io.sarl.sre.boot.Boot</cliRunnerMainClass>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<osgi.nls.version>3.10.0-v20140606-1445</osgi.nls.version>

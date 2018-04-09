@@ -45,7 +45,7 @@ import io.sarl.sre.services.PreReleasableService
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.6.0
+ * @since 0.6.0
  */
 @Singleton
 class SynchronousExecutorService extends AbstractExecutorService implements PreReleasableService, TimeListener {
@@ -53,9 +53,9 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	@Inject
 	var timeService : TimeService
 
-	val scheduledTasks : Map<Long, Deque<JanusScheduledFuture<?>>> = newTreeMap(null)
+	val scheduledTasks : Map<Long, Deque<SreScheduledFuture<?>>> = newTreeMap(null)
 
-	val scheduledTaskBuffer : Map<Long, Deque<JanusScheduledFuture<?>>> = newTreeMap(null)
+	val scheduledTaskBuffer : Map<Long, Deque<SreScheduledFuture<?>>> = newTreeMap(null)
 
 	var previousTime : long = 0
 	
@@ -223,9 +223,9 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
-	private static class FutureRunnable<T> extends JanusRunnable implements Future<T> {
+	private static class FutureRunnable<T> extends SreRunnable implements Future<T> {
 
 		val value : T
 
@@ -280,9 +280,9 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
-	static interface JanusScheduledFuture<T> extends ScheduledFuture<T> {
+	static interface SreScheduledFuture<T> extends ScheduledFuture<T> {
 		
 		/** Replies the execution time.
 		 *
@@ -299,9 +299,9 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
-	private static class ScheduledFutureRunnable<T> extends JanusRunnable implements JanusScheduledFuture<T> {
+	private static class ScheduledFutureRunnable<T> extends SreRunnable implements SreScheduledFuture<T> {
 
 		var delay : long
 
@@ -394,9 +394,9 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
-	private static class ScheduledFutureCallable<T> extends JanusCallable<T> implements JanusScheduledFuture<T> {
+	private static class ScheduledFutureCallable<T> extends SreCallable<T> implements SreScheduledFuture<T> {
 
 		val delay : long
 
@@ -480,9 +480,9 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
-	 * @since 2.0.6.0
+	 * @since 0.6.0
 	 */
-	private static class FutureCallable<T> extends JanusCallable<T> implements Future<T> {
+	private static class FutureCallable<T> extends SreCallable<T> implements Future<T> {
 
 		var finished = false
 
@@ -567,7 +567,7 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	 * @param time the execution time in millis.
 	 * @param command the command to run.
 	 */
-	protected def scheduleAtTime(time : long, command : JanusScheduledFuture<T>) : JanusScheduledFuture<T> with T {
+	protected def scheduleAtTime(time : long, command : SreScheduledFuture<T>) : SreScheduledFuture<T> with T {
 		var tasks = this.scheduledTaskBuffer.get(time)
 		if (tasks === null) {
 			tasks = newLinkedList
@@ -601,7 +601,7 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	 * @param endTime the time until the tasks should be consumed and replied.
 	 * @return the scheduled tasks.
 	 */
-	def getScheduledTasks(startTime : long, endTime : long) : List<JanusScheduledFuture<?>> {
+	def getScheduledTasks(startTime : long, endTime : long) : List<SreScheduledFuture<?>> {
 		var consumedTasks = newLinkedList
 		synchronized (this) {
 			var iterator = this.scheduledTasks.entrySet.iterator
@@ -624,7 +624,7 @@ class SynchronousExecutorService extends AbstractExecutorService implements PreR
 	 * 
 	 * @return the scheduled tasks.
 	 */
-	def getScheduledTasks() : List<JanusScheduledFuture<?>> {
+	def getScheduledTasks() : List<SreScheduledFuture<?>> {
 		var tasks = newLinkedList
 		synchronized (this) {
 			for (list : this.scheduledTasks.values) {

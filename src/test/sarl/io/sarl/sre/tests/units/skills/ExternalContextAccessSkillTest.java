@@ -1,22 +1,24 @@
 /*
  * $Id$
- * 
- * Janus platform is an open-source multiagent platform.
- * More details on http://www.janusproject.io
- * 
- * Copyright (C) 2014-2015 Sebastian RODRIGUEZ, Nicolas GAUD, Stéphane GALLAND.
- * 
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.sarl.sre.tests.units.skills;
 
 import static org.junit.Assert.assertFalse;
@@ -50,11 +52,11 @@ import io.sarl.sre.capacities.InternalEventBusCapacity;
 import io.sarl.sre.services.context.ContextService;
 import io.sarl.sre.services.context.ExternalContextMemberListener;
 import io.sarl.sre.services.context.InternalContextMembershipListener;
-import io.sarl.sre.services.context.JanusContext;
+import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.AgentState;
 import io.sarl.sre.skills.ExternalContextAccessSkill;
-import io.sarl.sre.tests.testutils.AbstractJanusTest;
+import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.ManualMocking;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.OpenEventSpace;
@@ -67,7 +69,7 @@ import io.sarl.util.OpenEventSpaceSpecification;
  * @mavenartifactid $ArtifactId$
  */
 @ManualMocking
-public class ExternalContextAccessSkillTest extends AbstractJanusTest {
+public class ExternalContextAccessSkillTest extends AbstractSreTest {
 
 	@Nullable
 	private ContextService service;
@@ -79,10 +81,10 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 	private UUID agentId;
 
 	@Nullable
-	private JanusContext rootContext;
+	private Context rootContext;
 
 	@Nullable
-	private JanusContext defaultContext;
+	private Context defaultContext;
 
 	@Nullable
 	private OpenEventSpace defaultSpace;
@@ -106,7 +108,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		this.eventBusListener = mock(EventListener.class);
 		this.eventBus = spy(new MyInternalEventBusSkill());
 		when(this.eventBus.getAssociatedEventBusListener()).thenReturn(this.eventBusListener);
-		this.rootContext = mock(JanusContext.class);
+		this.rootContext = mock(Context.class);
 		this.service = mock(ContextService.class);
 		when(this.service.getRootContext()).thenReturn(this.rootContext);
 		this.agent = spy(new MyAgent(contextId, this.agentId, this.eventBus));
@@ -114,7 +116,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		Address adr = new Address(defSpaceId, this.agentId);
 		this.defaultSpace = mock(OpenEventSpace.class);
 		when(this.defaultSpace.getSpaceID()).thenReturn(defSpaceId);
-		this.defaultContext = mock(JanusContext.class);
+		this.defaultContext = mock(Context.class);
 		when(this.defaultContext.getID()).thenReturn(this.contextId);
 		when(this.defaultContext.getDefaultSpace()).thenReturn(this.defaultSpace);
 		AgentLife.getLife(this.agent).setDefaultContext(defaultContext, adr);
@@ -134,9 +136,9 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		return emitter;
 	}
 
-	private JanusContext[] forceOneExternalContextCreation() {
+	private Context[] forceOneExternalContextCreation() {
 		UUID id1 = UUID.fromString("00000001-0000-0000-0000-000000000000");
-		JanusContext ctx1 = mock(JanusContext.class);
+		Context ctx1 = mock(Context.class);
 		when(ctx1.getID()).thenReturn(id1);
 		SpaceID sid1 = new SpaceID(id1, UUID.fromString("00000001-0001-0000-0000-000000000000"), OpenEventSpaceSpecification.class);
 		OpenEventSpace space1 = mock(OpenEventSpace.class);
@@ -144,13 +146,13 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		when(ctx1.getDefaultSpace()).thenReturn(space1);
 		Address adr1 = new Address(sid1, this.agentId);
 		AgentLife.getLife(this.agent).addExternalContext(ctx1, adr1);
-		return new JanusContext[] {ctx1};
+		return new Context[] {ctx1};
 	}
 
-	private JanusContext[] forceTwoExternalContextCreation() {
-		JanusContext[] first = forceOneExternalContextCreation();
+	private Context[] forceTwoExternalContextCreation() {
+		Context[] first = forceOneExternalContextCreation();
 		UUID id2 = UUID.fromString("00000002-0000-0000-0000-000000000000");
-		JanusContext ctx2 = mock(JanusContext.class);
+		Context ctx2 = mock(Context.class);
 		when(ctx2.getID()).thenReturn(id2);
 		SpaceID sid2 = new SpaceID(id2, UUID.fromString("00000001-0001-0000-0000-000000000000"), OpenEventSpaceSpecification.class);
 		OpenEventSpace space2 = mock(OpenEventSpace.class);
@@ -159,7 +161,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		Address adr2 = new Address(sid2, this.agentId);
 		AgentLife.getLife(this.agent).addExternalContext(ctx2, adr2);
 
-		return new JanusContext[] {first[0], ctx2};
+		return new Context[] {first[0], ctx2};
 	}
 
 	@Test
@@ -175,9 +177,9 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getContext_withExternalContext() {
-		JanusContext[] ctx = forceTwoExternalContextCreation();
+		Context[] ctx = forceTwoExternalContextCreation();
 		assertSame(this.defaultContext, this.skill.getContext(this.contextId));
-		for (JanusContext c : ctx) {
+		for (Context c : ctx) {
 			assertSame(c, this.skill.getContext(c.getID()));
 		}
 		assertNull(this.skill.getContext(UUID.randomUUID()));
@@ -191,7 +193,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void getAllContexts_withExternalContext() {
-		JanusContext[] ctx = forceTwoExternalContextCreation();
+		Context[] ctx = forceTwoExternalContextCreation();
 		Iterable<AgentContext> actual = this.skill.getAllContexts();
 		assertContains(actual, ctx[0], ctx[1], this.defaultContext);
 	}
@@ -263,7 +265,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void join_joinedExternalContext() {
-		JanusContext[] ctxs = forceTwoExternalContextCreation();
+		Context[] ctxs = forceTwoExternalContextCreation();
 		ExternalContextMemberListener emitter1 = forceExternalContextEventEmitter();
 		InternalContextMembershipListener emitter2 = forceInternalContextEventEmitter();
 		
@@ -295,7 +297,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		UUID spId = UUID.randomUUID();
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(space.getSpaceID()).thenReturn(new SpaceID(ctxId, spId, OpenEventSpaceSpecification.class));
-		JanusContext context = mock(JanusContext.class);
+		Context context = mock(Context.class);
 		when(context.getDefaultSpace()).thenReturn(space);
 		when(context.getID()).thenReturn(ctxId);
 		when(this.service.getContext(any())).thenReturn(context);
@@ -318,7 +320,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		UUID spId = UUID.randomUUID();
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(space.getSpaceID()).thenReturn(new SpaceID(ctxId, spId, OpenEventSpaceSpecification.class));
-		JanusContext context = mock(JanusContext.class);
+		Context context = mock(Context.class);
 		when(context.getDefaultSpace()).thenReturn(space);
 		when(context.getID()).thenReturn(ctxId);
 		when(this.service.getContext(any())).thenReturn(context);
@@ -336,7 +338,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		UUID spId = UUID.randomUUID();
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(space.getSpaceID()).thenReturn(new SpaceID(ctxId, spId, OpenEventSpaceSpecification.class));
-		JanusContext context = mock(JanusContext.class);
+		Context context = mock(Context.class);
 		when(context.getDefaultSpace()).thenReturn(space);
 		when(context.getID()).thenReturn(ctxId);
 		when(this.service.getContext(any())).thenReturn(context);
@@ -380,7 +382,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 		UUID spId = UUID.randomUUID();
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(space.getSpaceID()).thenReturn(new SpaceID(ctxId, spId, OpenEventSpaceSpecification.class));
-		JanusContext context = mock(JanusContext.class);
+		Context context = mock(Context.class);
 		when(context.getDefaultSpace()).thenReturn(space);
 		when(context.getID()).thenReturn(ctxId);
 		when(this.service.getContext(any())).thenReturn(context);
@@ -393,14 +395,14 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void join_validSpaceId_withExternalContexts_alive() {
-		JanusContext[] ctxs = forceTwoExternalContextCreation();
+		Context[] ctxs = forceTwoExternalContextCreation();
 		
 		// Create a context into the context service
 		UUID ctxId = UUID.randomUUID();
 		UUID spId = UUID.randomUUID();
 		OpenEventSpace space = mock(OpenEventSpace.class);
 		when(space.getSpaceID()).thenReturn(new SpaceID(ctxId, spId, OpenEventSpaceSpecification.class));
-		JanusContext context = mock(JanusContext.class);
+		Context context = mock(Context.class);
 		when(context.getDefaultSpace()).thenReturn(space);
 		when(context.getID()).thenReturn(ctxId);
 		when(this.service.getContext(any())).thenReturn(context);
@@ -465,7 +467,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void leave_defaultContext_twoExternalContext() {
-		JanusContext[] ctxs = forceTwoExternalContextCreation();
+		Context[] ctxs = forceTwoExternalContextCreation();
 		ExternalContextMemberListener emitter1 = forceExternalContextEventEmitter();
 		InternalContextMembershipListener emitter2 = forceInternalContextEventEmitter();
 		
@@ -480,7 +482,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void leave_defaultContext_oneExternalContext() {
-		JanusContext[] ctxs = forceOneExternalContextCreation();
+		Context[] ctxs = forceOneExternalContextCreation();
 		ExternalContextMemberListener emitter1 = forceExternalContextEventEmitter();
 		InternalContextMembershipListener emitter2 = forceInternalContextEventEmitter();
 		
@@ -511,7 +513,7 @@ public class ExternalContextAccessSkillTest extends AbstractJanusTest {
 
 	@Test
 	public void leave_externalContext() {
-		JanusContext[] ctxs = forceTwoExternalContextCreation();
+		Context[] ctxs = forceTwoExternalContextCreation();
 		ExternalContextMemberListener emitter1 = forceExternalContextEventEmitter();
 		InternalContextMembershipListener emitter2 = forceInternalContextEventEmitter();
 		

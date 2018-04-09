@@ -56,7 +56,7 @@ import static extension io.sarl.sre.services.lifecycle.AgentLife.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill ExternalContextAccessSkill extends JanusBuiltin implements ExternalContextAccess {
+skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContextAccess {
 
 	uses InternalEventBusCapacity
 

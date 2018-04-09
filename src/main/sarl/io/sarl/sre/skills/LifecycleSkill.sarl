@@ -20,7 +20,7 @@
  */
 package io.sarl.sre.skills
 
-import io.sarl.sre.services.context.JanusContext
+import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.lifecycle.AgentState
 import io.sarl.sre.services.lifecycle.LifecycleService
@@ -45,7 +45,7 @@ import io.sarl.core.Logging
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
+skill LifecycleSkill extends BuiltinSkill implements Lifecycle {
 
 	uses Logging
 
@@ -127,7 +127,7 @@ skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
 	def spawnInContext(agentClass : Class<? extends Agent>, context : AgentContext, params : Object*) : UUID {
 		if (owner.life.state.alive) {
 			var o = this.owner
-			val result = this.lifecycle.spawnAgent(1, o.ID, context as JanusContext, null, agentClass, params)
+			val result = this.lifecycle.spawnAgent(1, o.ID, context as Context, null, agentClass, params)
 			if (result.agentSpawned) {
 				var iterator = result.spawnedAgents.iterator
 				if (iterator.hasNext) {
@@ -147,7 +147,7 @@ skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
 		params : Object*) : Iterable<UUID> {
 		if (owner.life.state.alive) {
 			var o = this.owner
-			var result = this.lifecycle.spawnAgent(nbAgents, o.ID, context as JanusContext, null, agentClass, params)
+			var result = this.lifecycle.spawnAgent(nbAgents, o.ID, context as Context, null, agentClass, params)
 			if (result.failing) {
 				val err = result.error
 				if (err !== null) {
@@ -163,7 +163,7 @@ skill LifecycleSkill extends JanusBuiltin implements Lifecycle {
 		params : Object*) : UUID {
 		if (owner.life.state.alive) {
 			var o = this.owner
-			val result = this.lifecycle.spawnAgent(1, o.ID, context as JanusContext, agentID, agentClass, params)
+			val result = this.lifecycle.spawnAgent(1, o.ID, context as Context, agentID, agentClass, params)
 			if (result.agentSpawned) {
 				var iterator = result.spawnedAgents.iterator
 				if (iterator.hasNext) {
