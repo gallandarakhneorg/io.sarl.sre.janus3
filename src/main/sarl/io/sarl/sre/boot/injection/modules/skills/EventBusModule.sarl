@@ -34,7 +34,7 @@ import io.sarl.sre.skills.EventBus
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public class EventBusModule extends AbstractModule {
+class EventBusModule extends AbstractModule {
 
 	protected override configure {
 		//

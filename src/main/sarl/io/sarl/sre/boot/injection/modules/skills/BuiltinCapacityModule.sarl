@@ -33,7 +33,7 @@ import javax.inject.Singleton
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public class BuiltinCapacityModule extends AbstractModule {
+class BuiltinCapacityModule extends AbstractModule {
 
 	protected override configure {
 		typeof(DynamicSkillProvider).bind.to(typeof(SreDynamicSkillProvider)).in(typeof(Singleton))

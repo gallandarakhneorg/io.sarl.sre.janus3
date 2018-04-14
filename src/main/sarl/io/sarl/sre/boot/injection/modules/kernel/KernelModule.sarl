@@ -47,7 +47,7 @@ import javax.inject.Singleton
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public class KernelModule extends AbstractModule {
+class KernelModule extends AbstractModule {
 
 	protected override configure {
 		Key::get(typeof(UUID), Names::named(BootFactory::ROOT_CONTEXT_ID_NAME)).requireBinding
@@ -66,7 +66,7 @@ public class KernelModule extends AbstractModule {
 	@Provides
 	@KernelScope
 	@Singleton
-	static def getKernel(
+	static def getKernelContext(
 		injector : Injector,
 		factory : ContextFactory,
 		@Named(BootFactory::ROOT_CONTEXT_ID_NAME) rootContextID : UUID,

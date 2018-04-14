@@ -37,7 +37,7 @@ import javax.inject.Singleton
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public class SpacesModule extends AbstractModule {
+class SpacesModule extends AbstractModule {
 
 	protected override configure {
 		typeof(EventSpaceSpecification).bind.to(typeof(SreEventSpaceSpecification)).in(typeof(Singleton))

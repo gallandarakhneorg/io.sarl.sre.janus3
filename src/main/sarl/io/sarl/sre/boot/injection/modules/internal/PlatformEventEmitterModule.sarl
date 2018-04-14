@@ -42,7 +42,7 @@ import javax.inject.Singleton
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public class PlatformEventEmitterModule extends AbstractModule {
+class PlatformEventEmitterModule extends AbstractModule {
 
 	protected override configure {
 	}
