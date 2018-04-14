@@ -27,6 +27,8 @@ import io.bootique.config.ConfigurationFactory
 import io.sarl.lang.core.Agent
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
+import io.bootique.annotation.BQConfig
+import io.bootique.annotation.BQConfigProperty
 
 /** 
  * Configuration factory for specifying the SARL booting parameters.
@@ -37,6 +39,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @mavenartifactid $ArtifactId$
  * @since 0.8.0
  */
+@BQConfig("Booting configuration for the SARL Run-time Environment")
 class BootFactory {
 
 	/** 
@@ -141,6 +144,7 @@ class BootFactory {
 	 * 
 	 * @param name the qualified name of the name.
 	 */
+	@BQConfigProperty("fully-qualified name of the agent's type to launch")
 	def setBootAgent(name : String) {
 		this.bootAgent = name.extractBootAgent
 	}
@@ -202,6 +206,7 @@ class BootFactory {
 	 * 
 	 * @param id the context identifier
 	 */
+	@BQConfigProperty("identifier of the root context if applicable according to the context identifier computing method")
 	def setRootContextID(id : UUID) : void {
 		if (id === null) {
 			this.rootContextID = computeRootContextID
@@ -244,6 +249,7 @@ class BootFactory {
 	 * 
 	 * @param id the space ID
 	 */
+	@BQConfigProperty("identifier of the default space within the root context")
 	def setRootSpaceID(id : UUID) {
 		this.rootSpaceID = id
 		ensureRootSpaceIDValue
@@ -277,6 +283,7 @@ class BootFactory {
 	 * 
 	 * @param name the name of the program.
 	 */
+	@BQConfigProperty("name of the program")
 	def setProgramName(name : String) {
 		this.programName = name
 		ensureProgramName
@@ -303,6 +310,7 @@ class BootFactory {
 	 * 
 	 * @param type the type of id computation.
 	 */
+	@BQConfigProperty("method for computing the identifier of the root context")
 	def setRootContextBootType(type : RootContextType) {
 		this.rootContextBootType = type
 		ensureRootContextBootType

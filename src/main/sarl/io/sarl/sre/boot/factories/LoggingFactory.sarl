@@ -24,6 +24,8 @@ import java.util.logging.Level
 import io.bootique.config.ConfigurationFactory
 import org.eclipse.xtend.lib.annotations.Accessors
 import io.sarl.sre.services.logging.LoggerCreator
+import io.bootique.annotation.BQConfig
+import io.bootique.annotation.BQConfigProperty
 
 /**
  * Configuration factory for specifying the logging configuration.
@@ -34,6 +36,7 @@ import io.sarl.sre.services.logging.LoggerCreator
  * @mavenartifactid $ArtifactId$
  * @since 0.8.0
  */
+@BQConfig("Configuration of the logging service")
 class LoggingFactory {
 
 	/** 
@@ -83,7 +86,7 @@ class LoggingFactory {
 	var level : String
 	var levelObject : Level
 
-	@Accessors
+	@Accessors(PUBLIC_GETTER)
 	var format : String = LOG_FORMAT
 
 	/** Replies the configuration factory for the logging.
@@ -96,11 +99,26 @@ class LoggingFactory {
 		configFactory.config(typeof(LoggingFactory), LOGGING_PREFIX)
 	}
 
+	/** Change the format of the log lines. The format must be defined according to the
+	 * {@link Logger} API.
+	 *
+	 * @param format the line format.
+	 */
+	@BQConfigProperty("Format of each line within the log")
+	def setFormat(format : String) {
+		if (format.isNullOrEmpty) {
+			this.format = LOG_FORMAT
+		} else {
+			this.format = format
+		}
+	}
+
 	/** 
 	 * Replies the verbosity level.
 	 * 
 	 * @return the verbose level
 	 */
+	@BQConfigProperty("Name of the default verbosity level")
 	def setLevel(level : String) {
 		var levelObject = LoggerCreator::parseLoggingLevel(level)
 		this.level = levelObject.name.toLowerCase

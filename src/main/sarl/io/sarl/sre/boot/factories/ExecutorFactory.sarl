@@ -24,6 +24,8 @@ import java.util.logging.Level
 import org.eclipse.xtend.lib.annotations.Accessors
 import io.bootique.config.ConfigurationFactory
 import io.sarl.sre.services.logging.LoggerCreator
+import io.bootique.annotation.BQConfig
+import io.bootique.annotation.BQConfigProperty
 
 /** 
  * Configuration factory for specifying the executor configuration.
@@ -34,6 +36,7 @@ import io.sarl.sre.services.logging.LoggerCreator
  * @mavenartifactid $ArtifactId$
  * @since 0.8.0
  */
+@BQConfig("Configuration of the executor service")
 class ExecutorFactory {
 
 	/** 
@@ -114,16 +117,16 @@ class ExecutorFactory {
 	var internalErrorVerboseLevel : String
 	var internalErrorVerboseLevelObject : Level
 
-	@Accessors
+	@Accessors(PUBLIC_GETTER)
 	var maxThreads : int = MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE
 
-	@Accessors
+	@Accessors(PUBLIC_GETTER)
 	var minThreads : int = MIN_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE
 
-	@Accessors
+	@Accessors(PUBLIC_GETTER)
 	var keepAliveDuration : int = THREAD_KEEP_ALIVE_DURATION_VALUE
 
-	@Accessors
+	@Accessors(PUBLIC_GETTER)
 	var timeout : int = io.sarl.sre.boot.factories.ExecutorFactory.THREAD_TIMEOUT_VALUE
 
 	/** Replies the configuration factory for the executor.
@@ -136,11 +139,64 @@ class ExecutorFactory {
 		configFactory.config(typeof(ExecutorFactory), EXECUTOR_PREFIX)
 	}
 
+	/** Change the maximum number of threads that could be used by the executor service.
+	 *
+	 * @param maxThreads the max number.
+	 */
+	@BQConfigProperty("Maximum number of threads that could be used by the executor service")
+	def setMaxThreads(maxThreads : int) {
+		if (maxThreads > 0) {
+			this.maxThreads = maxThreads;
+		} else {
+			this.maxThreads = 1
+		}
+	}
+
+	/** Change the minimum number of threads that could be used by the executor service.
+	 * 
+	 * @param minThreads the min number.
+	 */
+	@BQConfigProperty("Minimum number of threads that could be used by the executor service")
+	def setMinThreads(minThreads : int) {
+		if (minThreads > 0) {
+			this.minThreads = minThreads;
+		} else {
+			this.minThreads = 1
+		}
+	}
+
+	/** Change the duration during which a thread is still in memory without being used for another task.
+	 * 
+	 * @param duration the duration of an iddle thread.
+	 */
+	@BQConfigProperty("Duration during which a thread is iddle before being destroyed")
+	def setKeepAliveDuration(duration : int) {
+		if (duration >= 0) {
+			this.keepAliveDuration = duration;
+		} else {
+			this.keepAliveDuration = 0
+		}
+	}
+
+	/** Change the timeout duration for waiting the termination of the threads.
+	 * 
+	 * @param duration the timeout duration.
+	 */
+	@BQConfigProperty("Duration before assuming a timeout for the threads' termination")
+	def setTimeout(duration : int) {
+		if (duration >= 0) {
+			this.timeout = duration;
+		} else {
+			this.timeout = 0
+		}
+	}
+
 	/** 
-	 * Replies the verbosity level of the internal errors.
+	 * Change the verbosity level of the internal errors.
 	 * 
 	 * @return the verbose level.
 	 */
+	@BQConfigProperty("Verbosity level for the internal errors within the executor service")
 	def setInternalErrorVerboseLevel(level : String) {
 		var levelObject = LoggerCreator::parseLoggingLevel(level)
 		this.internalErrorVerboseLevel = levelObject.name.toLowerCase
