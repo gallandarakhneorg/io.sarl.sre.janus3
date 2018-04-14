@@ -85,6 +85,8 @@ class Kernel {
 	 */
 	@Inject
 	new (serviceManager : IServiceManager, exceptionHandler : UncaughtExceptionHandler) {
+		// TODO Remove the following line when the framework is ready for the release
+		System::out.println("WARNING: experimental SRE, please use with caution.")
 		// Initialize the fields
 		this.serviceManager = serviceManager
 		this.loggingService = this.serviceManager.getService(typeof(LoggingService))
