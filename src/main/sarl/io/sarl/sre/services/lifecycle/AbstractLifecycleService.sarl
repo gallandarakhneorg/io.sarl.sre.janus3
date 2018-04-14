@@ -244,6 +244,7 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 								synchronized (agents) {
 									agents += ^agent
 								}
+								^agent.onAgentCreated
 							} else {
 								if (parent.emptyRootContext) {
 									// The agent seems to be the boot agent, and it has failed to be launched.
@@ -278,6 +279,19 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 		return new SpawnResult(
 			(agents.map[it.ID]).unmodifiableView,
 			errors)
+	}
+
+	/** This function is called each time an agent was created.
+	 * This function is provided for being overridden by the sub-classes of
+	 * the current class.
+	 *
+	 * <p>Within the {@code AbstractLifecycleService}, this function does nothing.
+	 *
+	 * @param agent the spawned agent.
+	 * @since 0.8.0
+	 */
+	protected def onAgentCreated(^agent : Agent) {
+		//
 	}
 
 	/** Fire the events related to the agent spawn.
@@ -325,13 +339,27 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 			var life = ^agent.life
 			var defaultContext = life.defaultContext
 			var contexts = life.stop(this.skillUninstaller, this.logger)
+			^agent.onAgentKilled
 			fireAgentDestructionEvents(^agent, defaultContext, contexts)
 			return true
 		}
 
 		return false
 	}
-	
+
+	/** This function is called each time an agent was killed.
+	 * This function is provided for being overridden by the sub-classes of
+	 * the current class.
+	 * 
+	 * <p>Within the {@code AbstractLifecycleService}, this function does nothing.
+	 * 
+	 * @param agent the killed agent.
+	 * @since 0.8.0
+	 */
+	protected def onAgentKilled(^agent : Agent) {
+		//
+	}
+
 	protected def fireAgentDestructionEvents(^agent : Agent, defaultContextBeforeKilled : ContextReference,
 		leavedContexts : Iterable<ContextReference>) {
 		// Leave the default context because the ExternalContextAccessSkill does not fire events related
