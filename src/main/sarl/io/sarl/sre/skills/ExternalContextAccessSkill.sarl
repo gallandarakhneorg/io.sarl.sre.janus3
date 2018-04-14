@@ -36,7 +36,6 @@ import io.sarl.sre.services.context.ExternalContextMemberListener
 import io.sarl.sre.services.context.InternalContextMembershipListener
 import io.sarl.sre.services.context.InternalContextMembershipListenerFactory
 import io.sarl.sre.services.lifecycle.ContextReference
-import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.Collections3
 import java.util.UUID
 import javax.inject.Inject
@@ -75,14 +74,13 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 
 	var contextService : ContextService
 
-	var loggingService : LoggingService
-	
 	var externalEventEmitter : ExternalContextMemberListener
 
 	var internalEventEmitter : InternalContextMembershipListener
 
 	/** Set the backend context service.
 	 */
+	@SuppressWarnings("potential_field_synchronization_problem")
 	@Inject
 	def setContextService(service : ContextService) {
 		this.contextService = service
@@ -92,6 +90,7 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 	 * 
 	 * @param provider the provider.
 	 */
+	@SuppressWarnings("potential_field_synchronization_problem")
 	@Inject
 	def setExternalContextMemberListenerProvider(@KernelScope provider  : Provider<ExternalContextMemberListener>) {
 		assert provider !== null
@@ -102,17 +101,11 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 	 * 
 	 * @param provider the provider.
 	 */
+	@SuppressWarnings("potential_field_synchronization_problem")
 	@Inject
 	def setInternalContextMembershipListenerFactory(@KernelScope provider : InternalContextMembershipListenerFactory) {
 		assert provider !== null
 		this.internalEventEmitter = provider.create(this.owner)
-	}
-
-	/** Set the logging service.
-	 */
-	@Inject
-	def setLoggingService(service : LoggingService) {
-		this.loggingService = service
 	}
 
 	protected override uninstall(stage : UninstallationStage) {
@@ -132,6 +125,7 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 		}
 	}
 
+	@SuppressWarnings("potential_field_synchronization_problem")
 	def getUniverseContext : AgentContext {
 		this.contextService.rootContext
 	}
@@ -171,6 +165,7 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 		spaceID == ^event.source.spaceID.ID
 	}
 	
+	@SuppressWarnings("potential_field_synchronization_problem")
 	def join(contextID : UUID, expectedDefaultSpaceID : UUID) : boolean {
 		assert contextID !== null
 		assert expectedDefaultSpaceID !== null
@@ -213,6 +208,7 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 		return false
 	}
 	
+	@SuppressWarnings("potential_field_synchronization_problem")
 	def leave(contextID : UUID) : boolean {
 		assert contextID !== null
 

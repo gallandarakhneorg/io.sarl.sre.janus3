@@ -50,6 +50,7 @@ skill TimeSkill extends BuiltinSkill implements Time {
 		}
 	}
 
+	@SuppressWarnings("potential_field_synchronization_problem")
 	var timeService : TimeService
 
 	/** Set the backend time service.

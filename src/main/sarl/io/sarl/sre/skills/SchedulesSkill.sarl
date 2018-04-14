@@ -75,6 +75,7 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 		}
 	}
 
+	@SuppressWarnings("potential_field_synchronization_problem")
 	var executorService : ExecutorService
 
 	var activeTaskRepository : Map<String, TaskDescription> = null
@@ -486,7 +487,7 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 	 * @mavenartifactid $ArtifactId$
 	 * @since 0.5.0
 	 */
-	private static class TaskDescription {
+	private static final class TaskDescription {
 
 		var taskReference : AgentTask
 
@@ -499,23 +500,23 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			this.futureResult = future
 		}
 
-		def toString : String {
+		synchronized def toString : String {
 			this.taskReference?.toString
 		}
 
-		def getTask : AgentTask {
+		synchronized def getTask : AgentTask {
 			this.taskReference
 		}
 
-		def setTask(task : AgentTask) {
+		synchronized def setTask(task : AgentTask) {
 			this.taskReference = task
 		}
 
-		def getFuture : Future<?> {
+		synchronized def getFuture : Future<?> {
 			this.futureResult
 		}
 
-		def setFuture(future : Future<?>) {
+		synchronized def setFuture(future : Future<?>) {
 			this.futureResult = future
 		}
 

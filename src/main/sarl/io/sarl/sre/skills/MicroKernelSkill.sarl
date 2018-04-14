@@ -51,7 +51,8 @@ skill MicroKernelSkill extends BuiltinSkill implements MicroKernelCapacity {
 		}
 	}
 
-	private var kernel : WeakReference<Kernel>
+	@SuppressWarnings("potential_field_synchronization_problem")
+	var kernel : WeakReference<Kernel>
 
 	new (^agent : Agent, kernel : Kernel) {
 		super(^agent)

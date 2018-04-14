@@ -75,6 +75,7 @@ skill InnerContextAccessSkill extends BuiltinSkill implements InnerContextAccess
 
 	/** Set the backend context service.
 	 */
+	@SuppressWarnings("potential_field_synchronization_problem")
 	@Inject
 	def setContextService(service : ContextService) {
 		this.contextService = service
@@ -84,6 +85,7 @@ skill InnerContextAccessSkill extends BuiltinSkill implements InnerContextAccess
 	 *
 	 * <p>This function is thread-safe.
 	 */
+	@SuppressWarnings("potential_field_synchronization_problem")
 	private def detroyInnerContext {
 		var context = owner.life.setInnerContext(null)
 		if (context !== null) {

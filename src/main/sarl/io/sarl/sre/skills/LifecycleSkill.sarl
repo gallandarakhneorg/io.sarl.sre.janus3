@@ -62,6 +62,7 @@ skill LifecycleSkill extends BuiltinSkill implements Lifecycle {
 		}
 	}
 
+	@SuppressWarnings("potential_field_synchronization_problem")
 	var lifecycle : LifecycleService
 
 	/** Set the backend lifecycle service.

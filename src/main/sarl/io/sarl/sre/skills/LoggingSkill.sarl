@@ -58,6 +58,7 @@ skill LoggingSkill extends BuiltinSkill implements Logging {
 		}
 	}
 
+	@SuppressWarnings("potential_field_synchronization_problem")
 	var logService : LoggingService
 
 	var loggerInstance : Logger
