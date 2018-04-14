@@ -20,23 +20,27 @@
  */
 package io.sarl.sre.boot
 
-import com.google.inject.Injector
-import com.google.inject.Module
-import io.bootique.BQRuntime
-import io.bootique.Bootique
-import io.bootique.config.ConfigurationFactory
 import io.sarl.bootstrap.SRE
 import io.sarl.bootstrap.SREBootstrap
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
-import io.sarl.sre.Kernel
-import io.sarl.sre.boot.factories.BootFactory
-import io.sarl.sre.boot.injection.modules.InjectionConstants
-import io.sarl.sre.services.lifecycle.LifecycleService
 import java.util.UUID
-import org.eclipse.xtend.lib.annotations.Accessors
 
 import static io.sarl.bootstrap.SRE.*
+import io.bootique.Bootique
+import com.google.inject.Module
+import io.sarl.sre.Kernel
+import io.sarl.sre.boot.injection.modules.InjectionConstants
+import io.bootique.BQRuntime
+import com.google.inject.Injector
+import io.sarl.sre.services.lifecycle.LifecycleService
+import io.sarl.sre.boot.factories.Factories
+import io.sarl.sre.boot.factories.BootFactory
+import io.sarl.sre.boot.factories.RootContextType
+import io.sarl.sre.boot.factories.LoggingFactory
+import io.sarl.sre.services.lifecycle.KernelAgentLifecycleListener
+import io.bootique.config.ConfigurationFactory
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
  * This is the class that permits to boot programmatically the SRE platform with the Bootique API.
@@ -49,56 +53,110 @@ import static io.sarl.bootstrap.SRE.*
  */
 class ProgrammaticBootstrap implements SREBootstrap {
 
-	var bootAgent : UUID
-
 	@Accessors(PUBLIC_GETTER)
 	var kernel : Kernel
 
 	@Accessors(PUBLIC_GETTER)
 	var runtime : BQRuntime
 
-	/** Constructor.
+	var bootAgent : UUID
+
+	var bootType : RootContextType = null
+
+	/** Create a bootique instance.
+	 * 
+	 * @return the bootique instance.
 	 */
-	new {
+	protected def newBootiqueInstance : Bootique {
+		return Bootique.app
+	}
+
+	/** Start the agent framework without agent.
+	 * 
+	 * @param bootique the Bootique instance to set up the framework. If it is {@code null},
+	 * the default Bootique instance is created.
+	 * @param module the injection module to use. If it is {@code null}, the default module is used.
+	 */
+	def startWithoutAgent(bootique : Bootique = null, module : Class<? extends Module> = null) : AgentContext {
+		var kern = this.kernel
+		if (kern === null) {
+			var old : String = null
+			if (this.bootType !== null) {
+				old = System::setProperty(Factories::toPropertyName(BootFactory::ROOT_CONTEXT_BOOT_TYPE_NAME),
+					this.bootType.name)
+				this.bootType = null
+			}
+			try {
+				var nbootique = bootique ?: newBootiqueInstance
+				var mod = module ?: InjectionConstants::DEFAULT_ROOT_INJECTION_MODULE
+				nbootique = nbootique.module(mod).autoLoadModules
+				this.runtime = nbootique.createRuntime
+				val injector = this.runtime.getInstance(typeof(Injector))
+				kern = injector.getInstance(typeof(Kernel))
+				val listener : KernelAgentLifecycleListener = [
+					kernel = null
+					runtime = null
+					bootAgent = null
+				]
+				kern.getService(typeof(LifecycleService)).addKernelAgentLifecycleListener(listener)
+				this.kernel = kern
+			} finally {
+				if (old !== null) {
+					System::setProperty(Factories::toPropertyName(BootFactory::ROOT_CONTEXT_BOOT_TYPE_NAME), old)
+				}
+			}
+		}
 		// Force the bootstrap to be this object
 		SRE::bootstrap = this
+		return kern.rootContext
 	}
 
-	override getBootAgentIdentifier : UUID {
-		this.bootAgent
-	}
-
-	override startAgent(agentCls : Class<? extends Agent>, params : Object*) : UUID throws Exception {
-		if (this.bootAgent === null) {
-			var factory = this.runtime.getInstance(typeof(ConfigurationFactory))
-			var bootFactory = BootFactory::getConfigurationFactory(factory)
-			bootFactory.bootAgent = agentCls.name
-			startWithoutAgent
-			this.bootAgent = this.kernel.spawn(agentCls, params)
-			return this.bootAgent
+	override startAgent(agentCls : Class<? extends Agent>, params : Object*) : UUID {
+		if (this.kernel === null) {
+			val propName = Factories::toPropertyName(BootFactory::BOOT_AGENT_NAME)
+			val old = System::setProperty(propName, agentCls.name)
+			try {
+				startWithoutAgent
+			} finally {
+				if (old === null) {
+					System::clearProperty(propName)
+				} else {
+					System::setProperty(propName, old)
+				}
+			}
 		}
-		return this.kernel.spawn(agentCls, params)
+		var id = this.kernel.spawn(agentCls, params)
+		if (this.bootAgent === null) {
+			this.bootAgent = id
+		}
+		return id
 	}
 
-	override startAgent(nbAgents : int, agentCls : Class<? extends Agent>,
-		params : Object*) : Iterable<UUID> throws Exception {
-		if (this.bootAgent === null) {
-			var factory = this.runtime.getInstance(typeof(ConfigurationFactory))
-			var bootFactory = BootFactory::getConfigurationFactory(factory)
-			bootFactory.bootAgent = agentCls.name
-			startWithoutAgent
+	override startAgent(nbAgents : int, agentCls : Class<? extends Agent>, params : Object*) : Iterable<UUID> {
+		if (this.kernel === null) {
+			val propName = Factories::toPropertyName(BootFactory::BOOT_AGENT_NAME)
+			val old = System::setProperty(propName, agentCls.name)
+			try {
+				startWithoutAgent
+			} finally {
+				if (old === null) {
+					System::clearProperty(propName)
+				} else {
+					System::setProperty(propName, old)
+				}
+			}
 		}
-		var spawned = this.kernel.spawn(nbAgents, agentCls, params)
-		if (this.bootAgent === null && spawned !== null) {
-			var iterator = spawned.iterator
-			if (iterator !== null && iterator.hasNext) {
+		var ids = this.kernel.spawn(nbAgents, agentCls, params)
+		if (this.bootAgent === null) {
+			val iterator = ids.iterator
+			if (iterator.hasNext) {
 				this.bootAgent = iterator.next
 			}
 		}
-		return spawned
+		return ids
 	}
 
-	/** Start the boot agent.
+	/** Start the boot agent if it is specified in the boot configuration.
 	 */
 	def startBootAgent : UUID {
 		var factory = this.runtime.getInstance(typeof(ConfigurationFactory))
@@ -109,45 +167,25 @@ class ProgrammaticBootstrap implements SREBootstrap {
 		startAgent(bootAgent, args)
 	}
 
-	/** Start the SRE platform without agent.
-	 * 
-	 * @param bootique the bootique instance with the command line arguments
-	 * @return the root context.
-	 */
-	def startWithoutAgent(bootique : Bootique = null) : AgentContext {
-		var kern = this.kernel
-		if (kern === null) {
-			return startWithoutAgent(bootique, InjectionConstants::DEFAULT_ROOT_INJECTION_MODULE)
-		}
-		return kern.rootContext
+	override getBootAgentIdentifier : UUID {
+		this.bootAgent
 	}
 
-	/** Start the SRE platform without agent.
-	 * 
-	 * @param bootique the bootique instance with the command line arguments
-	 * @param module the root module for injection.
-	 * @return the root context.
-	 */
-	def startWithoutAgent(bootique : Bootique = null, module : Class<? extends Module>) : AgentContext {
-		var kern = this.kernel
-		if (kern === null) {
-			var nbootique : Bootique
-			if (bootique === null) {
-				nbootique = Bootique.app
-			} else {
-				nbootique = bootique
-			}
-			nbootique = nbootique.module(module).autoLoadModules
-			this.runtime = nbootique.createRuntime
-			val injector = this.runtime.getInstance(typeof(Injector))
-			kern = injector.getInstance(typeof(Kernel))
-			kern.getService(typeof(LifecycleService)).addKernelAgentLifecycleListener [
-				this.kernel = null
-				this.bootAgent = null
-			]
-			this.kernel = kern
-		}
-		return kern.rootContext
+	override setRandomContextUUID {
+		this.bootType = RootContextType::RANDOM_CONTEXT_ID
+	}
+
+	override setBootAgentTypeContextUUID {
+		this.bootType = RootContextType::BOOT_AGENT_NAME_CONTEXT_ID
+	}
+
+	override setDefaultContextUUID {
+		this.bootType = RootContextType::DEFAULT_CONTEXT_ID
+	}
+
+	override setVerboseLevel(level : int) {
+		var lvl = if(level < 0) 0 else level
+		System::setProperty(Factories::toPropertyName(LoggingFactory::VERBOSE_LEVEL_NAME), Integer::toString(lvl))
 	}
 
 }
