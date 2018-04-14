@@ -67,6 +67,12 @@ interface TimeService extends DependentService {
 	 */
 	def evolveTimeIfPossible(timeDelta : double = 0.0)
 
+	/** Change the time.
+	 * 
+	 * @param time the new time.
+	 */
+	def setTimeIfPossible(time : double)
+
 	/** Add listener on time changes.
 	 *
 	 * @param listener the listener.

@@ -73,6 +73,10 @@ class JreTimeService extends AbstractDependentService implements TimeService {
 		fireTimeChanged
 	}
 
+	def setTimeIfPossible(time : double) {
+		//
+	}
+	
 	/** Notifies about time changes.
 	 */
 	protected def fireTimeChanged {
