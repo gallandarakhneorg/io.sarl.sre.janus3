@@ -71,6 +71,7 @@ import io.sarl.sre.services.lifecycle.SkillUninstaller;
 import io.sarl.sre.services.lifecycle.SpawnDisabledException;
 import io.sarl.sre.services.lifecycle.SpawnResult;
 import io.sarl.sre.services.logging.LoggingService;
+import io.sarl.sre.skills.EventBus;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.Collections3;
@@ -451,6 +452,16 @@ public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleSe
 		@Override
 		public <T> SynchronizedIterable<T> getRegisteredEventBusListeners(Class<T> type) {
 			return null;
+		}
+
+		@Override
+		public void setEventBus(EventBus bus) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public EventBus getEventBus() {
+			throw new UnsupportedOperationException();
 		}
 		
 	}

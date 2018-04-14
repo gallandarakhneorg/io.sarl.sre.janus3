@@ -60,6 +60,7 @@ import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.AgentState;
 import io.sarl.sre.skills.BehaviorsSkill;
+import io.sarl.sre.skills.EventBus;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.Collections3;
@@ -490,6 +491,16 @@ public class BehaviorsSkillTest extends AbstractSreTest {
 				return (SynchronizedIterable<T>) this.listeners;
 			}
 			return null;
+		}
+
+		@Override
+		public void setEventBus(EventBus bus) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public EventBus getEventBus() {
+			throw new UnsupportedOperationException();
 		}
 		
 	}

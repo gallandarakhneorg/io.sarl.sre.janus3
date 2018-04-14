@@ -55,6 +55,7 @@ import io.sarl.sre.services.context.InternalContextMembershipListener;
 import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.AgentState;
+import io.sarl.sre.skills.EventBus;
 import io.sarl.sre.skills.ExternalContextAccessSkill;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.ManualMocking;
@@ -591,6 +592,16 @@ public class ExternalContextAccessSkillTest extends AbstractSreTest {
 		@Override
 		public <T> SynchronizedIterable<T> getRegisteredEventBusListeners(Class<T> type) {
 			return null;
+		}
+
+		@Override
+		public void setEventBus(EventBus bus) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public EventBus getEventBus() {
+			throw new UnsupportedOperationException();
 		}
 		
 	}

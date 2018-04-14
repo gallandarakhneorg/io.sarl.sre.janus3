@@ -113,7 +113,7 @@ final class AgentLife {
 	 * 
 	 * @return the event bus.
 	 */
-	protected final def getEventBus : InternalEventBusCapacity {
+	final def getEventBus : InternalEventBusCapacity {
 		var cap = this.eventBusCapacity
 		if (cap === null) {
 			cap = SREutils::getInternalSkillReference(this.^agent, typeof(InternalEventBusCapacity))

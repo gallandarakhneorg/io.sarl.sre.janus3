@@ -54,6 +54,7 @@ import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.ContextReference;
 import io.sarl.sre.services.lifecycle.SkillUninstaller;
 import io.sarl.sre.services.logging.LoggingService;
+import io.sarl.sre.skills.EventBus;
 import io.sarl.core.Destroy;
 import io.sarl.core.Initialize;
 import io.sarl.lang.core.Address;
@@ -675,6 +676,16 @@ public class AgentLifeTest extends AbstractSreTest {
 		@Override
 		public <T> SynchronizedIterable<T> getRegisteredEventBusListeners(Class<T> type) {
 			return null;
+		}
+
+		@Override
+		public void setEventBus(EventBus bus) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public EventBus getEventBus() {
+			throw new UnsupportedOperationException();
 		}
 		
 	}

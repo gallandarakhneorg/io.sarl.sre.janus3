@@ -23,6 +23,7 @@ package io.sarl.sre.capacities
 import io.sarl.lang.core.Event
 import io.sarl.lang.core.EventListener
 import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.sre.skills.EventBus
 
 /** 
  * Capacity that provides an event bus to notify the different components of an agent.
@@ -137,5 +138,17 @@ capacity InternalEventBusCapacity {
 	 * @return the registered listeners.
 	 */
 	def getRegisteredEventBusListeners(type : Class<T>) : SynchronizedIterable<T> with T
+
+	/** Set the backend event bus.
+	 * 
+	 * @param bus the new event bus.
+	 */
+	def setEventBus(bus : EventBus)
+
+	/** Replies the backend event bus.
+	 * 
+	 * @return the event bus instance.
+	 */
+	def getEventBus : EventBus
 
 }
