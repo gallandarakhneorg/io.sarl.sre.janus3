@@ -66,7 +66,7 @@ class Kernel {
 	// value is true because the SRE kernel is running as soon as it is created. 
 	val isRunning = new AtomicBoolean(true)
 
-	val stopListener = new KernelStoppingListener(this)
+	val stopListener : KernelAgentLifecycleListener
 
 	val serviceManager : IServiceManager
 
@@ -86,6 +86,7 @@ class Kernel {
 	@Inject
 	new (serviceManager : IServiceManager, exceptionHandler : UncaughtExceptionHandler) {
 		// Initialize the fields
+		this.stopListener = createKernelListener
 		this.serviceManager = serviceManager
 		this.loggingService = this.serviceManager.getService(typeof(LoggingService))
 		this.spawnService = this.serviceManager.getService(typeof(LifecycleService))
@@ -105,6 +106,15 @@ class Kernel {
 
 		// TODO Remove the following line when the framework is ready for the release
 		this.logger.warning(Messages::Kernel_3)
+	}
+
+	/** Create an instance of the kernel event listener.
+	 *
+	 * @return the listener instance.
+	 * @since 0.8.0
+	 */
+	protected def createKernelListener : KernelAgentLifecycleListener {
+		new AsynchronousKernelStoppingListener(this)
 	}
 
 	/** Stop the kernel.
@@ -225,15 +235,28 @@ class Kernel {
 		this.contextService.rootContext
 	}
 
+	/** Run the standard algorithm for stopping properly the kernel.
+	 *
+	 * @param kern the kernel to stop.
+	 */
+	static def executeStandardKernelStopActions(kern : Kernel) {
+		val logger = kern.logger
+		logger.info(Messages.Kernel_0)
+		kern.serviceManager.stopServices(logger)
+		logger.info(Messages.Kernel_1)
+		kern.isRunning.set(false)
+	}
+
 	/** 
-	 * Listener on platform events.
+	 * Asynchronous listener on platform events.
 	 * 
 	 * @author $Author: sgalland$
 	 * @version $FullVersion$
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
 	 */
-	private static class KernelStoppingListener implements KernelAgentLifecycleListener, Runnable, UncaughtExceptionHandler {
+	protected static class AsynchronousKernelStoppingListener
+			implements KernelAgentLifecycleListener, Runnable, UncaughtExceptionHandler {
 
 		val kernel : WeakReference<Kernel>
 
@@ -259,12 +282,7 @@ class Kernel {
 		}
 
 		override run {
-			val kern = this.kernel.get
-			val logger = kern.logger
-			logger.info(Messages.Kernel_0)
-			kern.serviceManager.stopServices(logger)
-			logger.info(Messages.Kernel_1)
-			kern.isRunning.set(false)
+			this.kernel.get.executeStandardKernelStopActions
 		}
 		
 		override uncaughtException(thread : Thread, exception : Throwable) {
