@@ -21,6 +21,7 @@
 package io.sarl.sre.services
 
 import com.google.common.util.concurrent.AbstractService
+import io.sarl.lang.annotation.NoEqualityTestFunctionsGeneration
 
 /** 
  * Abstract implementation of a typical SRE service. 
@@ -31,6 +32,8 @@ import com.google.common.util.concurrent.AbstractService
  * @mavenartifactid $ArtifactId$
  * @since 0.7.0
  */
+@SuppressWarnings("use_reserved_sarl_annotation")
+@NoEqualityTestFunctionsGeneration
 abstract class AbstractSreService extends AbstractService {
 
 	protected final override doStart {
