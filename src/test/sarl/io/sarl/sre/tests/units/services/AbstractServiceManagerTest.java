@@ -23,12 +23,11 @@ package io.sarl.sre.tests.units.services;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -41,8 +40,10 @@ import org.junit.Test;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;
 
-import io.sarl.sre.services.AbstractDependentService;
+import io.bootique.config.ConfigurationFactory;
+import io.sarl.sre.boot.factories.ServiceManagerFactory;
 import io.sarl.sre.services.AbstractServiceManager;
+import io.sarl.sre.services.AbstractSreService;
 import io.sarl.sre.services.infrastructure.InfrastructureService;
 import io.sarl.sre.services.logging.LoggerCreator;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
@@ -87,10 +88,24 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 	private LoggerCreator loggerCreator;
 
 	@Nullable
+	private ConfigurationFactory configFactory;
+
+	@Nullable
+	private ServiceManagerFactory configuration;
+
+	@Nullable
 	private T manager;
 
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
+		this.configuration = mock(ServiceManagerFactory.class);
+		when(this.configuration.getStartTimeout()).thenReturn(0l);
+		when(this.configuration.getStopTimeout()).thenReturn(0l);
+
+		this.configFactory = mock(ConfigurationFactory.class);
+		when(this.configFactory.config(any(Class.class), anyString())).thenReturn(this.configuration);
+
 		this.logger = mock(Logger.class);
 		this.loggerCreator = mock(LoggerCreator.class);
 		when(this.loggerCreator.createPlatformLogger()).thenReturn(this.logger);
@@ -105,10 +120,11 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		this.service5 = new Serv5Impl();
 		this.service6 = new Serv6Impl();
 		Iterable<? extends Service> services = Arrays.asList(this.service1, this.service2, this.service3, this.service4, this.service5, this.service6);
-		this.manager = newServiceManagerInstance(this.loggerCreator, services);
+		this.manager = newServiceManagerInstance(this.loggerCreator, services, this.configFactory);
 	}
 
-	protected abstract T newServiceManagerInstance(LoggerCreator loggerCreator, Iterable<? extends Service> services);
+	protected abstract T newServiceManagerInstance(LoggerCreator loggerCreator, Iterable<? extends Service> services,
+			ConfigurationFactory configFactory);
 
 	@Test
 	public void startServices() {
@@ -137,12 +153,12 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		services.add(this.service6);
 
 		Iterator<Serv> iterator = services.iterator();
-		assertSame(this.service6, iterator.next());
 		assertSame(this.service1, iterator.next());
-		assertSame(this.service4, iterator.next());
-		assertSame(this.service5, iterator.next());
 		assertSame(this.service2, iterator.next());
 		assertSame(this.service3, iterator.next());
+		assertSame(this.service4, iterator.next());
+		assertSame(this.service5, iterator.next());
+		assertSame(this.service6, iterator.next());
 		assertFalse(iterator.hasNext());
 	}
 	
@@ -174,11 +190,11 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		services.add(this.service6);
 
 		Iterator<Serv> iterator = services.iterator();
-		assertSame(this.service3, iterator.next());
+		assertSame(this.service1, iterator.next());
 		assertSame(this.service2, iterator.next());
+		assertSame(this.service3, iterator.next());
 		assertSame(this.service4, iterator.next());
 		assertSame(this.service5, iterator.next());
-		assertSame(this.service1, iterator.next());
 		assertSame(this.service6, iterator.next());
 		assertFalse(iterator.hasNext());
 	}
@@ -191,7 +207,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 	private interface Serv1 extends Serv {
 	}
 
-	private class Serv1Impl extends AbstractDependentService implements Serv1 {
+	private class Serv1Impl extends AbstractSreService implements Serv1 {
 		public int order = -1;
 		public int sorder = -1;
 		@Override
@@ -201,10 +217,6 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		@Override
 		public int getStopOrder() {
 			return this.sorder;
-		}
-		@Override
-		public Class<? extends Service> getServiceType() {
-			return Serv1.class;
 		}
 		@Override
 		protected void onStart() {
@@ -223,7 +235,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 	private interface Serv2 extends Serv {		
 	}
 
-	private class Serv2Impl extends AbstractDependentService implements Serv2 {
+	private class Serv2Impl extends AbstractSreService implements Serv2 {
 		public int order = -1;
 		public int sorder = -1;
 		@Override
@@ -233,14 +245,6 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		@Override
 		public int getStopOrder() {
 			return this.sorder;
-		}
-		@Override
-		public Class<? extends Service> getServiceType() {
-			return Serv2.class;
-		}
-		@Override
-		public Collection<Class<? extends Service>> getServiceDependencies() {
-			return Arrays.asList(Serv4.class, Serv5.class);
 		}
 		@Override
 		protected void onStart() {
@@ -289,7 +293,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 	private interface Serv4 extends Serv {		
 	}
 
-	private class Serv4Impl extends AbstractDependentService implements Serv4 {
+	private class Serv4Impl extends AbstractSreService implements Serv4 {
 		public int order = -1;
 		public int sorder = -1;
 		@Override
@@ -299,10 +303,6 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		@Override
 		public int getStopOrder() {
 			return this.sorder;
-		}
-		@Override
-		public Class<? extends Service> getServiceType() {
-			return Serv4.class;
 		}
 		@Override
 		protected void onStart() {
@@ -321,7 +321,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 	private interface Serv5 extends Serv {		
 	}
 
-	private class Serv5Impl extends AbstractDependentService implements Serv5 {
+	private class Serv5Impl extends AbstractSreService implements Serv5 {
 		public int order = -1;
 		public int sorder = -1;
 		@Override
@@ -331,14 +331,6 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		@Override
 		public int getStopOrder() {
 			return this.sorder;
-		}
-		@Override
-		public Class<? extends Service> getServiceType() {
-			return Serv5.class;
-		}
-		@Override
-		public Collection<Class<? extends Service>> getServiceDependencies() {
-			return Arrays.asList(Serv1.class);
 		}
 		@Override
 		protected void onStart() {
@@ -357,7 +349,7 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 	private interface Serv6 extends Serv, InfrastructureService {
 	}
 
-	private class Serv6Impl extends AbstractDependentService implements Serv6 {
+	private class Serv6Impl extends AbstractSreService implements Serv6 {
 		public int order = -1;
 		public int sorder = -1;
 		@Override
@@ -375,10 +367,6 @@ public abstract class AbstractServiceManagerTest<T extends AbstractServiceManage
 		@Override
 		protected void onStop() {
 			this.sorder = counter2.incrementAndGet();
-		}
-		@Override
-		public Class<? extends Service> getServiceType() {
-			return Serv6.class;
 		}
 		@Override
 		public String toString() {

@@ -20,9 +20,9 @@
  */
 package io.sarl.sre.services.time
 
-import io.sarl.sre.services.DependentService
-import java.util.concurrent.TimeUnit
+import com.google.common.util.concurrent.Service
 import java.util.EventListener
+import java.util.concurrent.TimeUnit
 
 /**
  * This class enables to have access to the time manager of the platform.
@@ -33,7 +33,7 @@ import java.util.EventListener
  * @mavenartifactid $ArtifactId$
  * @since 0.6.0
  */
-interface TimeService extends DependentService {
+interface TimeService extends Service {
 
 	/** Replies the current time.
 	 * 

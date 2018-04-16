@@ -20,11 +20,8 @@
  */
 package io.sarl.sre.services.context
 
-import com.google.common.util.concurrent.Service
 import com.google.inject.Injector
 import io.sarl.sre.KernelScope
-import io.sarl.sre.services.logging.LoggingService
-import java.util.Collection
 import java.util.UUID
 import javax.inject.Inject
 
@@ -75,10 +72,6 @@ abstract class AbstractInjectionBasedContextService extends AbstractContextServi
 
 	def onStop {
 		this.rootContextInstance.destroy
-	}
-
-	override getServiceDependencies : Collection<Class<? extends Service>> {
-		#[ typeof(LoggingService) ]
 	}
 	
 	def getRootContext : Context {

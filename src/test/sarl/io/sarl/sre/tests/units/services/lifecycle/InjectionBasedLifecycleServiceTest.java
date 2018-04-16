@@ -67,10 +67,4 @@ public class InjectionBasedLifecycleServiceTest extends AbstractLifecycleService
 		return new InjectionBasedLifecycleService(this.injector, this.checker, this.skillProvider);
 	}
 
-	@Override
-	public void getServiceDependencies() {
-		assertContains(this.service.getServiceDependencies(), ExecutorService.class, LoggingService.class);
-	}
-
-
 }

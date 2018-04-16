@@ -78,11 +78,6 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecu
 		this.service.setScheduledExecutorService(scheduledExecutor);
 	}
 
-	@Override
-	public void getServiceDependencies() {
-		assertTrue(this.service.getServiceDependencies().isEmpty());
-	}
-
 	@Test
 	public void execute() {
 		Runnable run = mock(Runnable.class);

@@ -20,6 +20,7 @@
  */
 package io.sarl.sre.services.context
 
+import com.google.common.util.concurrent.Service
 import io.sarl.core.ContextJoined
 import io.sarl.core.ContextLeft
 import io.sarl.core.MemberJoined
@@ -27,7 +28,6 @@ import io.sarl.core.MemberLeft
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
 import io.sarl.lang.core.SpaceID
-import io.sarl.sre.services.DependentService
 import java.util.EventListener
 import java.util.UUID
 
@@ -40,7 +40,7 @@ import java.util.UUID
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-interface ContextService extends DependentService {
+interface ContextService extends Service {
 
 	/**
 	 * Replies the root context.

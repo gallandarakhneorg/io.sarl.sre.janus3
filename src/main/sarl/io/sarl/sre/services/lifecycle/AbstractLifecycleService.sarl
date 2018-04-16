@@ -20,18 +20,16 @@
  */
 package io.sarl.sre.services.lifecycle
 
-import com.google.common.util.concurrent.Service
-import io.sarl.sre.KernelScope
-import io.sarl.sre.services.AbstractDependentService
-import io.sarl.sre.services.context.ExternalContextMemberListener
-import io.sarl.sre.services.context.Context
-import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.sre.services.logging.LoggingService
 import io.sarl.lang.core.Agent
 import io.sarl.sarlspecification.SarlSpecificationChecker
+import io.sarl.sre.KernelScope
+import io.sarl.sre.services.AbstractSreService
+import io.sarl.sre.services.context.Context
+import io.sarl.sre.services.context.ExternalContextMemberListener
+import io.sarl.sre.services.executor.ExecutorService
+import io.sarl.sre.services.logging.LoggingService
 import java.text.MessageFormat
 import java.util.ArrayList
-import java.util.Collection
 import java.util.List
 import java.util.UUID
 import javax.inject.Inject
@@ -50,7 +48,7 @@ import static extension io.sarl.sre.services.lifecycle.AgentLife.*
  * @mavenartifactid $ArtifactId$
  */
 @Singleton
-abstract class AbstractLifecycleService extends AbstractDependentService implements LifecycleService {
+abstract class AbstractLifecycleService extends AbstractSreService implements LifecycleService {
 
 	/** Maximum number of agents to be launch by a single thread.
 	 */
@@ -86,10 +84,6 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 		this.agentCreatorProvider = creator
 	}
 
-	final def getServiceType : Class<? extends Service> {
-		typeof(LifecycleService)
-	}
-
 	/** Set the uninstaller of the builtin capacities.
 	 */
 	@Inject
@@ -106,6 +100,14 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 		this.logger = service
 	}
 
+	/** Replies the backend logging service.
+	 *
+	 * @return the logging service.
+	 */
+	protected def getLoggingService : LoggingService {
+		this.logger
+	}
+	
 	/** Set the provider of the agent event emitter.
 	 *
 	 * @param provider the provider.
@@ -133,16 +135,12 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 		this.executor = service
 	}
 
-	def onStart {
+	protected def onStart {
 		this.platformLifecycleEventEmitter.addLifecycleServiceListener
 	}
 
-	def onStop {
+	protected def onStop {
 		this.platformLifecycleEventEmitter.removeLifecycleServiceListener
-	}
-
-	def getServiceDependencies : Collection<Class<? extends Service>> {
-		#[typeof(LoggingService), typeof(ExecutorService)]
 	}
 	
 	def addLifecycleServiceListener(agentLifecycleListener : LifecycleServiceListener) {
@@ -218,9 +216,28 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 
 	def spawnAgent(nbAgents : int, spawningAgent : UUID, parent : Context, agentId : UUID,
 		agentClazz : Class<? extends Agent>, params : Object*) : SpawnResult {
+		spawnAgent(nbAgents, spawningAgent, parent, agentClazz, params) [
+			if (agentId !== null && it === 0) {
+				return agentId
+			}
+			return UUID::randomUUID
+		]
+	}
+	
+	/** Replies if the service can spawn.
+	 *
+	 * @return {@code true} if the service can spawn an agent.
+	 */
+	def canSpawnAgent : boolean {
+		this.running
+	}
+	
+	protected def spawnAgent(nbAgents : int, spawningAgent : UUID, parent : Context, agentClazz : Class<? extends Agent>, params : Object[],
+		agentIds : (int) => UUID) : SpawnResult {
+
 		val agents = new ArrayList<Agent>(nbAgents)
 		val errors = new ArrayList<Throwable>()
-		if (this.running && nbAgents > 0) {
+		if (canSpawnAgent && nbAgents > 0) {
 			// Create the list of the spawned agents during this function execution
 			try {
 				// Check if the version of the SARL agent class is compatible.
@@ -228,8 +245,8 @@ abstract class AbstractLifecycleService extends AbstractDependentService impleme
 					errors += new InvalidSarlSpecificationException(agentClazz)
 				} else {
 					// Create the shared injector that is also able to create the agent instance.
-					val agentInstanceCreator = this.agentCreatorProvider.getAgentCreator(agentClazz, parent.ID, agentId,
-						nbAgents)
+					val agentInstanceCreator = this.agentCreatorProvider.getAgentCreator(agentClazz, parent.ID,
+						nbAgents, agentIds)
 					// Create the block of code for creating a single agent
 					val agentCreator : Runnable = [
 						val ^agent = agentInstanceCreator.get()
@@ -415,27 +432,3 @@ class SpawnDisabledException extends RuntimeException {
 	}
 
 }
-
-/** 
- * Provider of agent creator.
- * 
- * @author $Author: sgalland$
- * @version $FullVersion$
- * @mavengroupid $GroupId$
- * @mavenartifactid $ArtifactId$
- */
-interface AgentCreatorProvider {
-
-	/** Build an agent creator based on the given parameters.
-	 *
-	 * @param <T> the type of agent to create.
-	 * @param agentClazz the type of agent to create.
-	 * @param parent the identifier of the agents' parent.
-	 * @param agentId the expected identifier of the created agent(s). If more than one agent will be created with the
-	 *     same creator, then the first have will have the given identifier, and the other agents will have random id.
-	 * @param nbAgents the number of agents to create.
-	 */
-	def getAgentCreator(agentClazz : Class<T>, parent : UUID, agentId : UUID, nbAgents : int) : Provider<T> with T extends Agent
-
-}
-

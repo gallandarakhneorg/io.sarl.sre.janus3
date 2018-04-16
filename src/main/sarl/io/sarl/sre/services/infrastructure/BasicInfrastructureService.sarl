@@ -20,7 +20,6 @@
  */
 package io.sarl.sre.services.infrastructure
 
-import com.google.common.util.concurrent.Service
 import io.sarl.sre.services.AbstractSreService
 import javax.inject.Singleton
 
@@ -36,9 +35,5 @@ import javax.inject.Singleton
  */
 @Singleton
 class BasicInfrastructureService extends AbstractSreService implements InfrastructureService {
-	
-	def getServiceType : Class<? extends Service> {
-		typeof(InfrastructureService)
-	}
-
+	//
 }

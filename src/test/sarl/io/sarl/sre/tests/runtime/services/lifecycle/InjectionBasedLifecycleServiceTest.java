@@ -23,7 +23,7 @@ package io.sarl.sre.tests.runtime.services.lifecycle;
 
 import com.google.inject.Module;
 
-import io.sarl.sre.boot.injection.modules.PlatformModule;
+import io.sarl.sre.boot.injection.modules.LiteSrePlatformModule;
 
 /**
  * @author $Author: sgalland$
@@ -36,7 +36,7 @@ public class InjectionBasedLifecycleServiceTest extends AbstractLifecycleService
 
 	@Override
 	protected Class<? extends Module> getTestingModule() {
-		return PlatformModule.class;
+		return LiteSrePlatformModule.class;
 	}
 
 }

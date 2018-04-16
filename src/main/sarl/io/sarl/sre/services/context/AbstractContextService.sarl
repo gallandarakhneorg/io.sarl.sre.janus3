@@ -20,8 +20,7 @@
  */
 package io.sarl.sre.services.context
 
-import com.google.common.util.concurrent.Service
-import io.sarl.sre.services.AbstractDependentService
+import io.sarl.sre.services.AbstractSreService
 import java.util.Map
 import java.util.UUID
 import javax.inject.Singleton
@@ -39,13 +38,9 @@ import javax.inject.Singleton
  * @mavenartifactid $ArtifactId$
  */
 @Singleton
-abstract class AbstractContextService extends AbstractDependentService implements ContextService {
+abstract class AbstractContextService extends AbstractSreService implements ContextService {
 
 	val mutexInstance = new Object
-
-	final def getServiceType : Class<? extends Service> {
-		typeof(ContextService)
-	}
 
 	/** Replies the mutex for synchronizing this service */
 	def getMutex : Object {

@@ -20,8 +20,8 @@
  */
 package io.sarl.sre.services.lifecycle
 
+import com.google.common.util.concurrent.Service
 import io.sarl.lang.core.Agent
-import io.sarl.sre.services.DependentService
 import io.sarl.sre.services.context.Context
 import java.util.EventListener
 import java.util.List
@@ -37,7 +37,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-interface LifecycleService extends DependentService {
+interface LifecycleService extends Service {
 
 	/** 
 	 * Spawn agents of the given type, and pass the parameters to its initialization function.

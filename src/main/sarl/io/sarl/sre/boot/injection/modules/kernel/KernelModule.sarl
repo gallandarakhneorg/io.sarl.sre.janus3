@@ -38,6 +38,7 @@ import java.util.Set
 import java.util.UUID
 import javax.inject.Named
 import javax.inject.Singleton
+import io.bootique.config.ConfigurationFactory
 
 /** 
  * Module configures kernel specific components, including the root context creation.
@@ -79,12 +80,13 @@ class KernelModule extends AbstractModule {
 	/** Replies the manager of the SRE services.
 	 * 
 	 * @param services the SRE services.
+	 * @param configFactory the loader of Bootique configuration.
 	 * @return the manager of the SRE services.
 	 */
 	@Provides
 	@Singleton
-	static def createServiceManager(services : Set<Service>) : IServiceManager {
-		new GoogleServiceManager(services)
+	static def createServiceManager(services : Set<Service>, configFactory : ConfigurationFactory) : IServiceManager {
+		new GoogleServiceManager(services, configFactory)
 	}
 
 }

@@ -20,8 +20,7 @@
  */
 package io.sarl.sre.services.time
 
-import com.google.common.util.concurrent.Service
-import io.sarl.sre.services.AbstractDependentService
+import io.sarl.sre.services.AbstractSreService
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 import org.arakhne.afc.util.ListenerCollection
@@ -36,13 +35,9 @@ import org.arakhne.afc.util.ListenerCollection
  * @since 0.6.0
  */
 @Singleton
-class JreTimeService extends AbstractDependentService implements TimeService {
+class JreTimeService extends AbstractSreService implements TimeService {
 
 	var listeners : ListenerCollection<TimeListener> = null
-
-	final def getServiceType : Class<? extends Service> {
-		typeof(TimeService)
-	}
 
 	/** Replies the OS current time.
 	 *

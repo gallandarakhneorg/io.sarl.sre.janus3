@@ -18,43 +18,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.sarl.sre.services
 
-package io.sarl.sre.tests.units.services.logging;
+import com.google.common.util.concurrent.Service
 
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import io.sarl.sre.services.logging.JreLoggingService;
-import io.sarl.sre.services.logging.LoggingService;
-import io.sarl.sre.tests.testutils.AbstractSreTest;
-import io.sarl.tests.api.Nullable;
-
-/**
+/** 
+ * This service could be pre-released before it is stop.
+ * It means that the service could release any resource before the
+ * full stopping process is run.
+ * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 0.7.0
  */
-public class JreLoggingServiceTest extends AbstractSreTest {
+interface PreReleasableService extends Service {
 
-	@Nullable
-	private JreLoggingService service;
-	
-	@Before
-	public void setUp() {
-		this.service = new JreLoggingService();
-	}
-
-	@Test
-	public void getServiceType() {
-		assertEquals(LoggingService.class, this.service.getServiceType());
-	}
-
-	@Test
-	public void getServiceDependencies() {
-		assertTrue(this.service.getServiceDependencies().isEmpty());
-	}
+	/** 
+	 * Invoked when the service should release resources prior to the shutdown process.
+	 */
+	def onPreStop
 
 }

@@ -178,14 +178,6 @@ public abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleSe
 	}
 
 	@Test
-	public void getServiceType() {
-		assertEquals(LifecycleService.class, this.service.getServiceType());
-	}
-
-	@Test
-	public abstract void getServiceDependencies();
-
-	@Test
 	public void isKillableAgent_noInnerContext() {
 		assertTrue(this.service.isKillableAgent(this.agent));
 	}

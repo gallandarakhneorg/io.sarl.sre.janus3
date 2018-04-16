@@ -43,19 +43,34 @@ import io.sarl.lang.annotation.PrivateAPI
  */
 class InjectionBasedLifecycleService extends AbstractLifecycleService {
 
-	/** 
+	/**
 	 * Constructs the service with the given (injected) injector.
 	 * 
 	 * @param injector
 	 * the injector that should be used by this service for creating the agents.
 	 * @param sarlSpecificationChecker the tool for checking the validity of the SARL specification supported by
 	 * the agents to launch.
+	 * @param skillProvider the provider of skills that should be used to init the agents.
 	 */
 	@Inject
 	new (injector : Injector, sarlSpecificationChecker : SarlSpecificationChecker,
 		skillProvider : DynamicSkillProvider) {
-		super(sarlSpecificationChecker, new CreatorFactory(injector, skillProvider))
+		this(sarlSpecificationChecker, skillProvider, new CreatorFactory(injector, skillProvider))
 	}
+
+	/** 
+	 * Constructs the service with the given (injected) injector.
+	 * 
+	 * @param sarlSpecificationChecker the tool for checking the validity of the SARL specification supported by
+	 * the agents to launch.
+	 * @param skillProvider the provider of skills that should be used to init the agents.
+	 * @param agentFactoryProvider the provider of agent factory. 
+	 */
+	new (sarlSpecificationChecker : SarlSpecificationChecker,
+		skillProvider : DynamicSkillProvider, agentFactoryProvider : AgentCreatorProvider) {
+		super(sarlSpecificationChecker, agentFactoryProvider)
+	}
+
 	
 	/** 
 	 * An injection module that is able to inject the parent ID and agent ID when creating an agent.
@@ -76,8 +91,11 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 			this.skillProvider = skillProvider
 		}
 	
-		def getAgentCreator(agentClazz : Class<T>, parent : UUID,
-			agentId : UUID, nbAgents : int) : Provider<T> with T extends Agent {
+		def getAgentCreator(
+			agentClazz : Class<T>,
+			parent : UUID,
+			nbAgents : int,
+			agentId : (int) => UUID) : Provider<T> with T extends Agent {
 			val agentInjectionModule = new JustInTimeAgentInjectionModule<T>(agentClazz, parent, agentId, this.skillProvider)
 			val agentInjector = this.injector.createChildInjector(agentInjectionModule)
 			return [
@@ -110,14 +128,16 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 
 		val skillProvider : DynamicSkillProvider
 
-		var agentID : UUID
+		var identifierComputer : (int) => UUID
 
-		package new (agentType : Class<T>, parentID : UUID, agentID : UUID, skillProvider : DynamicSkillProvider) {
+		var creationIndex = 0
+
+		package new (agentType : Class<T>, parentID : UUID, agentID : (int) => UUID, skillProvider : DynamicSkillProvider) {
 			assert agentType !== null
 			assert parentID !== null
 			this.agentType = agentType
 			this.parentID = parentID
-			this.agentID = agentID
+			this.identifierComputer = agentID
 			this.skillProvider = skillProvider
 			var cons : Constructor<T> = null
 			var e1 : Exception = null
@@ -146,8 +166,9 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 		}
 
 		synchronized def get : T {
-			var aid = this.agentID ?: UUID::randomUUID
-			this.agentID = null
+			var idx = this.creationIndex
+			this.creationIndex ++
+			var aid = this.identifierComputer.apply(idx)
 			assert this.constructor1 !== null || this.constructor2 !== null
 			try {
 				if (this.constructor2 !== null) {

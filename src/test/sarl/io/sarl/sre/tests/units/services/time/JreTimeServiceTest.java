@@ -22,7 +22,6 @@
 package io.sarl.sre.tests.units.services.time;
 
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -57,16 +56,6 @@ public class JreTimeServiceTest extends AbstractSreTest {
 		this.listener = mock(TimeListener.class);
 		this.service = new MyTimeService();
 		this.service.addTimeListener(this.listener);
-	}
-
-	@Test
-	public void getServiceType() {
-		assertEquals(TimeService.class, this.service.getServiceType());
-	}
-
-	@Test
-	public void getServiceDependencies() {
-		assertTrue(this.service.getServiceDependencies().isEmpty());
 	}
 
 	@Test

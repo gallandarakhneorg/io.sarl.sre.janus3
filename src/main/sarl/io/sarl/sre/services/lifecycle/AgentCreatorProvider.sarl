@@ -18,43 +18,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.sarl.sre.services.lifecycle
 
-package io.sarl.sre.tests.units.services.logging;
+import io.sarl.lang.core.Agent
+import java.util.UUID
+import javax.inject.Provider
 
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import io.sarl.sre.services.logging.LoggingService;
-import io.sarl.sre.services.logging.QuietLoggingService;
-import io.sarl.sre.tests.testutils.AbstractSreTest;
-import io.sarl.tests.api.Nullable;
-
-/**
+/** 
+ * Provider of agent instance creator.
+ * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public class QuietLoggingServiceTest extends AbstractSreTest {
+interface AgentCreatorProvider {
 
-	@Nullable
-	private QuietLoggingService service;
-	
-	@Before
-	public void setUp() {
-		this.service = new QuietLoggingService();
-	}
-
-	@Test
-	public void getServiceType() {
-		assertEquals(LoggingService.class, this.service.getServiceType());
-	}
-
-	@Test
-	public void getServiceDependencies() {
-		assertTrue(this.service.getServiceDependencies().isEmpty());
-	}
+	/** Build an agent creator based on the given parameters.
+	 *
+	 * @param <T> the type of agent to create.
+	 * @param agentClazz the type of agent to create.
+	 * @param parent the identifier of the agents' parent.
+	 * @param nbAgents the number of agents to create.
+	 * @param agentId lambda function which replies the identifier
+	 *      of the agent to be created at the given index.
+	 */
+	def getAgentCreator(agentClazz : Class<T>, parent : UUID, nbAgents : int,
+		agentId : (int) => UUID) : Provider<T> with T extends Agent
 
 }
+

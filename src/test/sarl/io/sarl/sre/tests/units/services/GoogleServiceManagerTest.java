@@ -21,6 +21,7 @@
 
 package io.sarl.sre.tests.units.services;
 
+import io.bootique.config.ConfigurationFactory;
 import io.sarl.sre.services.GoogleServiceManager;
 import io.sarl.sre.services.logging.LoggerCreator;
 
@@ -34,8 +35,9 @@ import io.sarl.sre.services.logging.LoggerCreator;
 public class GoogleServiceManagerTest extends AbstractServiceManagerTest<GoogleServiceManager> {
 
 	@Override
-	protected GoogleServiceManager newServiceManagerInstance(LoggerCreator loggerCreator, Iterable services) {
-		return new GoogleServiceManager(services);
+	protected GoogleServiceManager newServiceManagerInstance(LoggerCreator loggerCreator, Iterable services,
+			ConfigurationFactory configFactory) {
+		return new GoogleServiceManager(services, configFactory);
 	}
 
 

@@ -1,0 +1,115 @@
+/* 
+ * $Id$
+ * 
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ * 
+ * Copyright (C) 2014-2018 the original authors or authors.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.boot.factories
+
+import io.bootique.annotation.BQConfig
+import io.bootique.annotation.BQConfigProperty
+import io.bootique.config.ConfigurationFactory
+import org.eclipse.xtend.lib.annotations.Accessors
+
+/**
+ * Configuration factory for specifying the service manager configuration.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 0.8.0
+ */
+@BQConfig("Configuration of the logging service")
+class ServiceManagerFactory {
+
+	/** 
+	 * Prefix for the configuration entries of the logging modules.
+	 */
+	public static val SERVICE_MANAGER_PREFIX = Factories::SARL_ROOT_PROPERTY_PREFIX + "services"
+
+	/** 
+	 * Name of the property that contains the timeout for services' start.
+	 * 
+	 * @see #VSTART_TIMEOUT_VALUE
+	 */
+	public static val START_TIMEOUT_NAME = SERVICE_MANAGER_PREFIX + ".startTimeout"
+
+	/** 
+	 * The default the timeout for services' start in milliseconds
+	 * 
+	 * @see #START_TIMEOUT_NAME
+	 */
+	public static val START_TIMEOUT_VALUE = 0l
+
+	/** 
+	 * Name of the property that contains the timeout for services' stop.
+	 * 
+	 * @see #STOP_TIMEOUT_VALUE
+	 */
+	public static val STOP_TIMEOUT_NAME = SERVICE_MANAGER_PREFIX + ".stopTimeout"
+
+	/** 
+	 * The default the timeout for services' stop in milliseconds
+	 * 
+	 * @see #STOP_TIMEOUT_NAME
+	 */
+	public static val STOP_TIMEOUT_VALUE = 10.seconds
+
+	@Accessors(PUBLIC_GETTER)
+	var startTimeout = START_TIMEOUT_VALUE
+
+	@Accessors(PUBLIC_GETTER)
+	var stopTimeout = STOP_TIMEOUT_VALUE
+	
+	/** Replies the configuration factory for the logging.
+	 * 
+	 * @param configFactory the general configuration factory.
+	 * @return the logging configuration factory.
+	 */
+	static def getConfigurationFactory(configFactory : ConfigurationFactory) : ServiceManagerFactory {
+		assert configFactory !== null
+		configFactory.config(typeof(ServiceManagerFactory), SERVICE_MANAGER_PREFIX)
+	}
+
+	/** Change the timeout for the start of all the services.
+	 *
+	 * @param timeout the new timeout in milliseconds.
+	 */
+	@BQConfigProperty("Timeout for the services' start in milliseconds")
+	def setStartTimeout(timeout : long) {
+		if (timeout < 0l) {
+			this.startTimeout = 0l
+		} else {
+			this.startTimeout = timeout
+		}
+	}
+
+	/** Change the timeout for the stop of all the services.
+	 * 
+	 * @param timeout the new timeout in milliseconds.
+	 */
+	@BQConfigProperty("Timeout for the services' stop in milliseconds")
+	def setStopTimeout(timeout : long) {
+		if (timeout < 0l) {
+			this.stopTimeout = 0l
+		} else {
+			this.stopTimeout = timeout
+		}
+	}
+
+}

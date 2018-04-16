@@ -112,14 +112,6 @@ public abstract class AbstractExecutorServiceTest<T extends AbstractExecutorServ
 	}
 
 	@Test
-	public abstract void getServiceDependencies();
-
-	@Test
-	public void getServiceType() {
-		assertEquals(io.sarl.sre.services.executor.ExecutorService.class, this.service.getServiceType());
-	}
-
-	@Test
 	public void applyBlockingConsumer_exception_01() {
 		List<Integer> list = new ArrayList<>();
 		for (int i = 0; i < 100; ++i) {

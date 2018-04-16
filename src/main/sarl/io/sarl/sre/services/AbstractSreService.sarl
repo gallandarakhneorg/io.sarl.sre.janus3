@@ -21,7 +21,6 @@
 package io.sarl.sre.services
 
 import com.google.common.util.concurrent.AbstractService
-import com.google.common.util.concurrent.Service
 
 /** 
  * Abstract implementation of a typical SRE service. 
@@ -34,13 +33,6 @@ import com.google.common.util.concurrent.Service
  */
 abstract class AbstractSreService extends AbstractService {
 
-	/** 
-	 * Replies the service interface implemented by this service.
-	 * 
-	 * @return the service interface.
-	 */
-	abstract def getServiceType : Class<? extends Service>
-
 	protected final override doStart {
 		try {
 			onStart
@@ -48,6 +40,7 @@ abstract class AbstractSreService extends AbstractService {
 			notifyStarted
 		}
 	}
+
 	/** Do something when starting the service.
 	 * 
 	 * <p>This function is called from {@link #doStart()}

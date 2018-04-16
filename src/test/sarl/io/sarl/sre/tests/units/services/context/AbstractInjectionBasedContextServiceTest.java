@@ -29,7 +29,6 @@ import com.google.inject.Injector;
 
 import io.sarl.sre.services.context.AbstractInjectionBasedContextService;
 import io.sarl.sre.services.context.ContextFactory;
-import io.sarl.sre.services.logging.LoggingService;
 import io.sarl.tests.api.Nullable;
 
 /**
@@ -60,11 +59,6 @@ public abstract class AbstractInjectionBasedContextServiceTest<T extends Abstrac
 
 		this.service.setInjector(this.injector);
 		this.service.setContextFactory(this.contextFactory);
-	}
-
-	@Override
-	public void getServiceDependencies() {
-		assertContains(this.service.getServiceDependencies(), LoggingService.class);
 	}
 
 }

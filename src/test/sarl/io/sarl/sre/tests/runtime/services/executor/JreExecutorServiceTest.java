@@ -22,7 +22,7 @@ package io.sarl.sre.tests.runtime.services.executor;
 
 import com.google.inject.Module;
 
-import io.sarl.sre.boot.injection.modules.PlatformModule;
+import io.sarl.sre.boot.injection.modules.LiteSrePlatformModule;
 
 /**
  * @author $Author: sgalland$
@@ -35,7 +35,7 @@ public class JreExecutorServiceTest extends AbstractExecutorServiceRunTest {
 
 	@Override
 	protected Class<? extends Module> getTestingModule() {
-		return PlatformModule.class;
+		return LiteSrePlatformModule.class;
 	}
 
 }

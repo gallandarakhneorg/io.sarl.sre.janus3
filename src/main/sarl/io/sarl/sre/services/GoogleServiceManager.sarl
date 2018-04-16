@@ -24,7 +24,10 @@ import com.google.common.collect.Multimap
 import com.google.common.util.concurrent.Service
 import com.google.common.util.concurrent.ServiceManager
 import com.google.common.util.concurrent.ServiceManager.Listener
+import io.bootique.config.ConfigurationFactory
+import io.sarl.sre.boot.factories.ServiceManagerFactory
 import java.text.MessageFormat
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 /** 
@@ -39,11 +42,14 @@ class GoogleServiceManager extends AbstractServiceManager {
 
 	val googleManager : ServiceManager
 
+	val configuration : ServiceManagerFactory
+
 	/** 
-	 * @param loggerCreator a creator of logger for logging the activities of the service manager.
 	 * @param sm the Google service to use.
+	 * @param configFactory the loader of configuration.
 	 */
-	new (sm : ServiceManager) {
+	new (sm : ServiceManager, configFactory : ConfigurationFactory) {
+		this.configuration = ServiceManagerFactory::getConfigurationFactory(configFactory)
 		this.googleManager = sm
 		this.googleManager.addListener(new Listener() {
 			def failure(service : Service) {
@@ -54,9 +60,10 @@ class GoogleServiceManager extends AbstractServiceManager {
 
 	/** 
 	 * @param services the services to manager.
+	 * @param configFactory the loader of configuration.
 	 */
-	new (services : Iterable<? extends Service>) {
-		this(new ServiceManager(services))
+	new (services : Iterable<? extends Service>, configFactory : ConfigurationFactory) {
+		this(new ServiceManager(services), configFactory)
 	}
 
 	def getServicesByState : Multimap<Service.State, Service> {
@@ -68,16 +75,30 @@ class GoogleServiceManager extends AbstractServiceManager {
 	}
 
 	def awaitHealthy {
-		this.googleManager.awaitHealthy
+		var timeout = this.configuration.startTimeout
+		if (timeout > 0) {
+			this.googleManager.awaitHealthy(timeout, TimeUnit::MILLISECONDS)
+		} else {
+			this.googleManager.awaitHealthy
+		}
 	}
 
-	def internalStopAllServices {
+	protected override internalStartAllServices {
+		this.googleManager.startAsync
+	}
+
+	protected override internalStopAllServices {
 		this.googleManager.stopAsync
 	}
 
 	def awaitStopped {
 		try {
-			this.googleManager.awaitStopped
+			var timeout = this.configuration.stopTimeout
+			if (timeout > 0) {
+				this.googleManager.awaitStopped(timeout, TimeUnit::MILLISECONDS)
+			} else {
+				this.googleManager.awaitStopped
+			}
 		} catch (timeout : TimeoutException) {
 			// stopping timed out
 		}

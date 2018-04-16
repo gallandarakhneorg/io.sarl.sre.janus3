@@ -20,8 +20,7 @@
  */
 package io.sarl.sre.services.logging
 
-import com.google.common.util.concurrent.Service
-import io.sarl.sre.services.AbstractDependentService
+import io.sarl.sre.services.AbstractSreService
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.inject.Inject
@@ -53,18 +52,13 @@ import javax.inject.Singleton
  * @mavenartifactid $ArtifactId$
  */
 @Singleton
-class JreLoggingService extends AbstractDependentService implements LoggingService {
+class JreLoggingService extends AbstractSreService implements LoggingService {
 
 	var platformLoggerInstance : Logger
 
 	var kernelLoggerInstance : Logger
 
 	var loggerCreator : LoggerCreator
-
-	
-	final def getServiceType : Class<? extends Service> {
-		typeof(LoggingService)
-	}
 
 	/** Change the creator of logger used by this service.
 	 * 

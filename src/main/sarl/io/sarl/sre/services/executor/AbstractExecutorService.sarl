@@ -20,8 +20,7 @@
  */
 package io.sarl.sre.services.executor
 
-import com.google.common.util.concurrent.Service
-import io.sarl.sre.services.AbstractDependentService
+import io.sarl.sre.services.AbstractSreService
 import java.util.Collection
 import java.util.LinkedList
 import java.util.List
@@ -41,7 +40,7 @@ import javax.inject.Inject
  * @mavenartifactid $ArtifactId$
  * @since 0.6.0
  */
-abstract class AbstractExecutorService extends AbstractDependentService implements ExecutorService {
+abstract class AbstractExecutorService extends AbstractSreService implements ExecutorService {
 
 	var jreExecutor : java.util.concurrent.ExecutorService
 
@@ -62,10 +61,6 @@ abstract class AbstractExecutorService extends AbstractDependentService implemen
 	 */
 	def getExecutorService : java.util.concurrent.ExecutorService {
 		this.jreExecutor
-	}
-
-	final def getServiceType : Class<? extends Service> {
-		typeof(ExecutorService)
 	}
 
 	/** Execute the given tasks in parallel and wait for the termination.

@@ -84,9 +84,6 @@ public abstract class AbstractContextServiceTest<T extends AbstractContextServic
 	}
 
 	@Test
-	public abstract void getServiceDependencies();
-
-	@Test
 	public void createContextWithoutRegistration_root() {
 		UUID contextId = UUID.randomUUID();
 		UUID spaceId = UUID.randomUUID();
