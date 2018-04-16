@@ -112,7 +112,7 @@ abstract class AbstractConfigModule extends ConfigModule {
 		serviceSetBinder.addBinding.to(type)
 	}
 
-	/** 
+	/**
 	 * Create an module's instance of the given type and install it.
 	 * 
 	 * @param type the type of the module to install 

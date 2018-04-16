@@ -44,7 +44,7 @@ import io.sarl.sre.boot.injection.modules.boot.FactoryModule
  * @mavenartifactid $ArtifactId$
  * @since 0.8.0
  */
-class PlatformModule extends AbstractPlatformModule {
+class LiteSrePlatformModule extends AbstractPlatformModule {
 
 	protected override configurePlatform {
 		// Boot

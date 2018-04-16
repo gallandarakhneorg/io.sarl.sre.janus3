@@ -88,6 +88,7 @@ public class KernelTest extends AbstractSreTest {
 		this.rootContext = mock(Context.class);
 		this.handler = mock(UncaughtExceptionHandler.class);
 		this.logger = mock(LoggingService.class);
+		when(this.logger.getKernelLogger()).thenReturn(mock(Logger.class));
 		this.lifecycle = mock(LifecycleService.class);
 		this.context = mock(ContextService.class);
 		when(this.context.getRootContext()).thenReturn(this.rootContext);
