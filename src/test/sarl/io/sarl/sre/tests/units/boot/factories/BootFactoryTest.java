@@ -140,7 +140,7 @@ public class BootFactoryTest extends AbstractSreTest {
 
 	@Test
 	public void getBootAgent_notSet_commandLine() {
-		this.factory.setCommandLineArguments(new String[] {AgentMock.class.getName(), "a", "b"});
+		this.factory.setCommandLineArgs(new String[] {AgentMock.class.getName(), "a", "b"});
 		assertEquals(AgentMock.class.getName(), this.factory.getBootAgent());
 	}
 
@@ -157,7 +157,7 @@ public class BootFactoryTest extends AbstractSreTest {
 
 	@Test
 	public void getBootAgentClassLoader_notSet_commandLine() {
-		this.factory.setCommandLineArguments(new String[] {AgentMock.class.getName(), "a", "b"});
+		this.factory.setCommandLineArgs(new String[] {AgentMock.class.getName(), "a", "b"});
 		assertEquals(AgentMock.class, this.factory.getBootAgent(getClass().getClassLoader()));
 	}
 
@@ -174,7 +174,7 @@ public class BootFactoryTest extends AbstractSreTest {
 
 	@Test(expected = InvalidAgentNameException.class)
 	public void getBootAgentClassLoader_notSet_commandLine_notAgentType() {
-		this.factory.setCommandLineArguments(new String[] {String.class.getName(), "a", "b"});
+		this.factory.setCommandLineArgs(new String[] {String.class.getName(), "a", "b"});
 		this.factory.getBootAgent(getClass().getClassLoader());
 	}
 
@@ -187,7 +187,7 @@ public class BootFactoryTest extends AbstractSreTest {
 	public void setCommandLineArgs() {
 		final String[] args = new String[] { "a", "b", "c" };
 		final String[] expected = new String[] { "b", "c" };
-		this.factory.setCommandLineArguments(args);
+		this.factory.setCommandLineArgs(args);
 		assertArrayEquals(expected, this.factory.getCommandLineArgs());
 	}
 

@@ -40,6 +40,9 @@ import javax.inject.Named
 import javax.inject.Singleton
 import io.bootique.config.ConfigurationFactory
 
+import static io.sarl.sre.boot.factories.ServiceManagerFactory.*
+import static extension io.sarl.sre.boot.injection.api.ModuleUtil.*
+
 /** 
  * Module configures kernel specific components, including the root context creation.
  * 
@@ -53,6 +56,12 @@ class KernelModule extends AbstractModule {
 	protected override configure {
 		Key::get(typeof(UUID), Names::named(BootFactory::ROOT_CONTEXT_ID_NAME)).requireBinding
 		Key::get(typeof(UUID), Names::named(BootFactory::ROOT_DEFAULT_SPACE_ID_NAME)).requireBinding
+
+		binder() => [
+			associateEnvironmentVariable(START_TIMEOUT_NAME)
+			associateEnvironmentVariable(STOP_TIMEOUT_NAME)
+		]
+
 		typeof(SarlSpecificationChecker).bind.to(typeof(StandardSarlSpecificationChecker)).in(typeof(Singleton))
 	}
 

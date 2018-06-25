@@ -37,7 +37,7 @@ class Boot {
 	 *
 	 * @param args the command line arguments.
 	 */
-	static def main(args : String*) {
+	static def main(args : String*) : void {
 		// Create a bootique with the command-line arguments.
 		var bootique = Bootique.app(args)
 		// Create the bootstrap

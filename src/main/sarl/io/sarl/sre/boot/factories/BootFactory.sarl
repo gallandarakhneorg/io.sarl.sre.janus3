@@ -23,12 +23,11 @@ package io.sarl.sre.boot.factories
 
 import com.google.inject.Inject
 import io.bootique.annotation.Args
+import io.bootique.annotation.BQConfig
+import io.bootique.annotation.BQConfigProperty
 import io.bootique.config.ConfigurationFactory
 import io.sarl.lang.core.Agent
 import java.util.UUID
-import org.eclipse.xtend.lib.annotations.Accessors
-import io.bootique.annotation.BQConfig
-import io.bootique.annotation.BQConfigProperty
 
 /** 
  * Configuration factory for specifying the SARL booting parameters.
@@ -107,9 +106,6 @@ class BootFactory {
 	 */
 	public static val ROOT_CONTEXT_BOOT_TYPE_VALUE = RootContextType::DEFAULT_CONTEXT_ID
 
-	@Args
-	@Inject
-	@Accessors(PUBLIC_SETTER)
 	var commandLineArguments : String[]
 
 	var bootAgent : String
@@ -125,11 +121,13 @@ class BootFactory {
 	/** Replies the configuration factory for the boot.
 	 * 
 	 * @param configFactory the general configuration factory.
+	 * @param cli the provider of a accessor to command-line.
 	 * @return the boot configuration factory.
 	 */
 	static def getConfigurationFactory(configFactory : ConfigurationFactory) : BootFactory {
 		assert configFactory !== null
-		configFactory.config(typeof(BootFactory), BOOT_PREFIX)
+		var factory = configFactory.config(typeof(BootFactory), BOOT_PREFIX)
+		return factory
 	}
 
 	/** Replies the name of the agent to launch at boot time.
@@ -180,13 +178,22 @@ class BootFactory {
 	 * 
 	 * @return the command line arguments.
 	 */
-	def getCommandLineArgs() : Object[] {
+	def getCommandLineArgs() : String[] {
 		if (this.commandLineArguments === null || this.commandLineArguments.length <= 1) {
 			return #[]
 		}
-		var newTab = newArrayOfSize(this.commandLineArguments.length - 1)
+		var newTab = <String>newArrayOfSize(this.commandLineArguments.length - 1)
 		System::arraycopy(this.commandLineArguments, 1, newTab, 0, newTab.length)
 		return newTab
+	}
+
+	/** Change the command line arguments that are passed to the program.
+	 * 
+	 * @param args the command line arguments.
+	 */
+	@Inject
+	def setCommandLineArgs(@Args args : String[]) {
+		this.commandLineArguments = args
 	}
 
 	/** 

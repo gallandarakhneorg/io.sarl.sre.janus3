@@ -20,27 +20,26 @@
  */
 package io.sarl.sre.boot
 
+import com.google.inject.Injector
+import com.google.inject.Module
+import io.bootique.BQRuntime
+import io.bootique.Bootique
 import io.sarl.bootstrap.SRE
 import io.sarl.bootstrap.SREBootstrap
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
+import io.sarl.sre.Kernel
+import io.sarl.sre.boot.factories.BootFactory
+import io.sarl.sre.boot.factories.Factories
+import io.sarl.sre.boot.factories.LoggingFactory
+import io.sarl.sre.boot.factories.RootContextType
+import io.sarl.sre.boot.injection.modules.InjectionConstants
+import io.sarl.sre.services.lifecycle.KernelAgentLifecycleListener
+import io.sarl.sre.services.lifecycle.LifecycleService
 import java.util.UUID
+import org.eclipse.xtend.lib.annotations.Accessors
 
 import static io.sarl.bootstrap.SRE.*
-import io.bootique.Bootique
-import com.google.inject.Module
-import io.sarl.sre.Kernel
-import io.sarl.sre.boot.injection.modules.InjectionConstants
-import io.bootique.BQRuntime
-import com.google.inject.Injector
-import io.sarl.sre.services.lifecycle.LifecycleService
-import io.sarl.sre.boot.factories.Factories
-import io.sarl.sre.boot.factories.BootFactory
-import io.sarl.sre.boot.factories.RootContextType
-import io.sarl.sre.boot.factories.LoggingFactory
-import io.sarl.sre.services.lifecycle.KernelAgentLifecycleListener
-import io.bootique.config.ConfigurationFactory
-import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
  * This is the class that permits to boot programmatically the SRE platform with the Bootique API.
@@ -81,9 +80,9 @@ class ProgrammaticBootstrap implements SREBootstrap {
 		var kern = this.kernel
 		if (kern === null) {
 			var old : String = null
+			val propName = Factories::toPropertyName(BootFactory::ROOT_CONTEXT_BOOT_TYPE_NAME)
 			if (this.bootType !== null) {
-				old = System::setProperty(Factories::toPropertyName(BootFactory::ROOT_CONTEXT_BOOT_TYPE_NAME),
-					this.bootType.name)
+				old = System::setProperty(propName, this.bootType.name)
 				this.bootType = null
 			}
 			try {
@@ -101,8 +100,10 @@ class ProgrammaticBootstrap implements SREBootstrap {
 				kern.getService(typeof(LifecycleService)).addKernelAgentLifecycleListener(listener)
 				this.kernel = kern
 			} finally {
-				if (old !== null) {
-					System::setProperty(Factories::toPropertyName(BootFactory::ROOT_CONTEXT_BOOT_TYPE_NAME), old)
+				if (old === null) {
+					System::clearProperty(propName)
+				} else {
+					System::setProperty(propName, old)
 				}
 			}
 		}
@@ -159,8 +160,7 @@ class ProgrammaticBootstrap implements SREBootstrap {
 	/** Start the boot agent if it is specified in the boot configuration.
 	 */
 	def startBootAgent : UUID {
-		var factory = this.runtime.getInstance(typeof(ConfigurationFactory))
-		var bootFactory = BootFactory::getConfigurationFactory(factory)
+		var bootFactory = this.runtime.getInstance(typeof(BootFactory))
 		var bootAgent = bootFactory.getBootAgent(this.class.classLoader)
 		assert bootAgent !== null
 		var args = bootFactory.commandLineArgs;

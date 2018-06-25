@@ -262,13 +262,11 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 									agents += ^agent
 								}
 								^agent.onAgentCreated
-							} else {
-								if (parent.emptyRootContext) {
-									// The agent seems to be the boot agent, and it has failed to be launched.
-									// Moreover the root context is still empty.
-									// The safer decision should be to stop the kernel.
-									fireKernelAgentDestroy
-								}
+							} else if (parent.emptyRootContext) {
+								// The agent seems to be the boot agent, and it has failed to be launched.
+								// Moreover the root context is still empty.
+								// The safer decision should be to stop the kernel.
+								onAgentFrameworkStop
 							}
 						} catch (e : Throwable) {
 							errors += new CannotSpawnException(agentClazz, e)
@@ -296,6 +294,19 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 		return new SpawnResult(
 			(agents.map[it.ID]).unmodifiableView,
 			errors)
+	}
+
+	/** This function is called each time the agent framework should be stopped.
+	 * This function is provided for being overridden by the sub-classes of
+	 * the current class.
+	 * 
+	 * <p>Within the {@code AbstractLifecycleService}, this function fires the kernel agent
+	 * destruction event.
+	 * 
+	 * @since 0.8.0
+	 */
+	protected def onAgentFrameworkStop {
+		fireKernelAgentDestroy
 	}
 
 	/** This function is called each time an agent was created.
@@ -389,7 +400,7 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 		^agent.fireAgentDestroy(leavedContexts)
 		// Test if the agent is the latest on this kernel.
 		if (defaultContextBeforeKilled.emptyRootContext) {
-			fireKernelAgentDestroy
+			onAgentFrameworkStop
 		}
 	}
 

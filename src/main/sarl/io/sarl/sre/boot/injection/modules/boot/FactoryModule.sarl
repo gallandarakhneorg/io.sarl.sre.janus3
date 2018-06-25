@@ -21,6 +21,7 @@
 package io.sarl.sre.boot.injection.modules.boot
 
 import com.google.inject.AbstractModule
+import com.google.inject.Injector
 import com.google.inject.Provides
 import com.google.inject.Singleton
 import io.bootique.config.ConfigurationFactory
@@ -46,34 +47,43 @@ class FactoryModule extends AbstractModule {
 	/** Replies the instance of the boot factory.
 	 * 
 	 * @param configFactory accessor to the bootique factory.
+	 * @param injector the current injector.
 	 * @return the boot configuration accessor.
 	 */
 	@Provides
 	@Singleton
-	def getBootFactory(configFactory : ConfigurationFactory) : BootFactory {
-		BootFactory::getConfigurationFactory(configFactory)
+	def getBootFactory(configFactory : ConfigurationFactory, injector : Injector) : BootFactory {
+		var factory = BootFactory::getConfigurationFactory(configFactory)
+		injector.injectMembers(factory)
+		return factory
 	}
 
 	/** Replies the instance of the logging factory.
 	 * 
 	 * @param configFactory accessor to the bootique factory.
+	 * @param injector the current injector.
 	 * @return the logging configuration accessor.
 	 */
 	@Provides
 	@Singleton
-	def getLoggingFactory(configFactory : ConfigurationFactory) : LoggingFactory {
-		LoggingFactory::getConfigurationFactory(configFactory)
+	def getLoggingFactory(configFactory : ConfigurationFactory, injector : Injector) : LoggingFactory {
+		var factory = LoggingFactory::getConfigurationFactory(configFactory)
+		injector.injectMembers(factory)
+		return factory
 	}
 
 	/** Replies the instance of the executor factory.
 	 * 
 	 * @param configFactory accessor to the bootique factory.
+	 * @param injector the current injector.
 	 * @return the executor configuration accessor.
 	 */
 	@Provides
 	@Singleton
-	def getExecutorFactory(configFactory : ConfigurationFactory) : ExecutorFactory {
-		ExecutorFactory::getConfigurationFactory(configFactory)
+	def getExecutorFactory(configFactory : ConfigurationFactory, injector : Injector) : ExecutorFactory {
+		var factory = ExecutorFactory::getConfigurationFactory(configFactory)
+		injector.injectMembers(factory)
+		return factory
 	}
 
 }

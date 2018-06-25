@@ -106,7 +106,7 @@ public class ProgrammaticBootstrapTest extends AbstractSreTest {
 	private void createConfiguration(Class<? extends Agent> bootAgent) {
 		this.bootFactory = new BootFactory();
 		this.bootFactory.setBootAgent(bootAgent.getName());
-		this.bootFactory.setCommandLineArguments(new String[] { AgentMock.class.getName(), "a" });
+		this.bootFactory.setCommandLineArgs(new String[] { AgentMock.class.getName(), "a" });
 		this.bootFactory = spy(this.bootFactory);
 		when(this.configurationFactory.config(any(Class.class), any(String.class))).thenReturn(this.bootFactory);
 	}

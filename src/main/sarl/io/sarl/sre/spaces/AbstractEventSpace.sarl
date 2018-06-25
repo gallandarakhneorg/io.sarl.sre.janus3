@@ -220,13 +220,24 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 		// to never block the sender process.
 		synchronized (mutex) {
 			val participants = getScopedParticipants(scope)
-			while (participants.hasNext) {
+			participants.forEach [
+					it.getParticipant.receiveEvent(^event)
+			]
+
+			/*participants.forEach [
+				var receptionTask : Runnable = [
+					it.getParticipant.receiveEvent(^event)
+				]
+				this.executor.executeAsap(receptionTask)
+			]*/
+
+			/*while (participants.hasNext) {
 				var participant = participants.next
 				var receptionTask : Runnable = [
 					participant.getParticipant.receiveEvent(^event)
 				]
 				this.executor.executeAsap(receptionTask)
-			}
+			}*/
 		}
 	}
 
