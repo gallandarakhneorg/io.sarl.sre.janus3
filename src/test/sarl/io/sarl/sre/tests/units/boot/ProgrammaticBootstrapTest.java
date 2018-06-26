@@ -140,6 +140,9 @@ public class ProgrammaticBootstrapTest extends AbstractSreTest {
 			if (ConfigurationFactory.class.equals(type)) {
 				return this.configurationFactory;
 			}
+			if (BootFactory.class.equals(type)) {
+				return this.bootFactory;
+			}
 			if (Injector.class.equals(type)) {
 				return this.injector;
 			}

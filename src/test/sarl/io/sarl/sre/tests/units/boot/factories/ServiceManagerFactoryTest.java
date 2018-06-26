@@ -109,19 +109,19 @@ public class ServiceManagerFactoryTest extends AbstractSreTest {
 
 	@Test
 	public void getStopTimeout() {
-		assertEquals(0l, this.factory.getStopTimeout());
+		assertEquals(10000l, this.factory.getStopTimeout());
 	}
 
 	@Test
 	public void setStopTimeout() {
-		assertEquals(0l, this.factory.getStopTimeout());
+		assertEquals(10000l, this.factory.getStopTimeout());
 		this.factory.setStopTimeout(123l);
 		assertEquals(123l, this.factory.getStopTimeout());
 	}
 
 	@Test
 	public void setStopTimeout_negative() {
-		assertEquals(0l, this.factory.getStopTimeout());
+		assertEquals(10000l, this.factory.getStopTimeout());
 		this.factory.setStopTimeout(123l);
 		this.factory.setStopTimeout(-456l);
 		assertEquals(0l, this.factory.getStopTimeout());
