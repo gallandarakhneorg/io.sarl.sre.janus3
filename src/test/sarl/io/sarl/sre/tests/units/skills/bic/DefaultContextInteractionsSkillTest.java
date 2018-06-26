@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.units.skills;
+package io.sarl.sre.tests.units.skills.bic;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -42,7 +42,7 @@ import io.sarl.lang.core.Scope;
 import io.sarl.lang.core.SpaceID;
 import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
-import io.sarl.sre.skills.DefaultContextInteractionsSkill;
+import io.sarl.sre.skills.bic.DefaultContextInteractionsSkill;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.OpenEventSpace;

@@ -18,7 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.skills
+package io.sarl.sre.skills.bic
 
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.lang.core.Address
@@ -31,9 +31,11 @@ import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
 import java.util.UUID
 
-import static io.sarl.sre.skills.DefaultContextInteractionsSkill.BinFlags.*
+import static io.sarl.sre.skills.bic.DefaultContextInteractionsSkill.BinFlags.*
 
 import static extension io.sarl.sre.services.lifecycle.AgentLife.*
+import io.sarl.sre.skills.BuiltinSkill
+import io.sarl.sre.skills.BuiltinCapacitiesOrder
 
 /** 
  * Skill to access to the default interaction context.

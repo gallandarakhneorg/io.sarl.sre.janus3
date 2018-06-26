@@ -18,12 +18,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.skills
+package io.sarl.sre.skills.bic
 
-import io.sarl.sre.capacities.InternalSchedules
-import io.sarl.sre.services.executor.EarlyExitException
-import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.sre.services.executor.SreRunnable
 import io.sarl.core.AgentTask
 import io.sarl.core.Logging
 import io.sarl.lang.annotation.PrivateAPI
@@ -32,6 +28,12 @@ import io.sarl.lang.core.Behavior
 import io.sarl.lang.core.Capacities
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.util.SynchronizedSet
+import io.sarl.sre.capacities.InternalSchedules
+import io.sarl.sre.services.executor.EarlyExitException
+import io.sarl.sre.services.executor.ExecutorService
+import io.sarl.sre.services.executor.SreRunnable
+import io.sarl.sre.skills.BuiltinCapacitiesOrder
+import io.sarl.sre.skills.BuiltinSkill
 import io.sarl.util.Collections3
 import java.lang.ref.WeakReference
 import java.text.MessageFormat
@@ -42,7 +44,7 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import javax.inject.Inject
 
-import static io.sarl.sre.skills.SchedulesSkill.BinFlags.*
+import static io.sarl.sre.skills.bic.SchedulesSkill.BinFlags.*
 
 import static extension io.sarl.sre.services.lifecycle.AgentLife.*
 import static extension io.sarl.sre.services.lifecycle.BehaviorLife.*

@@ -18,20 +18,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.skills
+package io.sarl.sre.skills.bic
 
 import com.google.common.base.Throwables
+import io.sarl.core.Logging
 import io.sarl.sre.services.logging.LoggerCreator
 import io.sarl.sre.services.logging.LoggingService
-import io.sarl.core.Logging
+import io.sarl.sre.skills.BuiltinCapacitiesOrder
+import io.sarl.sre.skills.BuiltinSkill
 import java.text.MessageFormat
+import java.util.function.Supplier
 import java.util.logging.Level
 import java.util.logging.LogRecord
 import java.util.logging.Logger
 import javax.inject.Inject
 
-import static io.sarl.sre.skills.LoggingSkill.BinFlags.*
-import java.util.function.Supplier
+import static io.sarl.sre.skills.bic.LoggingSkill.BinFlags.*
 
 /** 
  * SRE implementation of SARL's {@link Logging} built-in capacity.

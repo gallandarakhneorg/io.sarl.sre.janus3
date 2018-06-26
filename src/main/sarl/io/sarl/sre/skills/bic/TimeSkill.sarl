@@ -18,14 +18,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.skills
+package io.sarl.sre.skills.bic
 
-import io.sarl.sre.services.time.TimeService
 import io.sarl.core.Time
+import io.sarl.sre.services.time.TimeService
+import io.sarl.sre.skills.BuiltinCapacitiesOrder
+import io.sarl.sre.skills.BuiltinSkill
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-import static io.sarl.sre.skills.TimeSkill.BinFlags.*
+import static io.sarl.sre.skills.bic.TimeSkill.BinFlags.*
 
 /** 
  * SRE implementation of SARL's {@link Time} built-in capacity.

@@ -24,7 +24,7 @@ import com.google.inject.AbstractModule
 import com.google.inject.Injector
 import com.google.inject.Provides
 import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.sre.skills.EventBus
+import io.sarl.sre.skills.internal.EventBus
 
 /** 
  * Module configures the agents' event buses.

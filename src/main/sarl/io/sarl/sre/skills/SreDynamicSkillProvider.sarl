@@ -20,28 +20,38 @@
  */
 package io.sarl.sre.skills
 
+import com.google.inject.Injector
 import io.sarl.core.Behaviors
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.ExternalContextAccess
 import io.sarl.core.InnerContextAccess
 import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
 import io.sarl.core.Schedules
+import io.sarl.core.Time
+import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.Capacity
 import io.sarl.lang.core.DynamicSkillProvider
+import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Skill
 import io.sarl.lang.util.ClearableReference
-import javax.inject.Singleton
-import com.google.inject.Injector
-import javax.inject.Inject
-import io.sarl.sre.capacities.MicroKernelCapacity
-import io.sarl.core.Logging
-import io.sarl.core.Time
+import io.sarl.sre.Kernel
 import io.sarl.sre.capacities.InternalEventBusCapacity
 import io.sarl.sre.capacities.InternalSchedules
-import io.sarl.sre.Kernel
-import io.sarl.lang.core.SREutils
-import io.sarl.lang.annotation.PrivateAPI
+import io.sarl.sre.capacities.MicroKernelCapacity
+import io.sarl.sre.skills.bic.BehaviorsSkill
+import io.sarl.sre.skills.bic.DefaultContextInteractionsSkill
+import io.sarl.sre.skills.bic.ExternalContextAccessSkill
+import io.sarl.sre.skills.bic.InnerContextAccessSkill
+import io.sarl.sre.skills.bic.LifecycleSkill
+import io.sarl.sre.skills.bic.LoggingSkill
+import io.sarl.sre.skills.bic.SchedulesSkill
+import io.sarl.sre.skills.bic.TimeSkill
+import io.sarl.sre.skills.internal.InternalEventBusSkill
+import io.sarl.sre.skills.internal.MicroKernelSkill
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** 
  * Provider of the built-in capacities of the SRE platform.

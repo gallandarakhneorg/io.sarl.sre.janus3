@@ -64,12 +64,13 @@ class JreTimeService extends AbstractSreService implements TimeService {
 		1.0
 	}
 
-	def evolveTimeIfPossible(timeDelta : double) {
+	def evolveTimeIfPossible(timeDelta : double) : boolean {
 		fireTimeChanged
+		return false
 	}
 
-	def setTimeIfPossible(time : double) {
-		//
+	def setTimeIfPossible(time : double) : boolean {
+		false
 	}
 	
 	/** Notifies about time changes.

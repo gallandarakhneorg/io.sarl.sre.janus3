@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.units.skills;
+package io.sarl.sre.tests.units.skills.internal;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -33,7 +33,7 @@ import com.google.common.util.concurrent.Service;
 
 import io.sarl.lang.core.Agent;
 import io.sarl.sre.Kernel;
-import io.sarl.sre.skills.MicroKernelSkill;
+import io.sarl.sre.skills.internal.MicroKernelSkill;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.ManualMocking;
 import io.sarl.tests.api.Nullable;

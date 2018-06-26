@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.units.skills;
+package io.sarl.sre.tests.units.skills.internal;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -43,7 +43,7 @@ import io.sarl.lang.core.Event;
 import io.sarl.revision.BehaviorGuardEvaluator;
 import io.sarl.revision.BehaviorGuardEvaluatorRegistry;
 import io.sarl.sre.services.executor.ExecutorService;
-import io.sarl.sre.skills.EventBus;
+import io.sarl.sre.skills.internal.EventBus;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 

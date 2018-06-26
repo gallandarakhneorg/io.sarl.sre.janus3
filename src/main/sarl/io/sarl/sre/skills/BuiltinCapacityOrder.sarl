@@ -21,6 +21,16 @@
 package io.sarl.sre.skills
 
 import io.sarl.lang.core.Skill
+import io.sarl.sre.skills.bic.BehaviorsSkill
+import io.sarl.sre.skills.bic.DefaultContextInteractionsSkill
+import io.sarl.sre.skills.bic.ExternalContextAccessSkill
+import io.sarl.sre.skills.bic.InnerContextAccessSkill
+import io.sarl.sre.skills.bic.LifecycleSkill
+import io.sarl.sre.skills.bic.LoggingSkill
+import io.sarl.sre.skills.bic.SchedulesSkill
+import io.sarl.sre.skills.bic.TimeSkill
+import io.sarl.sre.skills.internal.InternalEventBusSkill
+import io.sarl.sre.skills.internal.MicroKernelSkill
 
 /** 
  * Hard-coded order for installing/uninstalling the builtin capacities.

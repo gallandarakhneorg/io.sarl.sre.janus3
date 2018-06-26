@@ -26,13 +26,16 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,13 +51,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import io.sarl.sre.capacities.InternalEventBusCapacity;
-import io.sarl.sre.services.context.Context;
-import io.sarl.sre.services.lifecycle.AgentLife;
-import io.sarl.sre.services.lifecycle.ContextReference;
-import io.sarl.sre.services.lifecycle.SkillUninstaller;
-import io.sarl.sre.services.logging.LoggingService;
-import io.sarl.sre.skills.EventBus;
 import io.sarl.core.Destroy;
 import io.sarl.core.Initialize;
 import io.sarl.lang.core.Address;
@@ -64,12 +60,18 @@ import io.sarl.lang.core.EventListener;
 import io.sarl.lang.core.Skill;
 import io.sarl.lang.core.SpaceID;
 import io.sarl.lang.util.SynchronizedIterable;
+import io.sarl.sre.capacities.InternalEventBusCapacity;
+import io.sarl.sre.services.context.Context;
+import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.AgentState;
+import io.sarl.sre.services.lifecycle.ContextReference;
+import io.sarl.sre.services.lifecycle.SkillUninstaller;
+import io.sarl.sre.services.logging.LoggingService;
+import io.sarl.sre.skills.internal.EventBus;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 import io.sarl.util.OpenEventSpace;
 import io.sarl.util.OpenEventSpaceSpecification;
-import junit.framework.AssertionFailedError;
 
 /**
  * @author $Author: sgalland$

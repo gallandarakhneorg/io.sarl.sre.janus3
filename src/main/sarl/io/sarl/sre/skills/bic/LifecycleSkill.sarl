@@ -18,22 +18,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.skills
+package io.sarl.sre.skills.bic
 
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import io.sarl.lang.core.Agent
+import io.sarl.lang.core.AgentContext
 import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.lifecycle.AgentState
 import io.sarl.sre.services.lifecycle.LifecycleService
-import io.sarl.core.Lifecycle
-import io.sarl.lang.core.Agent
-import io.sarl.lang.core.AgentContext
+import io.sarl.sre.skills.BuiltinCapacitiesOrder
+import io.sarl.sre.skills.BuiltinSkill
 import java.util.UUID
 import javax.inject.Inject
 
-import static io.sarl.sre.skills.LifecycleSkill.BinFlags.*
+import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 
 import static extension io.sarl.sre.services.lifecycle.AgentLife.*
-import io.sarl.core.Logging
 
 /** 
  * Skill that permits to manage the life cycle of the agents.

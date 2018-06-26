@@ -63,15 +63,17 @@ interface TimeService extends Service {
 	/** Do a time evolution if the underlying service allows this action.
 	 * 
 	 * @param timeDelta is the amount of time to consider for the evolution. If it is negative or zero,
-	 *     a default amount will be selected by the time service.  
+	 *     a default amount will be selected by the time service.
+	 * @return {@code true} if time has evolved. Otherwise {@code false}.   
 	 */
-	def evolveTimeIfPossible(timeDelta : double = 0.0)
+	def evolveTimeIfPossible(timeDelta : double = 0.0) : boolean
 
 	/** Change the time.
 	 * 
 	 * @param time the new time.
+	 * @return {@code true} if time has evolved. Otherwise {@code false}.   
 	 */
-	def setTimeIfPossible(time : double)
+	def setTimeIfPossible(time : double) : boolean
 
 	/** Add listener on time changes.
 	 *

@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.units.skills;
+package io.sarl.sre.tests.units.skills.bic;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -50,7 +50,7 @@ import io.sarl.lang.core.Skill;
 import io.sarl.lang.util.ClearableReference;
 import io.sarl.sre.services.logging.LoggerCreator;
 import io.sarl.sre.services.logging.LoggingService;
-import io.sarl.sre.skills.LoggingSkill;
+import io.sarl.sre.skills.bic.LoggingSkill;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.ManualMocking;
 import io.sarl.tests.api.Nullable;

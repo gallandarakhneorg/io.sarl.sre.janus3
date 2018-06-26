@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.units.skills;
+package io.sarl.sre.tests.units.skills.bic;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -60,7 +60,7 @@ import io.sarl.lang.util.SynchronizedSet;
 import io.sarl.sre.services.executor.ExecutorService;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.AgentState;
-import io.sarl.sre.skills.SchedulesSkill;
+import io.sarl.sre.skills.bic.SchedulesSkill;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 

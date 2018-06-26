@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.units.skills;
+package io.sarl.sre.tests.units.skills.bic;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -49,14 +49,14 @@ import io.sarl.lang.core.Space;
 import io.sarl.lang.core.SpaceID;
 import io.sarl.lang.util.SynchronizedIterable;
 import io.sarl.sre.capacities.InternalEventBusCapacity;
+import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.context.ContextService;
 import io.sarl.sre.services.context.ExternalContextMemberListener;
 import io.sarl.sre.services.context.InternalContextMembershipListener;
-import io.sarl.sre.services.context.Context;
 import io.sarl.sre.services.lifecycle.AgentLife;
 import io.sarl.sre.services.lifecycle.AgentState;
-import io.sarl.sre.skills.EventBus;
-import io.sarl.sre.skills.ExternalContextAccessSkill;
+import io.sarl.sre.skills.bic.ExternalContextAccessSkill;
+import io.sarl.sre.skills.internal.EventBus;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.ManualMocking;
 import io.sarl.tests.api.Nullable;

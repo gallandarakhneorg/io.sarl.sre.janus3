@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.skills
+package io.sarl.sre.skills.bic
 
 import org.eclipse.osgi.util.NLS
 

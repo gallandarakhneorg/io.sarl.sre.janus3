@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.units.skills;
+package io.sarl.sre.tests.units.skills.bic;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -32,7 +32,7 @@ import org.junit.Test;
 import io.sarl.lang.core.Agent;
 import io.sarl.lang.scoping.batch.SARLTimeExtensions;
 import io.sarl.sre.services.time.TimeService;
-import io.sarl.sre.skills.TimeSkill;
+import io.sarl.sre.skills.bic.TimeSkill;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 import io.sarl.tests.api.Nullable;
 

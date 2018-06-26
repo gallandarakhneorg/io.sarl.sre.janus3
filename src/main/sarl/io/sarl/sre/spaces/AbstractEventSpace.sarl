@@ -21,8 +21,6 @@
 
 package io.sarl.sre.spaces
 
-import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.sre.services.logging.LoggingService
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Event
@@ -31,14 +29,16 @@ import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Scope
 import io.sarl.lang.util.SynchronizedSet
+import io.sarl.sre.services.executor.ExecutorService
+import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.AddressScope
 import io.sarl.util.Collections3
 import io.sarl.util.Scopes
 import java.text.MessageFormat
+import java.util.Iterator
 import java.util.Map
 import java.util.UUID
 import javax.inject.Inject
-import java.util.Iterator
 
 /** 
  * Abstract implementation of an event space.
@@ -133,7 +133,8 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 		return null
 	}
 
-	def getParticipants : SynchronizedSet<UUID> {
+	@Deprecated
+	final def getParticipants : SynchronizedSet<UUID> {
 		var mut = mutex
 		synchronized (mut) {
 			Collections3.unmodifiableSynchronizedSet(this.internalParticipantStructure.keySet, mut)

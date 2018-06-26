@@ -34,17 +34,17 @@ import org.junit.Test;
 
 import io.sarl.lang.core.Capacity;
 import io.sarl.lang.core.Skill;
-import io.sarl.sre.skills.BehaviorsSkill;
 import io.sarl.sre.skills.BuiltinCapacitiesOrder;
-import io.sarl.sre.skills.DefaultContextInteractionsSkill;
-import io.sarl.sre.skills.ExternalContextAccessSkill;
-import io.sarl.sre.skills.InnerContextAccessSkill;
-import io.sarl.sre.skills.InternalEventBusSkill;
-import io.sarl.sre.skills.LifecycleSkill;
-import io.sarl.sre.skills.LoggingSkill;
-import io.sarl.sre.skills.MicroKernelSkill;
-import io.sarl.sre.skills.SchedulesSkill;
-import io.sarl.sre.skills.TimeSkill;
+import io.sarl.sre.skills.bic.BehaviorsSkill;
+import io.sarl.sre.skills.bic.DefaultContextInteractionsSkill;
+import io.sarl.sre.skills.bic.ExternalContextAccessSkill;
+import io.sarl.sre.skills.bic.InnerContextAccessSkill;
+import io.sarl.sre.skills.bic.LifecycleSkill;
+import io.sarl.sre.skills.bic.LoggingSkill;
+import io.sarl.sre.skills.bic.SchedulesSkill;
+import io.sarl.sre.skills.bic.TimeSkill;
+import io.sarl.sre.skills.internal.InternalEventBusSkill;
+import io.sarl.sre.skills.internal.MicroKernelSkill;
 import io.sarl.sre.tests.testutils.AbstractSreTest;
 
 /**
