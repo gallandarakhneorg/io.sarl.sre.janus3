@@ -117,8 +117,7 @@ class ExecutorFactory {
 	var internalErrorVerboseLevel : String
 	var internalErrorVerboseLevelObject : Level
 
-	@Accessors(PUBLIC_GETTER)
-	var maxThreads : int = MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE
+	var maxThreads : Integer
 
 	@Accessors(PUBLIC_GETTER)
 	var minThreads : int = MIN_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE
@@ -144,12 +143,31 @@ class ExecutorFactory {
 	 * @param maxThreads the max number.
 	 */
 	@BQConfigProperty("Maximum number of threads that could be used by the executor service")
-	def setMaxThreads(maxThreads : int) {
+	def setMaxThreads(maxThreads : int) : void {
 		if (maxThreads > 0) {
 			this.maxThreads = maxThreads;
 		} else {
 			this.maxThreads = 1
 		}
+	}
+
+	/** Replies the maximum number of threads that could be used by the executor service.
+	 * 
+	 * @param the max number.
+	 */
+	def getMaxThreads : int {
+		if (this.maxThreads !== null) {
+			return this.maxThreads.intValue
+		}
+		return Integer::MAX_VALUE
+	}
+
+	/** Replies if the maximum number of threads is specified.
+	 * 
+	 * @return {@code true} if the maximum number of threads is specified. Otherwise {@code false}.
+	 */
+	def hasMaxThreadsSpecified : boolean {
+		this.maxThreads !== null
 	}
 
 	/** Change the minimum number of threads that could be used by the executor service.

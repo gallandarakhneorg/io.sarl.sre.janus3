@@ -30,7 +30,7 @@ import static io.sarl.sre.skills.internal.MicroKernelSkill.BinFlags.*
 import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 
-/** 
+/**
  * Capacity that provides an access to the micro kernel.
  * 
  * @author $Author: sgalland$

@@ -1,0 +1,81 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.sarl.sre.tests.runtime.bugs.bug546
+
+import io.sarl.core.AgentKilled
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Lifecycle
+import io.sarl.sre.tests.testutils.TestingAgent
+
+/**
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @see https://github.com/sarl/sarl/issues/546
+ */
+package agent InitAndWaitAgent0 extends TestingAgent {
+
+	uses Lifecycle, DefaultContextInteractions
+
+	private static enum State { WAIT_ALL, WAIT_KILLS }
+	
+	var state = State::WAIT_ALL
+
+	var nbHellos = 0
+
+	var nbKilled = 0
+
+	override runAgentTest : boolean {
+		for (i : 0 ..< Bug546::NB_AGENTS) {
+			typeof(ChildAgent).spawn(getRawResults, ID)
+		}
+		return false
+	}
+
+	@SuppressWarnings("potential_field_synchronization_problem")
+	on Hello [this.state === State::WAIT_ALL] {
+		var n : int
+		synchronized (this) {
+			this.nbHellos++
+			n = this.nbHellos
+		}
+		if (n === Bug546::NB_AGENTS) {
+			synchronized (this) {
+				this.state = State::WAIT_KILLS
+			}
+			emit(new KillYou)
+		}
+	}
+
+	on AgentKilled {
+		var n : int
+		synchronized (this) {
+			this.nbKilled++
+			n = this.nbKilled
+		}
+		if (n === Bug546::NB_AGENTS) {
+			killMe
+		}
+	}
+
+}

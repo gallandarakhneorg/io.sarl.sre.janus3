@@ -172,8 +172,10 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 			assert this.constructor1 !== null || this.constructor2 !== null
 			try {
 				if (this.constructor2 !== null) {
+					this.constructor2.accessible = true
 					return this.constructor2.newInstance(this.parentID, aid, this.skillProvider)
 				}
+				this.constructor1.accessible = true
 				var ^agent = this.constructor1.newInstance(this.parentID, aid)
 				SREutils::setDynamicSkillProvider(^agent, this.skillProvider)
 				return ^agent

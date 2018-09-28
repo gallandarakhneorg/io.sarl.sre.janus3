@@ -80,13 +80,13 @@ skill BehaviorsSkill extends BuiltinSkill implements Behaviors {
 		associatedEventBusListener
 	}
 
-	def registerBehavior(attitude : Behavior, filter : (Event)=>boolean = null) : Behavior {
+	def registerBehavior(attitude : Behavior, filter : (Event)=>boolean, initializationParameters : Object*) : Behavior {
 		assert attitude !== null
 		val life = owner.life
 		if (life.state.alive) {
 			attitude.registerEventBusListener(filter) [
 				// Initialize the behavior
-				val ^event = new Initialize(this.ID)
+				val ^event = new Initialize(this.ID, initializationParameters)
 				^event.source = life.addressInInnerDefaultSpace
 				fireEventAndWait(^event, false, true, attitude)
 			]

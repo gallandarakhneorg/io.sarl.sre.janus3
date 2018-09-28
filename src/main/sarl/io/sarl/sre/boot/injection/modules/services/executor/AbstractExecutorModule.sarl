@@ -137,15 +137,19 @@ abstract class AbstractExecutorModule extends AbstractModule {
 	@Singleton
 	def getJvmExecutorService(configFactory : ExecutorFactory,
 		rejectedExecutionHandler : RejectedExecutionHandler) : ExecutorService {
-		val minPoolSize = configFactory.minThreads
-		val maxPoolSize = configFactory.maxThreads
-		val keepAliveDuration = configFactory.keepAliveDuration
-		var min = Math::max(0, Math::min(minPoolSize, maxPoolSize))
-		var max = Math::max(1, Math::max(minPoolSize, maxPoolSize))
-		val executor = new ThreadPoolExecutor(min, max, keepAliveDuration, TimeUnit::SECONDS,
-			new SynchronousQueue)
-		if (rejectedExecutionHandler !== null) {
-			executor.rejectedExecutionHandler = rejectedExecutionHandler
+		var executor : ExecutorService = null
+		if (configFactory.hasMaxThreadsSpecified) {
+			val minPoolSize = configFactory.minThreads
+			val maxPoolSize = configFactory.maxThreads
+			val keepAliveDuration = configFactory.keepAliveDuration
+			var min = Math::max(0, Math::min(minPoolSize, maxPoolSize))
+			var max = Math::max(1, Math::max(minPoolSize, maxPoolSize))
+			executor = new ThreadPoolExecutor(min, max, keepAliveDuration, TimeUnit::SECONDS, new SynchronousQueue)
+		} else {
+			executor = Executors::newCachedThreadPool
+		}
+		if (rejectedExecutionHandler !== null && executor instanceof ThreadPoolExecutor) {
+			(executor as ThreadPoolExecutor).rejectedExecutionHandler = rejectedExecutionHandler
 		}
 		return executor
 	}

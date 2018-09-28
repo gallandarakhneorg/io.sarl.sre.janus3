@@ -39,6 +39,7 @@ import java.util.Iterator
 import java.util.Map
 import java.util.UUID
 import javax.inject.Inject
+import java.util.stream.Stream
 
 /** 
  * Abstract implementation of an event space.
@@ -193,13 +194,13 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 	 * @param scope the scope.
 	 * @return the matching participants.
 	 */
-	protected def getScopedParticipants(scope : Scope<? super Address>) : Iterator<Participant> {
+	protected def getScopedParticipants(scope : Scope<? super Address>) : Stream<Participant> {
 		if (scope === null || scope === Scopes::allParticipants) {
-			this.internalParticipantStructure.values.iterator
+			this.internalParticipantStructure.values.stream
 		} else if (scope instanceof AddressScope) {
-			scope.addresses.map[it.lazyParticipant].filter[it !== null].iterator
+			Stream.of(scope.addresses).map([it.lazyParticipant]).filter([it !== null])
 		} else {
-			this.internalParticipantStructure.values.filter [scope.matches(it.address)].iterator
+			this.internalParticipantStructure.values.stream.filter [scope.matches(it.address)]
 		}
 	}
 	

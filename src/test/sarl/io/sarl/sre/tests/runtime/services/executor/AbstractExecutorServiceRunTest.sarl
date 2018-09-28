@@ -1,0 +1,101 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.sarl.sre.tests.runtime.services.executor
+
+import io.sarl.sre.tests.testutils.AbstractSreRunTest
+import java.util.List
+import java.util.UUID
+import org.junit.Test
+
+import static org.junit.Assert.assertNotNull
+
+/**
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+abstract class AbstractExecutorServiceRunTest extends AbstractSreRunTest {
+
+	@Test
+	def execute {
+		typeof(ExecuteAgent).runSre(false, true, 60)
+		var results = getResults
+		assertNotNull(results)
+		assertNumberOfResults(1)
+		assertInstanceOf(typeof(UUID), results.get(0))
+	}
+
+	@Test
+	def in {
+		typeof(InAgent).runSre(false, true, 60)
+		var results = getResults
+		assertNotNull(results)
+		assertNumberOfResults(1)
+		assertInstanceOf(typeof(UUID), results.get(0))
+	}
+
+	@Test
+	def every {
+		typeof(EveryAgent).runSre(false, true, 60)
+		var results = getResults
+		assertNotNull(results)
+		assertNumberOfResults(1)
+		assertEquals(2, results.get(0))
+	}
+
+	@Test
+	def atFixedDelay {
+		typeof(AtFixedDelayAgent).runSre(false, true, 60)
+		var results = getResults
+		assertNotNull(results)
+		assertNumberOfResults(1)
+		assertEquals(2, results.get(0))
+	}
+
+	@Test
+	def getActiveTasks {
+		typeof(GetActiveTasksAgent).runSre(false, true, 60)
+		assertNumberOfResults(3)
+		var actives1 = getResult(typeof(List), 0)
+		assertContains(actives1, "T1")
+		var actives2 = getResult(typeof(List), 1)
+		assertContains(actives2, "T1", "T2")
+		var actives3 = getResult(typeof(List), 2)
+		assertContains(actives3)
+	}
+
+	@Test
+	def cancel {
+		typeof(CancelTaskAgent).runSre(false, true, 60)
+		assertNumberOfResults(4)
+		var actives1 = getResult(typeof(List), 0)
+		assertContains(actives1, "T1")
+		var actives2 = getResult(typeof(List), 1)
+		assertContains(actives2, "T1", "T2")
+		var actives3 = getResult(typeof(List), 2)
+		assertContains(actives3, "T2")
+		var actives4 = getResult(typeof(List), 3)
+		assertContains(actives4)
+	}
+
+}

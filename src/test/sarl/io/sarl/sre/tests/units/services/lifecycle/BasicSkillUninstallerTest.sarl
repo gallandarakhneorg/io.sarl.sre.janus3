@@ -1,0 +1,91 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.sarl.sre.tests.units.services.lifecycle
+
+import io.sarl.sre.services.lifecycle.BasicSkillUninstaller
+import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.tests.api.Nullable
+import java.util.Arrays
+import java.util.concurrent.atomic.AtomicInteger
+import org.junit.Before
+import org.junit.Test
+
+import static org.junit.Assert.assertFalse
+import static org.junit.Assert.assertNull
+import static org.junit.Assert.assertSame
+
+/**
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+@SuppressWarnings("all")
+public class BasicSkillUninstallerTest extends AbstractSreTest {
+
+	@Nullable
+	var installer : BasicSkillUninstaller
+
+	@Before
+	def setUp : void {
+		this.installer = new BasicSkillUninstaller
+	}
+
+	@Test
+	def uninstallSkillsBeforeDestroy {
+		var order = new AtomicInteger
+		var s1 = new LifeSkill(order)
+		var s2 = new MySkill0(order)
+		var s3 = new InnerSkill(order)
+		var ^agent = spy(new MyAgent2(s1, s2, s3))
+		var skills = this.installer.uninstallSkillsBeforeDestroy(^agent)
+		assertEquals(0, s2.uninstallOrderPre)
+		assertEquals(1, s1.uninstallOrderPre)
+		assertEquals(2, s3.uninstallOrderPre)
+		assertNull(s2.uninstallOrderPost)
+		assertNull(s1.uninstallOrderPost)
+		assertNull(s3.uninstallOrderPost)
+		var iterator = skills.iterator
+		assertSame(s2, iterator.next)
+		assertSame(s1, iterator.next)
+		assertSame(s3, iterator.next)
+		assertFalse(iterator.hasNext)
+	}
+
+	@Test
+	def uninstallSkillsAfterDestroy {
+		var order = new AtomicInteger
+		var s1 = new LifeSkill(order)
+		var s2 = new MySkill0(order)
+		var s3 = new InnerSkill(order)
+		var ^agent = new MyAgent2(s1, s2, s3).spy
+		var skills = Arrays::asList(s2, s1, s3)
+		this.installer.uninstallSkillsAfterDestroy(^agent, skills)
+		assertNull(s2.uninstallOrderPre)
+		assertNull(s1.uninstallOrderPre)
+		assertNull(s3.uninstallOrderPre)
+		assertEquals(0, s2.uninstallOrderPost)
+		assertEquals(1, s1.uninstallOrderPost)
+		assertEquals(2, s3.uninstallOrderPost)
+	}
+
+}

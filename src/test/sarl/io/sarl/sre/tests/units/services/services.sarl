@@ -1,0 +1,191 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.sarl.sre.tests.units.services
+
+import com.google.common.util.concurrent.AbstractService
+import com.google.common.util.concurrent.Service
+import io.sarl.sre.services.AbstractSreService
+import io.sarl.sre.services.infrastructure.InfrastructureService
+import java.util.concurrent.atomic.AtomicInteger
+
+package interface Serv extends Service {
+	def getStartOrder : int
+	def getStopOrder : int
+}
+
+package interface Serv1 extends Serv {
+}
+
+package class Serv1Impl extends AbstractSreService implements Serv1 {
+	public var order = -1
+	public var sorder = -1
+	val counter : AtomicInteger
+	val counter2 : AtomicInteger
+	new (counter : AtomicInteger, counter2 : AtomicInteger) {
+		this.counter = counter
+		this.counter2 = counter2
+	}
+	override getStartOrder : int {
+		this.order
+	}
+	override getStopOrder : int {
+		this.sorder
+	}
+	override onStart {
+		this.order = counter.incrementAndGet
+	}
+	override onStop {
+		this.sorder = counter2.incrementAndGet
+	}
+}
+
+package interface Serv2 extends Serv {		
+}
+
+package class Serv2Impl extends AbstractSreService implements Serv2 {
+	public var order = -1;
+	public var sorder = -1;
+	val counter : AtomicInteger
+	val counter2 : AtomicInteger
+	new (counter : AtomicInteger, counter2 : AtomicInteger) {
+		this.counter = counter
+		this.counter2 = counter2
+	}
+	override getStartOrder : int {
+		this.order
+	}
+	override getStopOrder : int {
+		this.sorder
+	}
+	override onStart {
+		this.order = counter.incrementAndGet
+	}
+	override onStop {
+		this.sorder = counter2.incrementAndGet
+	}
+}
+
+package interface Serv3 extends Serv {		
+}
+
+package class Serv3Impl extends AbstractService implements Serv3 {
+	public var order = -1
+	public var sorder = -1
+	val counter : AtomicInteger
+	val counter2 : AtomicInteger
+	new (counter : AtomicInteger, counter2 : AtomicInteger) {
+		this.counter = counter
+		this.counter2 = counter2
+	}
+	override getStartOrder : int {
+		this.order
+	}
+	override getStopOrder : int {
+		this.sorder
+	}
+	override doStart {
+		this.order = counter.incrementAndGet
+		notifyStarted
+	}
+	override doStop {
+		this.sorder = counter2.incrementAndGet
+		notifyStopped
+	}
+}
+
+package interface Serv4 extends Serv {		
+}
+
+package class Serv4Impl extends AbstractSreService implements Serv4 {
+	public var order = -1
+	public var sorder = -1
+	val counter : AtomicInteger
+	val counter2 : AtomicInteger
+	new (counter : AtomicInteger, counter2 : AtomicInteger) {
+		this.counter = counter
+		this.counter2 = counter2
+	}
+	override getStartOrder : int {
+		this.order
+	}
+	override getStopOrder : int {
+		this.sorder
+	}
+	override onStart {
+		this.order = counter.incrementAndGet
+	}
+	override onStop {
+		this.sorder = counter2.incrementAndGet
+	}
+}
+
+package interface Serv5 extends Serv {		
+}
+
+package class Serv5Impl extends AbstractSreService implements Serv5 {
+	public var order = -1
+	public var sorder = -1
+	val counter : AtomicInteger
+	val counter2 : AtomicInteger
+	new (counter : AtomicInteger, counter2 : AtomicInteger) {
+		this.counter = counter
+		this.counter2 = counter2
+	}
+	override getStartOrder : int {
+		this.order
+	}
+	override getStopOrder : int {
+		this.sorder
+	}
+	override onStart {
+		this.order = counter.incrementAndGet
+	}
+	override onStop {
+		this.sorder = counter2.incrementAndGet
+	}
+}
+
+package interface Serv6 extends Serv, InfrastructureService {
+}
+
+package class Serv6Impl extends AbstractSreService implements Serv6 {
+	public var order = -1
+	public var sorder = -1
+	val counter : AtomicInteger
+	val counter2 : AtomicInteger
+	new (counter : AtomicInteger, counter2 : AtomicInteger) {
+		this.counter = counter
+		this.counter2 = counter2
+	}
+	override getStartOrder : int {
+		this.order
+	}
+	override getStopOrder : int {
+		this.sorder
+	}
+	override onStart {
+		this.order = counter.incrementAndGet
+	}
+	override onStop {
+		this.sorder = counter2.incrementAndGet
+	}
+}

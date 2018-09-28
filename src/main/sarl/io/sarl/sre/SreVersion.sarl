@@ -29,7 +29,7 @@ package io.sarl.sre
  * @mavenartifactid $ArtifactId$
  * @since 0.5.0
  */
-public final class SreVersion {
+final class SreVersion {
 
 	/** The version number of the current release of the SRE platform.
 	 */

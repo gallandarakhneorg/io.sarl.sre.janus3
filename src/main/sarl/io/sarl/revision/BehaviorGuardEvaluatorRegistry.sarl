@@ -22,7 +22,6 @@
 package io.sarl.revision
 
 import com.google.common.base.Objects
-import com.google.common.base.Throwables
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.LoadingCache
 import com.google.common.collect.Collections2
@@ -32,6 +31,7 @@ import com.google.common.collect.Maps
 import com.google.common.reflect.TypeToken
 import io.sarl.lang.annotation.PerceptGuardEvaluator
 import io.sarl.lang.core.Event
+import io.sarl.lang.util.OutParameter
 import java.lang.reflect.Method
 import java.util.Arrays
 import java.util.Collection
@@ -43,7 +43,6 @@ import java.util.Set
 import java.util.TreeMap
 import java.util.TreeSet
 import java.util.concurrent.CopyOnWriteArraySet
-import io.sarl.lang.util.OutParameter
 
 /**
  * Registry of all {@code BehaviorGuardEvaluator} classes containing a method to evaluate the guard of a given behavior (on clause in SARL behavior).
@@ -146,11 +145,7 @@ class BehaviorGuardEvaluatorRegistry {
 	}
 
 	private static def getAnnotatedMethodsPerEvent(listenerType : Class<?>) : Map<Class<? extends Event>, Collection<Method>> {
-		try {
-			PERCEPT_GUARD_EVALUATOR_METHOD_CACHE.getUnchecked(listenerType)
-		} catch (ex : Exception) {
-			throw Throwables::propagate(ex)
-		}
+		PERCEPT_GUARD_EVALUATOR_METHOD_CACHE.getUnchecked(listenerType)
 	}
 
 	/**
@@ -684,11 +679,7 @@ class BehaviorGuardEvaluatorRegistry {
 	 * @return the set of class in the hierarchy of the specififed class
 	 */
 	private static def flattenHierarchy(concreteClass : Class<?>) : ImmutableSet<Class<?>> {
-		try {
-			FLATTEN_HIERARCHY_CACHE.getUnchecked(concreteClass)
-		} catch (e : Exception) {
-			throw Throwables.propagate(e.cause)
-		}
+		FLATTEN_HIERARCHY_CACHE.getUnchecked(concreteClass)
 	}
 
 }
