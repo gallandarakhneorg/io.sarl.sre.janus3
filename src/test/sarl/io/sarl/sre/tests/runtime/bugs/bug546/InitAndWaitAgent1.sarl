@@ -37,9 +37,9 @@ package agent InitAndWaitAgent1 extends TestingAgent {
 
 	var nbEvents = 0
 
-	override runAgentTest : boolean {
-		typeof(SendingAgent).spawn(getRawResults, ID)
-		return false
+	override runAgentTest : RunPolicy {
+		typeof(SendingAgent).spawn(rawResultMap, ID)
+		return null
 	}
 
 	on MyEvent {

@@ -35,10 +35,10 @@ package agent FakeAgent3 extends TestingAgent {
 
 	uses Schedules, Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("SPAWNED")
 		in(500) [killMe]
-		return false
+		return null
 	}
 
 }

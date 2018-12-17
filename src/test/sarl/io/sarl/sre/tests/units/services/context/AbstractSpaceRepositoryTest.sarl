@@ -22,10 +22,11 @@
 package io.sarl.sre.tests.units.services.context
 
 import com.google.inject.Injector
-import io.bootique.config.ConfigurationFactory
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
-import io.sarl.sre.boot.factories.ExecutorFactory
+import io.sarl.sre.boot.configs.SreConfig
+import io.sarl.sre.boot.configs.subconfigs.ExecutorsConfig
+import io.sarl.sre.boot.configs.subconfigs.ServicesConfig
 import io.sarl.sre.services.context.SpaceRepository
 import io.sarl.sre.services.context.SpaceRepository.SpaceDescription
 import io.sarl.sre.services.context.SpaceRepositoryListener
@@ -45,17 +46,11 @@ import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.verifyNoMoreInteractions
 import static org.mockito.Mockito.when
 
-import static extension org.mockito.ArgumentMatchers.any
 import static extension org.mockito.MockitoAnnotations.initMocks
 
 /**
@@ -74,10 +69,10 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 	protected var executor : ExecutorService
 	
 	@Nullable
-	protected var configurationFactory : ConfigurationFactory
+	protected var configuration : SreConfig
 
 	@Nullable
-	protected var executorFactory : ExecutorFactory 
+	protected var executorsConfig : ExecutorsConfig
 	
 	@Nullable
 	protected var internalStructure : Map<UUID, SpaceDescription> 
@@ -88,9 +83,11 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 	@Before
 	def setUp : void {
 		this.injector = typeof(Injector).mock
-		this.configurationFactory = typeof(ConfigurationFactory).mock
-		this.executorFactory = typeof(ExecutorFactory).mock
-		when(this.configurationFactory.config(typeof(Class).any, typeof(String).any)).thenReturn(this.executorFactory)
+		this.executorsConfig = typeof(ExecutorsConfig).mock
+		var services = typeof(ServicesConfig).mock
+		when(services.getExecutors).thenReturn(this.executorsConfig)		
+		this.configuration = typeof(SreConfig).mock
+		when(this.configuration.services).thenReturn(services)
 		this.initMocks
 		this.internalStructure = newInternalStructure
 		this.repository = newSpaceRepository
@@ -164,14 +161,18 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		var expectedDescs = fillRepository
 		var spaces = this.repository.spaces
 		assertNotNull(spaces)
-		var iterator = spaces.iterator
-		var ^space = iterator.next
-		assertEquals(expectedDescs.get(0).spaceID, ^space.spaceID)
-		^space = iterator.next
-		assertEquals(expectedDescs.get(1).spaceID, ^space.spaceID)
-		^space = iterator.next
-		assertEquals(expectedDescs.get(2).spaceID, ^space.spaceID)
-		assertFalse(iterator.hasNext)
+		
+		var expectedIds = <SpaceID>newArrayList()
+		for (elt : expectedDescs) {
+			expectedIds += elt.spaceID
+		}
+
+		var actualIds = <SpaceID>newArrayList()
+		for (elt : spaces) {
+			actualIds += elt.spaceID
+		}
+
+		assertContainsCollection(actualIds, expectedIds)
 	}
 
 	@Test
@@ -205,7 +206,8 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 				}
 			}
 			assertTrue(indexes.contains(idx))
-			indexes.remove(idx as Object)
+			val idxobj : Integer = idx
+			indexes.remove(idxobj)
 		}
 		assertFalse(iterator.hasNext)
 		assertTrue(indexes.empty)
@@ -296,12 +298,13 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		assertSame(^space, space2)
 	}
 
+	@SuppressWarnings("raw_type")
 	@Test
 	def getOrCreateSpaceWithSpec_1 {
 		var expectedDescs = fillRepository
 		for (desc : expectedDescs) {
-			var createdSpace = this.repository.getOrCreateSpaceWithSpec(
-					desc.spaceID, desc.spaceID.getSpaceSpecification as Class)
+			var spec : Class = desc.spaceID.spaceSpecification
+			var createdSpace = this.repository.getOrCreateSpaceWithSpec(desc.spaceID, spec)
 			assertNotNull(createdSpace)
 			assertEquals(desc.spaceID.spaceSpecification, createdSpace.spaceID.spaceSpecification)
 		}
@@ -327,12 +330,13 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		assertSame(^space, space2)
 	}
 
+	@SuppressWarnings("raw_type")
 	@Test
 	def getOrCreateSpaceWithID_1 {
 		var expectedDescs = fillRepository
 		for (desc : expectedDescs) {
-			var createdSpace = this.repository.getOrCreateSpaceWithID(
-					desc.spaceID, desc.spaceID.getSpaceSpecification() as Class)
+			var spec : Class = desc.spaceID.spaceSpecification
+			var createdSpace = this.repository.getOrCreateSpaceWithID(desc.spaceID, spec)
 			assertSame(desc.^space, createdSpace)
 		}
 	}
@@ -354,8 +358,8 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		var createdSpace = this.repository.getOrCreateSpaceWithID(sid, typeof(OpenEventSpaceSpecification))
 		
 		var spaceArg = ArgumentCaptor::forClass(typeof(Space))
-		var creationArg = ArgumentCaptor::forClass(typeof(Boolean))
-		verify(listener).spaceCreated(spaceArg.capture, creationArg.capture)
+		var creationArg = ArgumentCaptor::forClass(typeof(boolean))
+		verify(listener).spaceCreated(spaceArg.capture, creationArg.capture.booleanValue)
 		assertSame(^space, createdSpace)
 		assertSame(^space, spaceArg.value)
 		assertTrue(creationArg.value)
@@ -380,8 +384,8 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		this.repository.removeSpace(^space)
 
 		var spaceArg = ArgumentCaptor::forClass(typeof(Space))
-		var destroyArg = ArgumentCaptor::forClass(typeof(Boolean))
-		verify(listener).spaceDestroyed(spaceArg.capture, destroyArg.capture)
+		var destroyArg = ArgumentCaptor::forClass(typeof(boolean))
+		verify(listener).spaceDestroyed(spaceArg.capture, destroyArg.capture.booleanValue)
 		assertSame(^space, spaceArg.value)
 		assertTrue(destroyArg.value)
 	}

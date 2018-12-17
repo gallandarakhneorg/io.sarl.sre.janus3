@@ -32,20 +32,19 @@ import io.sarl.sre.tests.testutils.TestingAgent
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/224
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent RegisteredInDestroyAgent extends TestingAgent {
 
 	uses Behaviors
 
 	var ^behavior : MyBehavior
 
-	@SuppressWarnings("potential_field_synchronization_problem")
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		this.^behavior = new MyBehavior(this)
 		addResult(this.^behavior)
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	on Destroy {
 		registerBehavior(this.^behavior)
 	}

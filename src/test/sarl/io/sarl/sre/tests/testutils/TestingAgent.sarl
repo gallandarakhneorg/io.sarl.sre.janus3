@@ -23,12 +23,12 @@ package io.sarl.sre.tests.testutils
 
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
-import io.sarl.core.Schedules
 import io.sarl.sre.services.executor.EarlyExitException
 import java.util.Collection
 import java.util.List
 import java.util.Map
 import java.util.UUID
+import io.sarl.core.Schedules
 
 /**
  * Abstract implementation of an agent that is used for testing SRE.
@@ -52,7 +52,9 @@ abstract agent TestingAgent {
 	 * @param typeName the fully qualifed name of a type.
 	 */
 	static def simpleName(typeName : String) : String {
-		var index = typeName.lastIndexOf("$")
+		var index1 = typeName.lastIndexOf("$")
+		var index2 = typeName.lastIndexOf(".")
+		var index = Math::max(index1, index2)
 		if (index >= 0) {
 			return typeName.substring(index + 1)
 		}
@@ -60,23 +62,30 @@ abstract agent TestingAgent {
 	}
 
 	/** 
-	 * Add a result.
+	 * Add a result associated to the current agent.
 	 * 
 	 * @param result - the result.
 	 */
 	def addResult(result : Object) {
 		if (this.results !== null) {
+			var list : List<Object>
 			synchronized (this.results) {
-				var list = this.results.get(this.ID)
+				val aid = this.ID
+				list = this.results.get(aid)
 				if (list === null) {
 					list = newArrayList
-					this.results.put(this.ID, list)
+					this.results.put(aid, list)
 				}
-				list += result
+			}
+			if (list !== null) {
+				synchronized (list) {
+					list += result
+				}
 			}
 		}
 	}
 
+	
 	/**
 	 * Replies the number of results provided by the ran platform.
 	 *
@@ -85,9 +94,12 @@ abstract agent TestingAgent {
 	@Pure
 	def getNumberOfResults : int {
 		if (this.results !== null) {
+			var list : List<Object>
 			synchronized (this.results) {
-				var list = this.results.get(this.ID)
-				if (list !== null) {
+				list = this.results.get(this.ID)
+			}
+			if (list !== null) {
+				synchronized (list) {
 					return list.size
 				}
 			}
@@ -102,27 +114,35 @@ abstract agent TestingAgent {
 	 */
 	def addResults(results : Collection<?>) {
 		if (this.results !== null) {
+			var list : List<Object>
 			synchronized (this.results) {
-				var list = this.results.get(this.ID)
+				list = this.results.get(this.ID)
 				if (list !== null) {
 					list = newArrayList
 					this.results.put(this.ID, list)
 				}
-				list += results
+			}
+			if (list !== null) {
+				synchronized (list) {
+					list += results
+				}
 			}
 		}
 	}
 
 	/**
-	 * Replies a unmodifiable view on the results.
+	 * Replies a unmodifiable view on the results for the current agent.
 	 * @return the results.
 	 */
 	@Pure
-	def getResults : List<Object> {
+	def getUnmodifiableResults : List<Object> {
 		if (this.results !== null) {
+			var list : List<Object>
 			synchronized (this.results) {
-				var list = this.results.get(this.ID)
-				if (list !== null) {
+				list = this.results.get(this.ID)
+			}
+			if (list !== null) {
+				synchronized (list) {
 					return list.unmodifiableView
 				}
 			}
@@ -130,23 +150,33 @@ abstract agent TestingAgent {
 		return emptyList
 	}
 
-	/**
-	 * Replies the results.
+	/** 
+	 * Replies a modifiable view on the results for the current agent.
 	 * @return the results.
 	 */
 	@Pure
-	def getRawResults : List<Object> {
-		if (this.results === null) {
-			this.results = newHashMap
-		}
-		synchronized (this.results) {
-			var list = this.results.get(this.ID)
-			if (list === null) {
-				list = newArrayList
-				this.results.put(this.ID, list)
+	def getModifiableResults : List<Object> {
+		if (this.results !== null) {
+			var list : List<Object>
+			synchronized (this.results) {
+				list = this.results.get(this.ID)
+				if (list === null) {
+					list = newArrayList
+					this.results.put(this.ID, list)
+				}
 			}
 			return list
 		}
+		return emptyList
+	}
+
+	/**
+	 * Replies the map of the results for all the agents.
+	 * @return the results.
+	 */
+	@Pure
+	def getRawResultMap : Map<UUID, List<Object>> {
+		this.results
 	}
 
 	/** Replies the initialization parameters of the agents.
@@ -158,12 +188,48 @@ abstract agent TestingAgent {
 		this.initializationParameters
 	}
 
+	/** Wait until the condition is true or time out; and run the code.
+	 *
+	 * @param condition the condition to validate.
+	 * @param timeout the time out duration.
+	 * @param code the code to execute after waiting for evaluating the condition to true. 
+	 */
+	@SuppressWarnings("discouraged_reference")
+	def waitAndDo(condition : () => boolean, timeout : int = AbstractSreRunTest::STANDARD_TIMEOUT,
+		code : ()=>void) {
+		assert condition !== null
+		assert code !== null
+		var endTime : long
+		if (timeout >= 0) {
+			endTime = System::currentTimeMillis() + timeout * 1000
+		} else {
+			endTime = -1
+		}
+		while (!condition.apply && (endTime == -1 || System.currentTimeMillis() <= endTime)) {
+			Thread.sleep(100)
+		}
+		if (endTime == -1 || System.currentTimeMillis() <= endTime) {
+			code.apply
+		}
+	}
+
 	on Initialize {
 		this.initializationParameters = occurrence.parameters
 		this.results = occurrence.parameters.get(0) as Map<UUID, List<Object>>
 		try {
-			if (runAgentTest) {
-				in(1000) [killMe]
+			var policy = runAgentTest
+			if (policy !== null) {
+				switch (policy) {
+					case IMMEDIATE_KILLING: {
+						killMe
+					}
+					case DIFFERED_KILLING: {
+						in(1000) [killMe] 
+					}
+					case STANDARD: {
+						//
+					}
+				}
 			}
 		} catch (exception : Throwable) {
 			if (!(exception instanceof EarlyExitException)) {
@@ -178,6 +244,23 @@ abstract agent TestingAgent {
 	 *
 	 * @return <code>true</code> for killing the agent during its initialization.
 	 */
-	abstract def runAgentTest : boolean
+	abstract def runAgentTest : RunPolicy
+
+	/** 
+	 * Type of action to apply after the testing function.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 */
+	enum RunPolicy {
+		/** Run the agent in its normal way. */
+		STANDARD,
+		/** Kill the agent at the return of the test function. */
+		IMMEDIATE_KILLING,
+		/** Kill the agent after a small amount of time. */
+		DIFFERED_KILLING
+	}
 
 }

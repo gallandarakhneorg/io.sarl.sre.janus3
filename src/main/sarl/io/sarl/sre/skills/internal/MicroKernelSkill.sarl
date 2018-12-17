@@ -38,7 +38,8 @@ import io.sarl.sre.skills.BuiltinSkill
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill MicroKernelSkill extends BuiltinSkill implements MicroKernelCapacity {
+@SuppressWarnings("potential_field_synchronization_problem")
+	skill MicroKernelSkill extends BuiltinSkill implements MicroKernelCapacity {
 
 	private static class BinFlags {
 		static var installationOrder = -1
@@ -53,7 +54,6 @@ skill MicroKernelSkill extends BuiltinSkill implements MicroKernelCapacity {
 		}
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	var kernel : WeakReference<Kernel>
 
 	new (^agent : Agent, kernel : Kernel) {

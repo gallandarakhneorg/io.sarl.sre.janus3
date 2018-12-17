@@ -58,7 +58,7 @@ package skill LifeSkill extends BuiltinSkill implements Lifecycle {
 	}
 	
 	def getInstallationOrder : int {
-		0
+		this.installOrder.intValue;
 	}
 	
 	def killMe {

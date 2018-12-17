@@ -22,7 +22,6 @@ package io.sarl.sre.skills.bic
 
 import com.google.common.base.Throwables
 import io.sarl.core.Logging
-import io.sarl.sre.services.logging.LoggerCreator
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
@@ -45,7 +44,8 @@ import static io.sarl.sre.skills.bic.LoggingSkill.BinFlags.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill LoggingSkill extends BuiltinSkill implements Logging {
+@SuppressWarnings("potential_field_synchronization_problem")
+	skill LoggingSkill extends BuiltinSkill implements Logging {
 
 	private static class BinFlags {
 		static var installationOrder = -1
@@ -60,7 +60,6 @@ skill LoggingSkill extends BuiltinSkill implements Logging {
 		}
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	var logService : LoggingService
 
 	var loggerInstance : Logger
@@ -188,11 +187,60 @@ skill LoggingSkill extends BuiltinSkill implements Logging {
 	}
 
 	def getLogLevel : int {
-		LoggerCreator::toInt(this.logger.level)
+		/* 
+		 * 0 or lower for no logging,
+		 * 1 for error,
+		 * 2 for warning,
+		 * 3 for info,
+		 * 4 or higher for debug.
+			 */
+		switch (this.logger.level) {
+			case Level::OFF: {
+				return 0
+			}
+			case Level::SEVERE: {
+				return 1
+			}
+			case Level::WARNING: {
+				return 2
+			}
+			case Level::INFO: {
+				return 3
+			}
+			default: {
+				return 4
+			}
+		}
 	}
 
 	def setLogLevel(level : int) {
-		this.logger.level = LoggerCreator::fromInt(level)
+		/*
+		 * 0 or lower for no logging,
+		 * 1 for error,
+		 * 2 for warning,
+		 * 3 for info,
+		 * 4 or higher for debug.
+		 */
+		var obj : Level
+		switch (level) {
+			case 1: {
+				obj = Level::SEVERE
+			}
+			case 2: {
+				obj = Level::WARNING
+			}
+			case 3: {
+				obj = Level::INFO
+			}
+			default: {
+				if (level <= 0) {
+					obj = Level::OFF
+				} else {
+					obj = Level::FINE
+				}
+			}
+		}
+		this.logger.level = obj
 	}
 		
 }

@@ -38,9 +38,6 @@ import org.arakhne.afc.util.IntegerList
 import org.junit.Before
 import org.junit.Test
 
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertTrue
-
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$

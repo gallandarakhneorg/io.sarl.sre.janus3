@@ -26,9 +26,6 @@ import java.util.UUID
 import org.arakhne.afc.util.Triplet
 import org.junit.Test
 
-import static org.junit.Assert.*
-import static org.junit.Assert.assertNotNull
-
 /** Tests for issue #848: Event AgentSpawned being received by spawned agent.
  *
  * <p>See: https://github.com/sarl/sarl/issues/848

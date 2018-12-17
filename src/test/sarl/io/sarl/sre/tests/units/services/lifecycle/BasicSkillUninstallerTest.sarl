@@ -29,18 +29,13 @@ import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Before
 import org.junit.Test
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
-
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@SuppressWarnings("all")
-public class BasicSkillUninstallerTest extends AbstractSreTest {
+class BasicSkillUninstallerTest extends AbstractSreTest {
 
 	@Nullable
 	var installer : BasicSkillUninstaller
@@ -56,18 +51,22 @@ public class BasicSkillUninstallerTest extends AbstractSreTest {
 		var s1 = new LifeSkill(order)
 		var s2 = new MySkill0(order)
 		var s3 = new InnerSkill(order)
-		var ^agent = spy(new MyAgent2(s1, s2, s3))
+		var ^agent = new MyAgent2(s1, s2, s3).spy
+		assertEquals(0, s1.installOrder)
+		assertEquals(2, s2.installOrder)
+		assertEquals(1, s3.installOrder)
+		order.set(0)
 		var skills = this.installer.uninstallSkillsBeforeDestroy(^agent)
+		assertEquals(2, s1.uninstallOrderPre)
 		assertEquals(0, s2.uninstallOrderPre)
-		assertEquals(1, s1.uninstallOrderPre)
-		assertEquals(2, s3.uninstallOrderPre)
-		assertNull(s2.uninstallOrderPost)
+		assertEquals(1, s3.uninstallOrderPre)
 		assertNull(s1.uninstallOrderPost)
+		assertNull(s2.uninstallOrderPost)
 		assertNull(s3.uninstallOrderPost)
 		var iterator = skills.iterator
 		assertSame(s2, iterator.next)
-		assertSame(s1, iterator.next)
 		assertSame(s3, iterator.next)
+		assertSame(s1, iterator.next)
 		assertFalse(iterator.hasNext)
 	}
 
@@ -78,14 +77,18 @@ public class BasicSkillUninstallerTest extends AbstractSreTest {
 		var s2 = new MySkill0(order)
 		var s3 = new InnerSkill(order)
 		var ^agent = new MyAgent2(s1, s2, s3).spy
-		var skills = Arrays::asList(s2, s1, s3)
+		assertEquals(0, s1.installOrder)
+		assertEquals(2, s2.installOrder)
+		assertEquals(1, s3.installOrder)
+		order.set(0)
+		var skills = Arrays::asList(s2, s3, s1)
 		this.installer.uninstallSkillsAfterDestroy(^agent, skills)
-		assertNull(s2.uninstallOrderPre)
 		assertNull(s1.uninstallOrderPre)
+		assertNull(s2.uninstallOrderPre)
 		assertNull(s3.uninstallOrderPre)
+		assertEquals(2, s1.uninstallOrderPost)
 		assertEquals(0, s2.uninstallOrderPost)
-		assertEquals(1, s1.uninstallOrderPost)
-		assertEquals(2, s3.uninstallOrderPost)
+		assertEquals(1, s3.uninstallOrderPost)
 	}
 
 }

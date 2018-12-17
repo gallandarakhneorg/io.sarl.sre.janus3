@@ -37,7 +37,7 @@ package agent TAgent1 extends TestingAgent {
 
 	uses Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		killMe
 	}
 

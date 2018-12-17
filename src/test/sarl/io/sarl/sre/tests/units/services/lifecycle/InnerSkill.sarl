@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("potential_field_synchronization_problem")
-package skill InnerSkill extends BuiltinSkill implements InnerContextAccess {
+	package skill InnerSkill extends BuiltinSkill implements InnerContextAccess {
 
 	val orderSource : AtomicInteger
 	public var installOrder : Integer
@@ -61,7 +61,7 @@ package skill InnerSkill extends BuiltinSkill implements InnerContextAccess {
 	}
 	
 	def getInstallationOrder : int {
-		0
+		this.installOrder
 	}
 	
 	def getInnerContext : AgentContext {

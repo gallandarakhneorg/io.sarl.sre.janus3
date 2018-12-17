@@ -31,10 +31,6 @@ import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
-import static org.junit.Assert.fail
 import static org.mockito.Mockito.verifyNoMoreInteractions
 
 import static extension org.mockito.Mockito.verify

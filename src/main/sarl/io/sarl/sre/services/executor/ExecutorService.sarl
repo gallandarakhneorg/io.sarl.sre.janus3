@@ -45,6 +45,7 @@ interface ExecutorService extends Service {
 	 * 
 	 * @since 0.7.0
 	 */
+	@SuppressWarnings("discouraged_reference")
 	static def yield : void {
 		try {
 			Thread::sleep(1)

@@ -26,6 +26,10 @@ import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Lifecycle
 import io.sarl.sre.tests.testutils.TestingAgent
 
+import static io.sarl.sre.tests.runtime.bugs.bug546.InitAndWaitAgent0.State.*
+import static io.sarl.sre.tests.runtime.bugs.bug546.Bug546.*
+import java.util.concurrent.atomic.AtomicInteger
+
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -33,47 +37,39 @@ import io.sarl.sre.tests.testutils.TestingAgent
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/546
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent InitAndWaitAgent0 extends TestingAgent {
 
 	uses Lifecycle, DefaultContextInteractions
 
-	private static enum State { WAIT_ALL, WAIT_KILLS }
+	enum State { WAIT_ALL, WAIT_KILLS }
 	
-	var state = State::WAIT_ALL
+	var state = WAIT_ALL
 
-	var nbHellos = 0
+	val nbHellos = new AtomicInteger
 
-	var nbKilled = 0
+	var nbKilled = new AtomicInteger
 
-	override runAgentTest : boolean {
-		for (i : 0 ..< Bug546::NB_AGENTS) {
-			typeof(ChildAgent).spawn(getRawResults, ID)
+	override runAgentTest : RunPolicy {
+		for (i : 0 ..< NB_AGENTS) {
+			typeof(ChildAgent).spawn(rawResultMap, ID)
 		}
-		return false
+		return null
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
-	on Hello [this.state === State::WAIT_ALL] {
-		var n : int
-		synchronized (this) {
-			this.nbHellos++
-			n = this.nbHellos
-		}
-		if (n === Bug546::NB_AGENTS) {
+	on Hello [this.state === WAIT_ALL] {
+		var n = this.nbHellos.incrementAndGet
+		if (n >= NB_AGENTS) {
 			synchronized (this) {
-				this.state = State::WAIT_KILLS
+				this.state = WAIT_KILLS
 			}
 			emit(new KillYou)
 		}
 	}
 
 	on AgentKilled {
-		var n : int
-		synchronized (this) {
-			this.nbKilled++
-			n = this.nbKilled
-		}
-		if (n === Bug546::NB_AGENTS) {
+		var n = this.nbKilled.incrementAndGet
+		if (n === NB_AGENTS) {
 			killMe
 		}
 	}

@@ -20,8 +20,8 @@
  */
 package io.sarl.sre.services.executor
 
-import io.bootique.config.ConfigurationFactory
-import io.sarl.sre.boot.factories.ExecutorFactory
+import io.sarl.sre.boot.configs.SreConfig
+import io.sarl.sre.boot.configs.subconfigs.ExecutorsConfig
 import io.sarl.sre.services.PreReleasableService
 import java.lang.Thread.UncaughtExceptionHandler
 import java.lang.ref.WeakReference
@@ -53,7 +53,7 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 
 	var purgeTask : ScheduledFuture<?>
 
-	var configuration : ExecutorFactory
+	var configuration : ExecutorsConfig
 
 	/** 
 	 * Change the JRE service for scheduled tasks.
@@ -93,24 +93,36 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 	}
 
 	/** 
-	 * Change the bootique configuration factory.
+	 * Change the configuration from the general configuration.
 	 * 
-	 * @param factory the configuration factory.
+	 * @param config the configuration.
 	 */
 	@Inject
-	def setConfigurationFactory(factory : ConfigurationFactory) {
-		this.configuration = ExecutorFactory::getConfigurationFactory(factory)
+	def setConfiguration(config : SreConfig) {
+		this.configuration = config.services.executors
 	}
 
 	/** 
-	 * Replies the configuration factory.
+	 * Change the configuration from the general configuration.
 	 * 
-	 * @param the configuration factory.
+	 * @param config the configuration.
 	 */
-	def getConfigurationFactory : ExecutorFactory {
+	def setConfiguration(config : ExecutorsConfig) {
+		assert config !== null
+		this.configuration = config
+	}
+
+	
+	/** 
+	 * Replies the configuration.
+	 * 
+	 * @param the configuration.
+	 */
+	def getConfiguration : ExecutorsConfig {
 		this.configuration
 	}
 
+	@SuppressWarnings("discouraged_reference")
 	protected def onStart {
 		assert this.jreSchedules !== null
 		var uncaughtHandler = getUncaughtExceptionHandler
@@ -121,7 +133,7 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 		var es = executorService
 		var ses = scheduledExecutorService
 		if (es instanceof ThreadPoolExecutor || ses instanceof ThreadPoolExecutor) {
-			val delay = configurationFactory.timeout * 2
+			val delay = configuration.timeout * 2
 			this.purgeTask = scheduledExecutorService.scheduleWithFixedDelay(new Purger(this),
 				delay, delay, TimeUnit::SECONDS)
 		}
@@ -251,6 +263,7 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 			this.owner = new WeakReference(owner)
 		}
 	
+		@SuppressWarnings("discouraged_reference")
 		private def setName : boolean {
 			if (!this.oldThreadName.nullOrEmpty) {
 				return false
@@ -261,6 +274,7 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 			return true
 		}
 
+		@SuppressWarnings("discouraged_reference")
 		private def restoreName : boolean {
 			if (this.oldThreadName.nullOrEmpty) {
 				return false

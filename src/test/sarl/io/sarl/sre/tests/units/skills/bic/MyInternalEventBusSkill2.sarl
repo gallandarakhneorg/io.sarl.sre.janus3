@@ -22,8 +22,8 @@
 package io.sarl.sre.tests.units.skills.bic
 
 import io.sarl.lang.core.Event
-import io.sarl.lang.core.EventListener
 import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.capacities.InternalEventBusCapacity
 import io.sarl.sre.skills.internal.EventBus
 
@@ -35,10 +35,9 @@ import static extension org.mockito.Mockito.mock
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@SuppressWarnings("potential_field_synchronization_problem")
 package skill MyInternalEventBusSkill2 implements InternalEventBusCapacity {
 
-	val listener = typeof(EventListener).mock
+	val listener = typeof(InformedEventListener).mock
 	
 	override registerEventBusListener(listener : Object, filter : (Event)=>boolean,
 				callback : (Object)=>void) {
@@ -62,7 +61,7 @@ package skill MyInternalEventBusSkill2 implements InternalEventBusCapacity {
 	override fireEvent(^event : Event) {
 	}
 
-	override getAssociatedEventBusListener : EventListener {
+	override getAssociatedEventBusListener : InformedEventListener {
 		return this.listener
 	}
 

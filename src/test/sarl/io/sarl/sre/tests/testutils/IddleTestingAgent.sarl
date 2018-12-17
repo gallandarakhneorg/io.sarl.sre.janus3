@@ -31,8 +31,8 @@ package io.sarl.sre.tests.testutils
  */
 agent IddleTestingAgent extends TestingAgent {
 
-	def runAgentTest : boolean {
-		true
+	def runAgentTest : RunPolicy {
+		RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

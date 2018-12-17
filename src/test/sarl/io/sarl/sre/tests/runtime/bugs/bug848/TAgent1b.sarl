@@ -39,8 +39,7 @@ package agent TAgent1b extends TestingAgent {
 
 	uses Lifecycle, Schedules, DefaultContextInteractions
 
-	override runAgentTest : boolean {
-		false
+	override runAgentTest : RunPolicy {
 	}
 
 	on AgentSpawned [occurrence.agentType != typeof(TAgent1a).name] {

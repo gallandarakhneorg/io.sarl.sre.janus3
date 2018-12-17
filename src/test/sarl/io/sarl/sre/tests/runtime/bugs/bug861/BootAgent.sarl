@@ -29,10 +29,10 @@ package agent BootAgent extends TestingAgent {
 
 	uses Logging, Lifecycle, DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		info("Boot-Init")
 		typeof(EmptyAgent).spawn
-		return false
+		return null
 	}
 
 	on Initialized {

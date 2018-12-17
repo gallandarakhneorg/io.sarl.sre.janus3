@@ -21,25 +21,19 @@
 
 package io.sarl.sre.tests.units.services.executor
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
-import static org.junit.Assert.fail
-import static extension org.mockito.Mockito.verify
-import static org.mockito.Mockito.verifyNoMoreInteractions
-
+import io.sarl.sre.services.executor.ExecutorService
+import io.sarl.sre.services.executor.SreCallable
+import io.sarl.sre.tests.testutils.AbstractSreTest
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.logging.Level
 import java.util.logging.Logger
-
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 
-import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.sre.services.executor.SreCallable
-import io.sarl.sre.tests.testutils.AbstractSreTest
+import static org.mockito.Mockito.verifyNoMoreInteractions
+
+import static extension org.mockito.Mockito.verify
 
 /**
  * @author $Author: sgalland$

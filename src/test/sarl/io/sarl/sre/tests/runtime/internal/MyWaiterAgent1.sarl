@@ -40,26 +40,24 @@ package agent MyWaiterAgent1 extends TestingAgent {
 
 	var spawnId : UUID
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		in(500) [
-			var id = typeof(MySpawnedAgent1).spawn(getRawResults)
+			var id = typeof(MySpawnedAgent1).spawn(rawResultMap)
 			synchronized (this) {
 				this.spawnId = id
 			}
 			assert id !== null
 		]
-		return false
+		return null
 	}
 
 	on AgentKilled {
-		synchronized(getRawResults) {
-			addResult("SPAWNER")
-			addResult(occurrence)
-			addResult(defaultSpace.spaceID)
-			synchronized (this) {
-				assert this.spawnId !== null
-				addResult(this.spawnId)
-			}
+		addResult("SPAWNER")
+		addResult(occurrence)
+		addResult(defaultSpace.spaceID)
+		synchronized (this) {
+			assert this.spawnId !== null
+			addResult(this.spawnId)
 		}
 		killMe
 	}

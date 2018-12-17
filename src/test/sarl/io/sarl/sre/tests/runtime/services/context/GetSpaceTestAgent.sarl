@@ -36,7 +36,7 @@ package agent GetSpaceTestAgent extends TestingAgent {
 
 	uses DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		var ctx = defaultContext
 		var ^space = ctx.getSpace(ctx.defaultSpace.spaceID.ID)
 		assert ^space !== null
@@ -50,7 +50,7 @@ package agent GetSpaceTestAgent extends TestingAgent {
 				addResult("FOUND")
 			}
 		}
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

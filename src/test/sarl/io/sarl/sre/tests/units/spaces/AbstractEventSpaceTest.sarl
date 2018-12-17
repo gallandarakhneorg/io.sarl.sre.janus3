@@ -23,12 +23,12 @@ package io.sarl.sre.tests.units.spaces
 
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Event
-import io.sarl.lang.core.EventListener
 import io.sarl.lang.core.Scope
 import io.sarl.lang.core.SpaceID
+import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.spaces.AbstractEventSpace
-import io.sarl.sre.spaces.AbstractEventSpace.Participant
+import io.sarl.sre.spaces.Participant
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
@@ -41,9 +41,6 @@ import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
-import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.verifyZeroInteractions
@@ -59,7 +56,7 @@ import static extension org.mockito.MockitoAnnotations.initMocks
  * @mavenartifactid $ArtifactId$
  */
 @ManualMocking
-class AbstractEventSpaceTest extends AbstractSreTest {
+abstract class AbstractEventSpaceTest extends AbstractSreTest {
 
 	@Nullable
 	var agentId : UUID
@@ -74,10 +71,10 @@ class AbstractEventSpaceTest extends AbstractSreTest {
 	var address : Address
 
 	@Nullable
-	var listener1 : EventListener 
+	var listener1 : InformedEventListener
 
 	@Nullable
-	var listener2 : EventListener 
+	var listener2 : InformedEventListener 
 
 	@Mock
 	var executor : ExecutorService 
@@ -99,15 +96,15 @@ class AbstractEventSpaceTest extends AbstractSreTest {
 		this.address = new Address(this.spaceId, this.agentId)
 
 		this.^space = new AbstractEventSpace(this.spaceId) {
-			protected def getInternalParticipantStructure : Map<UUID, Participant> {
+			def getInternalParticipantStructure : Map<UUID, Participant> {
 				return AbstractEventSpaceTest.this.participants
 			}
 		}
 
-		this.listener1 = typeof(EventListener).mock
+		this.listener1 = typeof(InformedEventListener).mock
 		when(this.listener1.ID).thenReturn(this.agentId)
 
-		this.listener2 = typeof(EventListener).mock
+		this.listener2 = typeof(InformedEventListener).mock
 		when(this.listener2.ID).thenReturn(this.agentId2)
 
 		this.initMocks

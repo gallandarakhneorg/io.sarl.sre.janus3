@@ -33,8 +33,7 @@ package agent TAgent2 extends TestingAgent {
 
 	uses C1
 
-	@SuppressWarnings("unused_local_variable")
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		setSkill(new S1 [it.addResult])
 		//
 		fct
@@ -42,8 +41,9 @@ package agent TAgent2 extends TestingAgent {
 		clearSkill(typeof(C1))
 		//
 		var sk = getSkill(typeof(C1))
+		assert sk !== null
 		//
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

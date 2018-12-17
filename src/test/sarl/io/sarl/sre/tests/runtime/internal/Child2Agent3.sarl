@@ -37,14 +37,14 @@ import java.util.UUID
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent Child2Agent3 extends TestingAgent {
 	
 	uses Schedules, ExternalContextAccess, Lifecycle, Logging, DefaultContextInteractions
 
 	var contextID : UUID
 
-	@SuppressWarnings("potential_field_synchronization_problem")
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		loggingName = "CHILD2"
 		val newContext = getAgentInitializationParameters.get(1) as AgentContext
 		this.contextID = newContext.ID
@@ -53,21 +53,17 @@ package agent Child2Agent3 extends TestingAgent {
 				in(500) [leftContext]
 			}
 		]
-		return false
+		return null
 	}
 	
-	@SuppressWarnings("potential_field_synchronization_problem")
 	def leftContext {
 		info("Leaving the context: " + this.contextID)
 		leave(this.contextID)
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	on ContextLeft {
 		info("Context leaved: " + this.contextID)
-		synchronized(getRawResults) {
-			addResult("CHILD2")
-		}
+		addResult("CHILD2")
 		new Bye().emit
 		info("Commit a suicide")
 		killMe

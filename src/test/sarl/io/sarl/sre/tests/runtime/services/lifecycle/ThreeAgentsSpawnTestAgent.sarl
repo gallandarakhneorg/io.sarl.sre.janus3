@@ -35,9 +35,9 @@ package agent ThreeAgentsSpawnTestAgent extends TestingAgent {
 	uses Lifecycle
 
 	@Override
-	override runAgentTest : boolean {
-		spawn(3, typeof(FakeAgent3), getRawResults)
-		return true
+	override runAgentTest : RunPolicy {
+		spawn(3, typeof(FakeAgent3), rawResultMap)
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

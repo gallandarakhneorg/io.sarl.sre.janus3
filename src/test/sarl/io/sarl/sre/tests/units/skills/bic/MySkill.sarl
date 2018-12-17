@@ -22,8 +22,8 @@
 package io.sarl.sre.tests.units.skills.bic
 
 import io.sarl.lang.core.Event
-import io.sarl.lang.core.EventListener
 import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.capacities.InternalEventBusCapacity
 import io.sarl.sre.skills.internal.EventBus
 
@@ -58,8 +58,8 @@ package skill MySkill implements InternalEventBusCapacity {
 	override fireEvent(^event : Event) {
 	}
 
-	override getAssociatedEventBusListener : EventListener {
-		typeof(EventListener).mock
+	override getAssociatedEventBusListener : InformedEventListener {
+		typeof(InformedEventListener).mock
 	}
 
 	override getRegisteredEventBusListeners(type : Class<T>) : SynchronizedIterable<T> with T {

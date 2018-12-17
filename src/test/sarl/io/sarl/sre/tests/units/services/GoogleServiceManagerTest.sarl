@@ -21,10 +21,10 @@
 
 package io.sarl.sre.tests.units.services
 
-import io.bootique.config.ConfigurationFactory
+import com.google.common.util.concurrent.Service
+import io.sarl.sre.boot.configs.SreConfig
 import io.sarl.sre.services.GoogleServiceManager
 import io.sarl.sre.services.logging.LoggerCreator
-import com.google.common.util.concurrent.Service
 
 /**
  * @author $Author: sgalland$
@@ -35,8 +35,8 @@ import com.google.common.util.concurrent.Service
 class GoogleServiceManagerTest extends AbstractServiceManagerTest<GoogleServiceManager> {
 
 	override newServiceManagerInstance(loggerCreator : LoggerCreator, services : Iterable<? extends Service>,
-			configFactory : ConfigurationFactory) : GoogleServiceManager {
-		new GoogleServiceManager(services, configFactory)
+			config : SreConfig) : GoogleServiceManager {
+		new GoogleServiceManager(services, config)
 	}
 
 }

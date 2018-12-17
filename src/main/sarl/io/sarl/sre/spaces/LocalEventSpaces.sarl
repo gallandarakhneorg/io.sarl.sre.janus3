@@ -32,6 +32,7 @@ import io.sarl.lang.core.EventListener
 import java.security.Principal
 import io.sarl.lang.core.Address
 import java.security.AccessControlException
+import io.sarl.sre.capacities.InformedEventListener
 
 /** 
  * Default implementation of an event space which has a local repository.
@@ -47,12 +48,12 @@ class OpenLocalEventSpace extends AbstractEventSpace implements OpenEventSpace {
 
 	val repository = <UUID, Participant>newTreeMap(null)
 
-	protected override getInternalParticipantStructure : Map<UUID, Participant> {
+	override getInternalParticipantStructure : Map<UUID, Participant> {
 		this.repository 
 	}
 
 	def register(entity : EventListener) : Address {
-		entity.registerToSpace
+		(entity as InformedEventListener).registerToSpace
 	}
 
 	def unregister(entity : EventListener) : Address {
@@ -94,7 +95,7 @@ class RestrictedAccessLocalEventSpace extends AbstractEventSpace implements Rest
 		this.accessPermission = accessPermission
 	}
 
-	protected override getInternalParticipantStructure : Map<UUID, Participant> {
+	override getInternalParticipantStructure : Map<UUID, Participant> {
 		this.repository
 	}
 
@@ -118,14 +119,14 @@ class RestrictedAccessLocalEventSpace extends AbstractEventSpace implements Rest
 
 	def register(entity : EventListener, requester : Principal) : Address {
 		if (this.accessControlList.checkPermission(requester, this.registrationPermission)) {
-			return entity.registerToSpace
+			return (entity as InformedEventListener).registerToSpace
 		}
 		throw new AccessControlException(Messages::RestrictedAccessLocalEventSpace_0)
 	}
 
 	def register(entity : P) : Address with P extends EventListener & Principal {
 		if (this.accessControlList.checkPermission(entity, this.registrationPermission)) {
-			return entity.registerToSpace
+			return (entity as InformedEventListener).registerToSpace
 		}
 		throw new AccessControlException(Messages::RestrictedAccessLocalEventSpace_0)
 	}

@@ -35,13 +35,13 @@ package agent InitializeSpawnKillTestAgent extends TestingAgent {
 	uses Lifecycle
 
 	@Override
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("1")
-		typeof(FakeAgent1).spawn(getRawResults)
+		typeof(FakeAgent1).spawn(rawResultMap)
 		addResult("2")
 		hiddenKillMe
 		addResult("3")
-		return false
+		return null
 	}
 
 	def hiddenKillMe {

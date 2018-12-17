@@ -39,10 +39,6 @@ class JreTimeService extends AbstractSreService implements TimeService {
 
 	var listeners : ListenerCollection<TimeListener> = null
 
-	/** Replies the OS current time.
-	 *
-	 * @return the OS current time in ms.
-	 */
 	def getOSCurrentTime : long {
 		System::currentTimeMillis	
 	}
@@ -58,6 +54,22 @@ class JreTimeService extends AbstractSreService implements TimeService {
 			return currentTime
 		}
 		return currentTime.convertFromTo(TimeUnit::MILLISECONDS, tu)
+	}
+
+	def fromOSDuration(timeDuration : double) : double {
+		timeDuration / OSTimeFactor
+	}
+
+	def fromOSTime(timeValue : double) : double {
+		timeValue / OSTimeFactor
+	}
+
+	def toOSDuration(timeDuration : double) : double {
+		timeDuration * OSTimeFactor
+	}
+
+	def toOSTime(timeValue : double) : double {
+		timeValue * OSTimeFactor
 	}
 
 	def getOSTimeFactor : double {

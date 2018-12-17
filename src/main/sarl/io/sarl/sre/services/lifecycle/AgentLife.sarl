@@ -156,39 +156,43 @@ final class AgentLife {
 	 */
 	def start(skillUninstaller : SkillUninstaller, logger : LoggingService,
 		spawningAgent : UUID, spawningContext : Context, initializationParameters : Object*) : boolean {
-		this.state = AgentState::INITIALIZING
-		try {
+		if (this.state == AgentState::UNSTARTED) {
+			this.state = AgentState::INITIALIZING
 			try {
-				var eb = spawningContext.attachAgentToPlatform
-
-				// Notify the agent about its creation.
-				// Assume event handlers were run after returning from the fireEventAndWait function.
-				var initEvent = new Initialize(spawningAgent, initializationParameters)
-				initEvent.source = addressInInnerDefaultSpace
-				// Any exception into the inits are thrown outside the call below.
-				var delayedEvents = eb.fireEventAndWait(initEvent, true, true)
-
-				if (this.state == AgentState::INITIALIZING) {
-					this.state = AgentState::ALIVE
-
-					if (delayedEvents !== null) {
-						for (delayedEvent : delayedEvents) {
-							eb.fireEvent(delayedEvent)
+				try {
+					var eb = spawningContext.attachAgentToPlatform
+	
+					// Notify the agent about its creation.
+					// Assume event handlers were run after returning from the fireEventAndWait function.
+					var initEvent = new Initialize(spawningAgent, initializationParameters)
+					initEvent.source = addressInInnerDefaultSpace
+					// Any exception into the inits are thrown outside the call below.
+					var delayedEvents = eb.fireEventAndWait(initEvent, true, true)
+	
+					if (this.state == AgentState::INITIALIZING) {
+						this.state = AgentState::ALIVE
+	
+						if (delayedEvents !== null) {
+							for (delayedEvent : delayedEvents) {
+								eb.fireEvent(delayedEvent)
+							}
 						}
+						return true
+					} else {
+						stop(skillUninstaller, logger, true)
+						return false
 					}
-					return true
-				} else {
+				} catch (e : Throwable) {
+					this.agentLogger.error(e.localizedMessage, e)
 					stop(skillUninstaller, logger, true)
 					return false
 				}
 			} catch (e : Throwable) {
-				this.agentLogger.error(e.localizedMessage, e)
-				stop(skillUninstaller, logger, true)
+				logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
+				stop(skillUninstaller, logger, false)
 				return false
 			}
-		} catch (e : Throwable) {
-			logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
-			stop(skillUninstaller, logger, false)
+		} else {
 			return false
 		}
 	}
@@ -216,8 +220,8 @@ final class AgentLife {
 	 *
 	 * @param skillUninstaller the skill uninstaller.
 	 * @param logger the logger to use for reporting initialization errors when the agent's logger is unavailable
-	 * @return the contexts from which the agent was removed.
 	 * @param fireDestroy indicates if the {@code Destroy} event should be fired.
+	 * @return the contexts from which the agent was removed.
 	 */
 	def stop(skillUninstaller : SkillUninstaller, logger : LoggingService, fireDestroy : boolean = true) : Iterable<ContextReference> {
 		this.state = AgentState::DYING
@@ -333,7 +337,7 @@ final class AgentLife {
 		var adr = this.innerSpaceAddress
 		if (adr === null) {
 			var aid = this.^agent.ID
-			var spaceid = new SpaceID(aid, UUID.randomUUID, typeof(OpenEventSpaceSpecification))
+			var spaceid = new SpaceID(aid, UUID::randomUUID, typeof(OpenEventSpaceSpecification))
 			adr = new Address(spaceid, aid);
 			this.innerSpaceAddress = adr
 		}
@@ -506,7 +510,7 @@ final class AgentLife {
  * @mavenartifactid $ArtifactId$
  * @since 0.6.0
  */
-public final class ContextReference implements Comparable<ContextReference> {
+final class ContextReference implements Comparable<ContextReference> {
 
 	val life : WeakReference<AgentLife>
 

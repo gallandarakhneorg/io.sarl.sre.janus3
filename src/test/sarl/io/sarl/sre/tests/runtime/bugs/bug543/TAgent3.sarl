@@ -31,14 +31,14 @@ import io.sarl.sre.tests.testutils.TestingAgent
  */
 package agent TAgent3 extends TestingAgent {
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		setSkill(new S1 [it.addResult])
 		//
 		var sk1 = getSkill(typeof(C1))
 		var sk2 = getSkill(typeof(C1))
 		addResult(Boolean.valueOf(sk1 === sk2))
 		//
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

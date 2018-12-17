@@ -40,15 +40,15 @@ package agent RootAgent2 extends TestingAgent {
 
 	uses Schedules, Lifecycle, InnerContextAccess, DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		in(500) [
-			typeof(ChildAgent2).spawnInContext(innerContext, getRawResults)
+			typeof(ChildAgent2).spawnInContext(innerContext, rawResultMap)
 		]
-		return false
+		return null
 	}
 
 	on AgentSpawned [typeof(ChildAgent2).name == occurrence.agentType] {
-		typeof(Child2Agent2).spawn(getRawResults, innerContext)
+		typeof(Child2Agent2).spawn(rawResultMap, innerContext)
 	}
 	
 	on ContextJoined [!occurrence.isInDefaultSpace] {

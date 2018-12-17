@@ -62,7 +62,7 @@ abstract class AbstractInjectionBasedContextService extends AbstractContextServi
 	}
 
 	@Inject
-	public def setRootContext(@KernelScope rootContext : Context) {
+	def setRootContext(@KernelScope rootContext : Context) {
 		this.rootContextInstance = rootContext
 	}
 		

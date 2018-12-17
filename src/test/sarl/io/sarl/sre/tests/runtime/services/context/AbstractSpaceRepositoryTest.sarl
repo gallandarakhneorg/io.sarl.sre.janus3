@@ -24,8 +24,6 @@ package io.sarl.sre.tests.runtime.services.context
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 
-import static org.junit.Assert.assertNotNull
-
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -37,49 +35,38 @@ abstract class AbstractSpaceRepositoryTest extends AbstractSreRunTest {
 	@Test
 	def createSpace {
 	typeof(CreateSpaceTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
-		assertNotNull(results)
-		assertContains(results, "FOUND")
+		allResults.assertContains("FOUND")
 	}
 
 	@Test
 	def getOrCreateSpaceWithID {
 		typeof(GetOrCreateSpaceWithIDTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
-		assertNotNull(results)
-		assertContains(results, "FOUND1", "FOUND2")
+		allResults.assertContains("FOUND1", "FOUND2")
 	}
 
 	@Test
 	def getOrCreateSpaceWithSpec {
 		typeof(GetOrCreateSpaceWithSpecTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
-		assertNotNull(results)
-		assertContains(results, "FOUND2", "IS_DEFAULT_SPACE")
+		allResults.assertContains("FOUND2", "IS_DEFAULT_SPACE")
 	}
 
 	@Test
 	def getSpace {
 		typeof(GetSpaceTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
-		assertNotNull(results)
-		assertContains(results, "FOUND", "IS_DEFAULT_SPACE")
+		allResults.assertContains("FOUND", "IS_DEFAULT_SPACE")
 	}
 
 	@Test
 	def getSpaces {
 		typeof(GetSpacesTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
-		assertNotNull(results)
-		assertContains(results, "1/OpenEventSpaceSpecification", "2/OpenEventSpaceSpecification", "2/MySpaceSpec")
+		allResults.assertContains("1/OpenEventSpaceSpecification", "2/OpenEventSpaceSpecification",
+			"2/MySpaceSpec")
 	}
 
 	@Test
 	def getSpacesClass {
 		typeof(GetSpacesClassTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
-		assertNotNull(results)
-		assertContains(results, "1/OpenEventSpaceSpecification", "2/OpenEventSpaceSpecification",
+		allResults.assertContains("1/OpenEventSpaceSpecification", "2/OpenEventSpaceSpecification",
 				"3/MySpaceSpec", "3/MySpaceSpec")
 	}
 

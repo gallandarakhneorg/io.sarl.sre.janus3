@@ -35,11 +35,11 @@ package agent TaskKillTestAgent extends TestingAgent {
 
 	uses Schedules, Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("1")
 		in(1000) [killMe]
 		addResult("2")
-		return false
+		return null
 	}
 
 }

@@ -34,23 +34,22 @@ import io.sarl.core.DefaultContextInteractions
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/224
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent UnregisteredInHandlerAgent extends TestingAgent {
 
 	uses Behaviors, Lifecycle, DefaultContextInteractions, Schedules
 
 	var ^behavior : MyBehavior
 
-	@SuppressWarnings("potential_field_synchronization_problem")
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		this.^behavior = new MyBehavior(this)
 		addResult(this.^behavior)
 		registerBehavior(this.^behavior)
 		emit(new MyEvent)
 		in(1000) [killMe]
-		return false
+		return null
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	on MyEvent {
 		unregisterBehavior(this.^behavior)
 	}

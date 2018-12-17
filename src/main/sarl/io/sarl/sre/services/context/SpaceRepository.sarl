@@ -21,7 +21,6 @@
 package io.sarl.sre.services.context
 
 import com.google.inject.Injector
-import io.bootique.config.ConfigurationFactory
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
@@ -29,7 +28,7 @@ import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
 import io.sarl.lang.core.SpaceSpecification
 import io.sarl.lang.util.SynchronizedIterable
-import io.sarl.sre.boot.factories.ExecutorFactory
+import io.sarl.sre.boot.configs.SreConfig
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.spaces.AbstractSpace
 import io.sarl.sre.spaces.SpaceListener
@@ -77,13 +76,13 @@ abstract class SpaceRepository implements SpaceListener {
 	 *
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
-	 * @param configFactory accessor to the configuration.
+	 * @param config the configuration.
 	 */
 	@Inject
-	new (injector : Injector, executor : ExecutorService, configFactory : ConfigurationFactory) {
+	new (injector : Injector, executor : ExecutorService, config : SreConfig) {
 		this.injector = injector
 		this.executor = executor
-		this.destroyDelay = ExecutorFactory::getConfigurationFactory(configFactory).keepAliveDuration
+		this.destroyDelay = config.services.executors.keepAliveDuration
 	}
 
 	/** Replies the internal map that contains the spaces */
@@ -438,7 +437,7 @@ abstract class SpaceRepository implements SpaceListener {
 	 * @mavengroupid $GroupId$
 	 * @mavenartifactid $ArtifactId$
 	 */
-	public static class SpaceDescription implements Serializable, Comparable<SpaceDescription> {
+	static class SpaceDescription implements Serializable, Comparable<SpaceDescription> {
 
 		val id : SpaceID
 

@@ -36,7 +36,7 @@ package agent NoChildInnerContextIsKillableTestAgent extends TestingAgent {
 
 	uses Lifecycle, Schedules, InnerContextAccess
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("1")
 		var ctx = getInnerContext
 		assert ctx !== null
@@ -44,7 +44,7 @@ package agent NoChildInnerContextIsKillableTestAgent extends TestingAgent {
 			addResult("2")
 			killMe
 		]
-		return false
+		return null
 	}
 
 }

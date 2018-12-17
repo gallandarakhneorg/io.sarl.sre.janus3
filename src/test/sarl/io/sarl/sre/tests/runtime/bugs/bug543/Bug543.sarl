@@ -25,8 +25,6 @@ import io.sarl.lang.core.UnimplementedCapacityException
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 
-import static org.junit.Assert.assertNotNull
-
 /**
  * Unit test for the issue #543: Incomplete reset of the hidden buffers to skills.
  * 
@@ -36,8 +34,7 @@ import static org.junit.Assert.assertNotNull
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/543
  */
-@SuppressWarnings("all")
-public class Bug543 extends AbstractSreRunTest {
+class Bug543 extends AbstractSreRunTest {
 
 	@Test
 	def setSkill {

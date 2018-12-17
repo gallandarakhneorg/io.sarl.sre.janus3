@@ -81,7 +81,6 @@ abstract class AbstractServiceTest<S extends Service> extends AbstractSreTest {
 			return null;
 		}
 
-		@SuppressWarnings("unchecked")
 		override apply(base : Statement, description : Description) : Statement {
 			// Search for the statement "RunBefores" that describes the
 			// @Before calls.

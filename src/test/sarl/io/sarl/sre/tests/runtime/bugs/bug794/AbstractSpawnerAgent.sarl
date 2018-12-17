@@ -39,9 +39,9 @@ package abstract agent AbstractSpawnerAgent extends TestingAgent {
 
 	abstract def getAgentsToSpawn : int
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		spawnChildren
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 	private def spawnChildren {

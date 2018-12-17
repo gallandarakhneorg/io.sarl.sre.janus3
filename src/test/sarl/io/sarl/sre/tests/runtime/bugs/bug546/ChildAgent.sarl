@@ -33,25 +33,17 @@ import java.util.UUID
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/546
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent ChildAgent extends TestingAgent {
 
 	uses DefaultContextInteractions, Lifecycle
 
 	var waiterId : UUID
 	
-	override runAgentTest : boolean {
-		var id = getAgentInitializationParameters.get(1) as UUID
-		synchronized (this) {
-			this.waiterId = id
-		}
-		emit(new Hello) [
-			var id2 : UUID
-			synchronized (this) {
-				id2 = this.waiterId
-			}
-			return it.UUID == id2
-		]
-		return false
+	override runAgentTest : RunPolicy {
+		this.waiterId = getAgentInitializationParameters.get(1) as UUID
+		emit(new Hello) [it.UUID == this.waiterId]
+		return null
 	}
 	
 	on KillYou {

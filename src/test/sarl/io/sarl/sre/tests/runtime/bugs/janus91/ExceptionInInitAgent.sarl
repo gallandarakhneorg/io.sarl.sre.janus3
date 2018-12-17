@@ -31,7 +31,7 @@ import io.sarl.sre.tests.testutils.TestingAgent
  */
 package agent ExceptionInInitAgent extends TestingAgent {
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		throw new TestException
 	}
 

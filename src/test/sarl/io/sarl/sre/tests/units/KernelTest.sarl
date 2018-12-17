@@ -41,14 +41,12 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.anyInt
 import static org.mockito.Mockito.when
 
 import static extension org.mockito.Mockito.verify
+import org.arakhne.afc.util.OutputParameter
 
 /**
  * @author $Author: sgalland$
@@ -129,15 +127,15 @@ class KernelTest extends AbstractSreTest {
 			return new SpawnResult(Collections::singletonList(UUID.randomUUID), emptyList)
 		]
 
-		this.kernel.spawn(typeof(IddleTestingAgent), 1, "a")
+		this.kernel.spawn(typeof(IddleTestingAgent), [], 1, "a")
 		
-		var capturedNb = ArgumentCaptor::forClass(typeof(Integer))
+		var capturedNb = ArgumentCaptor::forClass(typeof(int))
 		var capturedSpawner = ArgumentCaptor::forClass(typeof(UUID))
 		var capturedContext = ArgumentCaptor::forClass(typeof(Context))
 		var capturedAgentId = ArgumentCaptor::forClass(typeof(UUID))
 		var capturedAgentType = ArgumentCaptor::forClass(typeof(Class))
 		var capturedParams = ArgumentCaptor.forClass(typeof(Object))
-		this.lifecycle.verify.spawnAgent(capturedNb.capture, capturedSpawner.capture,
+		this.lifecycle.verify.spawnAgent(capturedNb.capture.intValue, capturedSpawner.capture,
 				capturedContext.capture, capturedAgentId.capture, capturedAgentType.capture,
 				capturedParams.capture)
 		assertEquals(1, capturedNb.value)
@@ -159,17 +157,18 @@ class KernelTest extends AbstractSreTest {
 		]
 		var expectedId = UUID::randomUUID
 
-		var id = this.kernel.spawn(expectedId, typeof(IddleTestingAgent), 1, "a");
+		val id = new OutputParameter<UUID>
+		this.kernel.spawn(expectedId, typeof(IddleTestingAgent), [id.set(it)], 1, "a");
 		
-		assertSame(expectedId, id);
+		assertSame(expectedId, id.get);
 		
-		var capturedNb = ArgumentCaptor::forClass(typeof(Integer))
+		var capturedNb = ArgumentCaptor::forClass(typeof(int))
 		var capturedSpawner = ArgumentCaptor::forClass(typeof(UUID))
 		var capturedContext = ArgumentCaptor::forClass(typeof(Context))
 		var capturedAgentId = ArgumentCaptor::forClass(typeof(UUID))
 		var capturedAgentType = ArgumentCaptor::forClass(typeof(Class))
 		var capturedParams = ArgumentCaptor::forClass(typeof(Object))
-		this.lifecycle.verify.spawnAgent(capturedNb.capture, capturedSpawner.capture,
+		this.lifecycle.verify.spawnAgent(capturedNb.capture.intValue, capturedSpawner.capture,
 				capturedContext.capture, capturedAgentId.capture, capturedAgentType.capture,
 				capturedParams.capture)
 		assertEquals(1, capturedNb.value)
@@ -187,17 +186,18 @@ class KernelTest extends AbstractSreTest {
 		var result = new SpawnResult(ids, emptyList)
 		when(this.lifecycle.spawnAgent(anyInt, any, any, any, any, any)).thenReturn(result)
 
-		var ids2 = this.kernel.spawn(34, typeof(IddleTestingAgent), 1, "a")
+		var ids2 = new OutputParameter<List<UUID>>
+		this.kernel.spawn(34, typeof(IddleTestingAgent), [ids2.set(it)], 1, "a")
 		
-		assertSame(ids, ids2)
+		assertSame(ids, ids2.get)
 		
-		var capturedNb = ArgumentCaptor::forClass(typeof(Integer))
+		var capturedNb = ArgumentCaptor::forClass(typeof(int))
 		var capturedSpawner = ArgumentCaptor::forClass(typeof(UUID))
 		var capturedContext = ArgumentCaptor::forClass(typeof(Context))
 		var capturedAgentId = ArgumentCaptor::forClass(typeof(UUID))
 		var capturedAgentType = ArgumentCaptor::forClass(typeof(Class))
 		var capturedParams = ArgumentCaptor::forClass(typeof(Object))
-		this.lifecycle.verify.spawnAgent(capturedNb.capture, capturedSpawner.capture,
+		this.lifecycle.verify.spawnAgent(capturedNb.capture.intValue, capturedSpawner.capture,
 				capturedContext.capture, capturedAgentId.capture, capturedAgentType.capture,
 				capturedParams.capture)
 		assertEquals(34, capturedNb.value)

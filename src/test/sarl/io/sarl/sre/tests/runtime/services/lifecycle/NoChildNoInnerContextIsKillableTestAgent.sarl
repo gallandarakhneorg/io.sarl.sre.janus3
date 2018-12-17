@@ -35,13 +35,13 @@ package agent NoChildNoInnerContextIsKillableTestAgent extends TestingAgent {
 
 	uses Lifecycle, Schedules
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("1")
 		in(1000) [
 			addResult("2")
 			killMe
 		]
-		return false
+		return null
 	}
 
 }

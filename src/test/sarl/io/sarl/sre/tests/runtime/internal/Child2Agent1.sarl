@@ -38,7 +38,7 @@ package agent Child2Agent1 extends TestingAgent {
 	
 	uses Schedules, ExternalContextAccess, Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		val newContext = getAgentInitializationParameters.get(1) as AgentContext
 		in(500) [
 			if (join(newContext.ID,
@@ -46,13 +46,11 @@ package agent Child2Agent1 extends TestingAgent {
 				in(500) [killMe]
 			}
 		]
-		return false
+		return null
 	}
 
 	on MemberLeft {
-		synchronized(getRawResults) {
-			addResult("CHILD2" + occurrence.agentType.simpleName)
-		}
+		addResult("CHILD2:" + occurrence.agentType.simpleName)
 	}
 
 }

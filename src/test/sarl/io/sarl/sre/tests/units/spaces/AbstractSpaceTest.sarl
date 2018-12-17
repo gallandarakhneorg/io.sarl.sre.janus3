@@ -35,7 +35,7 @@ import org.junit.Test
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-class AbstractSpaceTest extends AbstractSreTest {
+abstract class AbstractSpaceTest extends AbstractSreTest {
 
 	@Test
 	def getID {

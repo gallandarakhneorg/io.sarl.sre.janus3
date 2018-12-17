@@ -35,9 +35,9 @@ package agent ChildAgent extends TestingAgent {
 
 	uses DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		emit(new ReadyEvent)
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

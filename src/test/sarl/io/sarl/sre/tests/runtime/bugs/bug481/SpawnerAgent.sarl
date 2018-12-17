@@ -38,9 +38,9 @@ package agent SpawnerAgent extends TestingAgent {
 
 	val agents = <UUID>newHashSet
 	
-	override runAgentTest : boolean {
-		spawn(Bug481::NB_AGENTS, typeof(ChildAgent), getRawResults)
-		return false
+	override runAgentTest : RunPolicy {
+		spawn(Bug481::NB_AGENTS, typeof(ChildAgent), rawResultMap)
+		return null
 	}
 
 	on ReadyEvent {

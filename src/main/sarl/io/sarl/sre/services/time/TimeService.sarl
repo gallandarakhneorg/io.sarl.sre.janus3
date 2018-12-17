@@ -42,6 +42,12 @@ interface TimeService extends Service {
 	 */
 	def getTime(timeUnit : TimeUnit) : double
 
+	/** Replies the OS current time.
+	 * 
+	 * @return the OS current time in ms.
+	 */
+	def getOSCurrentTime : long
+
 	/** Replies the scaling factor between the agent time and the operating system time.
 	 * <p>Consider time in the agent application. It may evolves at a different rate than
 	 * the operating system time. The value that is replied by this function permits to
@@ -51,6 +57,42 @@ interface TimeService extends Service {
 	 * @return the factor between agent time and operating system time.
 	 */
 	def getOSTimeFactor : double
+
+	/** Convert the given duration from the operating system  time scale to the agent system time scale.
+	 * This function uses {@link #getOSTimeFactor()} for converting the duration.
+	 * 
+	 * @param timeDuration the duration for the operating system.
+	 * @return the duration for the agent system.
+	 * @since 0.9
+	 */
+	def fromOSDuration(timeDuration : double) : double
+
+	/** Convert the given time from the operating system  time scale to the agent system time scale.
+	 * This function uses {@link #getOSTimeFactor()} for converting the duration.
+	 * 
+	 * @param timeValue the time for the operating system.
+	 * @return the time for the agent system.
+	 * @since 0.9
+	 */
+	def fromOSTime(timeValue : double) : double
+
+	/** Convert the given duration from the agent system time scale to the operating system time scale.
+	 * This function uses {@link #getOSTimeFactor()} for converting the duration.
+	 *
+	 * @param timeDuration the duration for the agent system.
+	 * @return the duration for the operating system.
+	 * @since 0.9
+	 */
+	def toOSDuration(timeDuration : double) : double
+
+	/** Convert the given time from the agent system time scale to the operating system time scale.
+	 * This function uses {@link #getOSTimeFactor()} for converting the time.
+	 * 
+	 * @param timeValue the time for the agent system.
+	 * @return the time for the operating system.
+	 * @since 0.9
+	 */
+	def toOSTime(timeValue : double) : double
 
 	/** Replies the precision of the time that is assumed by this manager.
 	 * 

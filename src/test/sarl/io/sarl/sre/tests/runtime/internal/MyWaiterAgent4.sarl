@@ -37,11 +37,11 @@ package agent MyWaiterAgent4 extends TestingAgent {
 
 	uses Schedules, Lifecycle, DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		in(500) [
-			typeof(MySpawnedAgent4).spawn(getRawResults)
+			typeof(MySpawnedAgent4).spawn(rawResultMap)
 		]
-		return false
+		return null
 	}
 
 	on SpaceCreated {

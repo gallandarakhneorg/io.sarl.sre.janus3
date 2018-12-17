@@ -43,6 +43,10 @@ package skill MyInternalSchedulesSkill implements InternalSchedules {
 		null
 	}
 
+	override at(task : AgentTask = null, time : long, procedure : (Agent)=>void) : AgentTask {
+		null
+	}
+
 	override task(name : String) : AgentTask {
 		null
 	}
@@ -72,5 +76,5 @@ package skill MyInternalSchedulesSkill implements InternalSchedules {
 
 	override unregisterTasksForBehavior(^behavior : Behavior ) {
 	}
-
+	
 }

@@ -34,10 +34,10 @@ package agent MyAgent0 extends TestingAgent {
 
 	uses Behaviors
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("AGENT")
-		new MyBehavior0(this, getRawResults).registerBehavior
-		return true
+		new MyBehavior0(this, modifiableResults).registerBehavior
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 			
 }

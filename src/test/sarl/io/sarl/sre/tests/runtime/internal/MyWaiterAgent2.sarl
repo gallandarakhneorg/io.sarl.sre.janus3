@@ -34,34 +34,29 @@ import java.util.UUID
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent MyWaiterAgent2 extends TestingAgent {
 
 	uses Schedules, Lifecycle, DefaultContextInteractions
 
 	var spawnId : UUID
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		in(500) [
-			var id = typeof(MySpawnedAgent2).spawn(getRawResults)
-			assert id !== null
-			synchronized (this) {
-				this.spawnId = id
-			}
+			this.spawnId = typeof(MySpawnedAgent2).spawn(rawResultMap)
 		]
-		return false
+		return null
 	}
 
 	on MemberJoined {
-		synchronized (getRawResults) {
-			addResult("SPAWNER")
-			addResult(occurrence)
-			addResult(parentID)
-			addResult(defaultSpace.spaceID)
-			synchronized (this) {
-				addResult(this.spawnId)
-			}
-		}
-		killMe
+		addResult("SPAWNER")
+		addResult(occurrence)
+		addResult(parentID)
+		addResult(defaultSpace.spaceID)
+		waitAndDo([this.spawnId !== null]) [
+			addResult(this.spawnId)
+			killMe
+		]
 	}
 
 }

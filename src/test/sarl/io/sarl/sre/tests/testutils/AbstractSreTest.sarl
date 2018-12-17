@@ -40,7 +40,33 @@ import org.junit.runner.Description
  */
 abstract class AbstractSreTest extends AbstractSarlTest {
 
+	/** Short timeout in seconds.
+	 * 
+	 * @see #EXTRA_TIMEOUT
+	 * @see #NO_TIMEOUT
+	 * @see #STANDARD_TIMEOUT
+	 */
+	public static val SHORT_TIMEOUT = 20
+
+	/** Standard timeout in seconds.
+	 * 
+	 * @see #EXTRA_TIMEOUT
+	 * @see #NO_TIMEOUT
+	 * @see #SHORT_TIMEOUT
+	 */
+	public static val STANDARD_TIMEOUT = 40
+
+	/** Extra timeout in seconds.
+	 * 
+	 * @see #STANDARD_TIMEOUT
+	 * @see #NO_TIMEOUT
+	 * @see #SHORT_TIMEOUT
+	 */
+	public static val EXTRA_TIMEOUT = 240
+
+
 	var savedProperties : Properties
+
 
 	/**
 	 * This rule permits to clean automatically the fields at the end of the test.

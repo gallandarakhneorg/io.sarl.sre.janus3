@@ -38,14 +38,14 @@ package agent EveryAgent extends TestingAgent {
 
 	var nb = 0
 	
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		every(1000) [
 			nb++
 			if (nb == 2) {
 				killMe
 			}
 		]
-		return false
+		return RunPolicy::STANDARD
 	}
 
 	on Destroy {

@@ -33,7 +33,6 @@ import org.junit.Test
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@SuppressWarnings("unused_private_member")
 class BasicInfrastructureServiceTest extends AbstractSreTest {
 
 	@Nullable
@@ -46,6 +45,7 @@ class BasicInfrastructureServiceTest extends AbstractSreTest {
 
 	@Test
 	def empty {
+		assertNotNull(this.service)
 	}
 
 }

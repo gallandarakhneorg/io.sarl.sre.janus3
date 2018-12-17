@@ -57,7 +57,8 @@ import static extension io.sarl.sre.services.lifecycle.AgentLife.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContextAccess {
+@SuppressWarnings("potential_field_synchronization_problem")
+	skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContextAccess {
 
 	uses InternalEventBusCapacity
 
@@ -82,7 +83,6 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 
 	/** Set the backend context service.
 	 */
-	@SuppressWarnings("potential_field_synchronization_problem")
 	@Inject
 	def setContextService(service : ContextService) {
 		this.contextService = service
@@ -92,7 +92,6 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 	 * 
 	 * @param provider the provider.
 	 */
-	@SuppressWarnings("potential_field_synchronization_problem")
 	@Inject
 	def setExternalContextMemberListenerProvider(@KernelScope provider  : Provider<ExternalContextMemberListener>) {
 		assert provider !== null
@@ -103,7 +102,6 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 	 * 
 	 * @param provider the provider.
 	 */
-	@SuppressWarnings("potential_field_synchronization_problem")
 	@Inject
 	def setInternalContextMembershipListenerFactory(@KernelScope provider : InternalContextMembershipListenerFactory) {
 		assert provider !== null
@@ -127,7 +125,6 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 		}
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	def getUniverseContext : AgentContext {
 		this.contextService.rootContext
 	}
@@ -167,7 +164,6 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 		spaceID == ^event.source.spaceID.ID
 	}
 	
-	@SuppressWarnings("potential_field_synchronization_problem")
 	def join(contextID : UUID, expectedDefaultSpaceID : UUID) : boolean {
 		assert contextID !== null
 		assert expectedDefaultSpaceID !== null
@@ -210,7 +206,6 @@ skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContext
 		return false
 	}
 	
-	@SuppressWarnings("potential_field_synchronization_problem")
 	def leave(contextID : UUID) : boolean {
 		assert contextID !== null
 

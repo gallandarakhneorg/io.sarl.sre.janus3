@@ -30,6 +30,7 @@ import io.sarl.lang.core.AgentContext
 import io.sarl.lang.core.SpaceID
 import java.util.EventListener
 import java.util.UUID
+import io.sarl.lang.util.SynchronizedIterable
 
 /** 
  * This service enables to store the contexts and to manage the spaces in the SRE platform.
@@ -82,6 +83,14 @@ interface ContextService extends Service {
 	 * @return the removed context, {@code null}.
 	 */
 	def removeContext(contextID : UUID) : Context
+
+	/** 
+	 * Replies all the contexts.
+	 * 
+	 * @return a view on all the contexts.
+	 * @since 0.10
+	 */
+	def getAllContexts : SynchronizedIterable<Context>
 
 }
 

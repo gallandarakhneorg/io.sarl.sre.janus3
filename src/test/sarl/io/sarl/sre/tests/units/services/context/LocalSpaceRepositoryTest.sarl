@@ -36,7 +36,7 @@ import java.util.UUID
 class LocalSpaceRepositoryTest extends AbstractSpaceRepositoryTest<LocalSpaceRepository> {
 
 	protected def newSpaceRepository : LocalSpaceRepository {
-		new LocalSpaceRepository(this.injector, this.executor, this.configurationFactory, this.internalStructure)
+		new LocalSpaceRepository(this.injector, this.executor, this.configuration, this.internalStructure)
 	}
 
 	protected override newInternalStructure : Map<UUID, SpaceDescription> {

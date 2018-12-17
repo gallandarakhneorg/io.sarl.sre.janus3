@@ -35,10 +35,10 @@ package agent EventHanlderKillTestAgent extends TestingAgent {
 
 	uses Behaviors, Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("1")
 		wake(new MyEvent)
-		return false
+		return RunPolicy::STANDARD
 	}
 
 	on MyEvent {

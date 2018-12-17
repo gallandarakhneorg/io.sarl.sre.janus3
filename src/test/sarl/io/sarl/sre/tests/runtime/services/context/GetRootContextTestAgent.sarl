@@ -28,10 +28,10 @@ package agent GetRootContextTestAgent extends TestingAgent {
 
 	uses ExternalContextAccess
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		var ctx = universeContext
 		addResult(ctx)
-		return true
+		return RunPolicy::DIFFERED_KILLING
 	}
 
 }

@@ -33,20 +33,20 @@ import io.sarl.core.Lifecycle
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/224
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent UnregisteredInInitializeAgent extends TestingAgent {
 
 	uses Behaviors, Schedules, Lifecycle
 
 	var ^behavior : MyBehavior
 
-	@SuppressWarnings("potential_field_synchronization_problem")
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		this.^behavior = new MyBehavior(this)
 		addResult(this.^behavior)
 		registerBehavior(this.^behavior)
 		unregisterBehavior(this.^behavior)
 		in(1000) [killMe]
-		return false
+		return null
 	}
 
 }

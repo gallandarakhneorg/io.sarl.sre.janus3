@@ -38,7 +38,7 @@ package agent SendingAgent extends TestingAgent {
 
 	uses Schedules, Lifecycle, DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		val parentID = this.agentInitializationParameters.get(1) as UUID
 		in(500) [
 			for (i : 0..<Bug546::NB_EVENTS) {
@@ -46,7 +46,7 @@ package agent SendingAgent extends TestingAgent {
 			}
 			killMe
 		]
-		return false
+		return null
 	}
 
 }

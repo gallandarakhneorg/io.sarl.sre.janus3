@@ -24,8 +24,8 @@ import com.google.common.collect.Multimap
 import com.google.common.util.concurrent.Service
 import com.google.common.util.concurrent.ServiceManager
 import com.google.common.util.concurrent.ServiceManager.Listener
-import io.bootique.config.ConfigurationFactory
-import io.sarl.sre.boot.factories.ServiceManagerFactory
+import io.sarl.sre.boot.configs.SreConfig
+import io.sarl.sre.boot.configs.subconfigs.ServicesConfig
 import java.text.MessageFormat
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -42,14 +42,14 @@ class GoogleServiceManager extends AbstractServiceManager {
 
 	val googleManager : ServiceManager
 
-	val configuration : ServiceManagerFactory
+	val configuration : ServicesConfig
 
 	/** 
 	 * @param sm the Google service to use.
-	 * @param configFactory the loader of configuration.
+	 * @param config the configuration.
 	 */
-	new (sm : ServiceManager, configFactory : ConfigurationFactory) {
-		this.configuration = ServiceManagerFactory::getConfigurationFactory(configFactory)
+	new (sm : ServiceManager, config : SreConfig) {
+		this.configuration = config.services
 		this.googleManager = sm
 		this.googleManager.addListener(new Listener() {
 			def failure(service : Service) {
@@ -60,10 +60,10 @@ class GoogleServiceManager extends AbstractServiceManager {
 
 	/** 
 	 * @param services the services to manager.
-	 * @param configFactory the loader of configuration.
+	 * @param config the configuration.
 	 */
-	new (services : Iterable<? extends Service>, configFactory : ConfigurationFactory) {
-		this(new ServiceManager(services), configFactory)
+	new (services : Iterable<? extends Service>, config : SreConfig) {
+		this(new ServiceManager(services), config)
 	}
 
 	def getServicesByState : Multimap<Service.State, Service> {

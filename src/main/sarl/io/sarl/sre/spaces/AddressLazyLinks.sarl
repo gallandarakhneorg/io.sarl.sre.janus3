@@ -21,7 +21,6 @@
 
 package io.sarl.sre.spaces
 
-import io.sarl.sre.spaces.AbstractEventSpace.Participant
 import java.lang.ref.WeakReference
 
 /** 

@@ -23,9 +23,9 @@ package io.sarl.sre.tests.units.spaces
 
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Event
-import io.sarl.lang.core.EventListener
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
+import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.spaces.OpenLocalEventSpace
 import io.sarl.sre.spaces.SpaceListener
@@ -40,8 +40,6 @@ import org.mockito.ArgumentCaptor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.never
 import static org.mockito.Mockito.verifyZeroInteractions
@@ -70,7 +68,7 @@ class OpenLocalEventSpaceTest extends AbstractSreTest {
 	var address : Address
 
 	@Nullable
-	var listener : EventListener
+	var listener : InformedEventListener
 
 	@Mock
 	var executor : ExecutorService
@@ -88,7 +86,7 @@ class OpenLocalEventSpaceTest extends AbstractSreTest {
 
 		this.^space = new OpenLocalEventSpace(this.spaceId)
 
-		this.listener = typeof(EventListener).mock
+		this.listener = typeof(InformedEventListener).mock
 		when(this.listener.ID).thenReturn(this.agentId)
 
 		this.initMocks

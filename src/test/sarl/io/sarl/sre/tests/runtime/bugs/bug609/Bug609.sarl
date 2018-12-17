@@ -24,8 +24,6 @@ package io.sarl.sre.tests.runtime.bugs.bug609
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 
-import static org.junit.Assert.assertEquals
-
 /**
  * Unit test for the issue #609: on Destroy is called two times with killMe.
  * 
@@ -35,8 +33,7 @@ import static org.junit.Assert.assertEquals
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/609
  */
-@SuppressWarnings("all")
-public class Bug609 extends AbstractSreRunTest {
+class Bug609 extends AbstractSreRunTest {
 
 	@Test
 	def killMeInInit {

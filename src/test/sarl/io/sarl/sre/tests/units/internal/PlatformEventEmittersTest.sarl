@@ -58,9 +58,6 @@ import org.junit.runners.Suite
 import org.junit.runners.Suite.SuiteClasses
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.never
 import static org.mockito.Mockito.when

@@ -1,0 +1,100 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2018 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.sarl.sre.boot.commands
+
+import com.google.inject.Provider
+import io.bootique.command.CommandWithMetadata
+import io.bootique.meta.application.CommandMetadata
+import io.sarl.bootstrap.SRE
+import io.sarl.lang.core.AgentContext
+import io.sarl.sre.boot.configs.SreConfig
+import io.sarl.bootstrap.SREBootstrap
+
+/**
+ * Abstract command for running the SRE without agent at boot time.
+ *
+ * <p>This abstract command provides helping tools for implementing a launching command.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 0.9
+ */
+abstract class AbstractRunCommand extends CommandWithMetadata {
+
+	/** Launching configuration.
+	 */
+	protected val configuration : Provider<SreConfig>
+
+	var sre : SREBootstrap
+
+	/** Constructor.
+	 *
+	 * @param configuration the configuration of the tool.
+	 * @param commandBuilder the builder of the command.
+	 */
+	new (configuration : Provider<SreConfig>, commandBuilder : CommandMetadata.Builder) {
+		super(commandBuilder)
+		this.configuration = configuration
+	}
+
+	/** Replies the SRE bootstrap.
+	 * 
+	 * @return the SRE bootstrap. 
+	 */
+	protected synchronized def getSREBootstrap : SREBootstrap {
+		val config = this.configuration.get
+		if (this.sre === null) {
+			this.sre = SRE::bootstrap
+			switch (config.boot.rootContextBootType) {
+				case BOOT_AGENT_NAME: {
+					this.sre.setBootAgentTypeContextUUID
+				}
+				case RANDOM: {
+					this.sre.setRandomContextUUID
+				}
+				case DEFAULT: {
+					this.sre.setSpecificContextUUID
+					this.sre.universeContextUUID = config.boot.rootContextID
+					this.sre.universeSpaceUUID = config.boot.rootSpaceID
+				}
+				default: {
+					this.sre.setSpecificContextUUID
+					this.sre.universeContextUUID = config.boot.rootContextID
+					this.sre.universeSpaceUUID = config.boot.rootSpaceID
+				}
+			}
+		}
+		return this.sre
+	}
+
+	/** Start the SRE without agents.
+	 * 
+	 * @return the universe context 
+	 */
+	protected def startSRE : AgentContext {
+		val sre = getSREBootstrap
+		sre.startWithoutAgent
+	}
+
+}

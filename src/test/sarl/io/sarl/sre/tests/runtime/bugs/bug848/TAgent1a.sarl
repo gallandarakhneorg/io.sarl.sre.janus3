@@ -37,10 +37,10 @@ package agent TAgent1a extends TestingAgent {
 
 	uses Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		var child = typeof(TAgent1b).spawn(getAgentInitializationParameters)
 		addResult(child)
-		return false
+		return null
 	}
 
 	on AgentSpawned {

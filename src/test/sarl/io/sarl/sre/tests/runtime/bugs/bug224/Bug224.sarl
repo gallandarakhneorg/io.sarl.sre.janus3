@@ -37,7 +37,7 @@ class Bug224 extends AbstractSreRunTest {
 
 	@Test
 	def registerInInitialize {
-		runSre(typeof(RegisteredInInitializeAgent), false)
+		typeof(RegisteredInInitializeAgent).runSre(false)
 		assertEquals(1, getNumberOfResults)
 		var beh = getResult(typeof(MyBehavior), 0)
 		assertEquals(1, beh.initializeEvaluations.intValue)
@@ -46,7 +46,7 @@ class Bug224 extends AbstractSreRunTest {
 
 	@Test
 	def registerInHandler {
-		runSre(typeof(RegisteredInHandlerAgent), false)
+		typeof(RegisteredInHandlerAgent).runSre(false)
 		assertEquals(1, getNumberOfResults)
 		var beh = getResult(typeof(MyBehavior), 0)
 		assertEquals(1, beh.initializeEvaluations.intValue)
@@ -55,7 +55,7 @@ class Bug224 extends AbstractSreRunTest {
 
 	@Test
 	def registerInDestroy {
-		runSre(typeof(RegisteredInDestroyAgent), false)
+		typeof(RegisteredInDestroyAgent).runSre(false)
 		assertEquals(1, getNumberOfResults)
 		var beh = getResult(typeof(MyBehavior), 0)
 		assertEquals(0, beh.initializeEvaluations.intValue)
@@ -64,7 +64,7 @@ class Bug224 extends AbstractSreRunTest {
 
 	@Test
 	def unregisterInInitialize {
-		runSre(typeof(UnregisteredInInitializeAgent), false)
+		typeof(UnregisteredInInitializeAgent).runSre(false)
 		assertEquals(1, getNumberOfResults)
 		var beh = getResult(typeof(MyBehavior), 0)
 		assertEquals(1, beh.initializeEvaluations.intValue)
@@ -73,7 +73,7 @@ class Bug224 extends AbstractSreRunTest {
 
 	@Test
 	def unregisterInHandler {
-		runSre(typeof(UnregisteredInHandlerAgent), false)
+		typeof(UnregisteredInHandlerAgent).runSre(false)
 		assertEquals(1, getNumberOfResults)
 		var beh = getResult(typeof(MyBehavior), 0)
 		assertEquals(1, beh.initializeEvaluations.intValue)
@@ -82,7 +82,7 @@ class Bug224 extends AbstractSreRunTest {
 
 	@Test
 	def unregisterInDestroy {
-		runSre(typeof(UnregisteredInDestroyAgent), false, true, NO_TIMEOUT)
+		typeof(UnregisteredInDestroyAgent).runSre(false, true, NO_TIMEOUT)
 		assertEquals(1, getNumberOfResults)
 		var beh = getResult(typeof(MyBehavior), 0)
 		assertEquals(1, beh.initializeEvaluations.intValue)

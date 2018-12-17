@@ -37,8 +37,8 @@ import org.eclipse.xtext.xbase.lib.Pure;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@SarlSpecification("0.9")
-@SarlElementType(21)
+@SarlSpecification("0.10")
+@SarlElementType(22)
 @SuppressWarnings("all")
 class MyLoggingSkill extends Skill implements Logging {
   private final Logger logger;

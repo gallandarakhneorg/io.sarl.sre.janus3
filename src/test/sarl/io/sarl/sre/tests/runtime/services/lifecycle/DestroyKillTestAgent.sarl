@@ -35,9 +35,9 @@ package agent DestroyKillTestAgent extends TestingAgent {
 
 	uses Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("1")
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 	on Destroy {

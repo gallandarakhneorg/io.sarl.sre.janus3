@@ -31,9 +31,10 @@ import java.util.UUID
  */
 package agent MyAgent1 {
 
-	new (parentID : UUID, agentID : UUID, ^skill : MyLoggingSkill) {
+	new (parentID : UUID, agentID : UUID, ^skill : MyLoggingSkill, time : MyTimeSkill) {
 		super(parentID, agentID)
 		setSkill(^skill)
+		setSkill(^time)
 	}
 	
 }

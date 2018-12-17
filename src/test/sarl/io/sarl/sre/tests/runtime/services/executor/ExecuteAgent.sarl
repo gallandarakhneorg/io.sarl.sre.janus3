@@ -36,12 +36,12 @@ package agent ExecuteAgent extends TestingAgent {
 
 	uses Schedules, Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		execute [
 			addResult(UUID::randomUUID)
 			killMe
 		]
-		return false
+		return null
 	}
 
 }

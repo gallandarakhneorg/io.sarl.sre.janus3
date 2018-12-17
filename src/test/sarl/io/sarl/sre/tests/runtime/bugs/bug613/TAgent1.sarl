@@ -35,9 +35,9 @@ package agent TAgent1 extends TestingAgent {
 
 	uses Schedules, Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		in(100) [killMe]
-		return false
+		return null
 	}
 
 }

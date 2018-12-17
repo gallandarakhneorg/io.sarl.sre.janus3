@@ -37,20 +37,18 @@ package agent MyWaiterAgent3 extends TestingAgent {
 
 	uses Schedules, Lifecycle, DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		in(500) [
-			typeof(MySpawnedAgent3).spawn(getRawResults)
+			typeof(MySpawnedAgent3).spawn(rawResultMap)
 		]
-		return false
+		return null
 	}
 
 	on MemberLeft {
-		synchronized (getRawResults) {
-			addResult("SPAWNER")
-			addResult(occurrence)
-			addResult(defaultSpace.spaceID)
-			addResult(parentID)
-		}
+		addResult("SPAWNER")
+		addResult(occurrence)
+		addResult(defaultSpace.spaceID)
+		addResult(parentID)
 		killMe
 	}
 

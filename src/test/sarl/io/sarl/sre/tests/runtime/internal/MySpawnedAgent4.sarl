@@ -36,22 +36,21 @@ import java.util.UUID
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent MySpawnedAgent4 extends TestingAgent {
 
 	uses Schedules, Lifecycle, DefaultContextInteractions
 
 	var createdSpace : OpenEventSpace
 
-	@SuppressWarnings("potential_field_synchronization_problem")
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		var ctx = defaultContext
 		var spaceID = UUID::randomUUID
 		this.createdSpace = ctx.createSpace(typeof(OpenEventSpaceSpecification), spaceID)
 		in(500) [killMe]
-		return false
+		return null
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	on SpaceCreated {
 		var data = new Data()
 		data.label = "SPAWNED"

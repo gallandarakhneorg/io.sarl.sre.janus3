@@ -31,8 +31,6 @@ import io.sarl.tests.api.Nullable
 import org.junit.Before
 import org.junit.Test
 
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.when
 

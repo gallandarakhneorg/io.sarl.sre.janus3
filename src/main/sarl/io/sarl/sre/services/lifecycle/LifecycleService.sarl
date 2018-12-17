@@ -27,6 +27,7 @@ import java.util.EventListener
 import java.util.List
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
 
 /** 
  * This service provides the tools to manage the life-cycle of the agents.
@@ -132,8 +133,24 @@ final class SpawnResult {
 	var cause : Throwable
 	
 	new (spawnedAgents : List<UUID>, errors : List<Throwable>) {
+		assert spawnedAgents !== null
+		assert errors !== null
 		this.spawnedAgents = spawnedAgents
 		this.errors = errors
+	}
+
+	final override toString : String {
+		val builder = new ToStringBuilder(this)
+		toString(builder)
+		return builder.toString
+	}
+
+	/** Build the string representation of this result.
+	 *
+	 * @param buffer the buffer to fill out.
+	 */
+	def toString(buffer : ToStringBuilder) {
+		buffer.addDeclaredFields
 	}
 
 	/** Replies if the spawning action has encountered a failure.

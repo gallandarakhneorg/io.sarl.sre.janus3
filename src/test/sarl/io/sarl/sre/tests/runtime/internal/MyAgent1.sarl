@@ -35,9 +35,9 @@ package agent MyAgent1 extends TestingAgent {
 
 	uses Behaviors
 
-	override runAgentTest : boolean {
-		new MyBehavior1(this, getRawResults).registerBehavior
-		return true
+	override runAgentTest : RunPolicy {
+		new MyBehavior1(this, modifiableResults).registerBehavior
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 	
 	on Destroy {

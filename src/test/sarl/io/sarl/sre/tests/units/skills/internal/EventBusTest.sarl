@@ -38,9 +38,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
-import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
 
@@ -119,6 +116,7 @@ class EventBusTest extends AbstractSreTest {
 		assertSame(callback, capturedCallback.value)
 	}
 
+	@SuppressWarnings("raw_type")
 	@Test
 	def asyncDispatch {
 		var ^event = typeof(Event).mock
@@ -154,6 +152,7 @@ class EventBusTest extends AbstractSreTest {
 		assertSame(runnable, capturedRunnable.value)
 	}
 
+	@SuppressWarnings("raw_type")
 	@Test
 	def immediateDispatch {
 		var ^event = typeof(Event).mock
@@ -183,9 +182,9 @@ class EventBusTest extends AbstractSreTest {
 		assertContains(capturedIterable.value, evaluator)
 
 		capturedLogger = ArgumentCaptor::forClass(typeof(Logger))
-		var capturedThrow = ArgumentCaptor::forClass(typeof(Boolean))
+		var capturedThrow = ArgumentCaptor::forClass(typeof(boolean))
 		var capturedCollection = ArgumentCaptor::forClass(typeof(Collection))
-		this.executor.verify.executeBlockingTasks(capturedLogger.capture, capturedThrow.capture, capturedCollection.capture)
+		this.executor.verify.executeBlockingTasks(capturedLogger.capture, capturedThrow.capture.booleanValue, capturedCollection.capture)
 		assertSame(logger, capturedLogger.value)
 		assertTrue(capturedThrow.value)
 		var col = capturedCollection.value
@@ -193,6 +192,7 @@ class EventBusTest extends AbstractSreTest {
 		assertSame(runnable, col.iterator.next)
 	}
 
+	@SuppressWarnings("raw_type")
 	@Test
 	def immediateDispatchTo {
 		var ^event = typeof(Event).mock
@@ -224,9 +224,9 @@ class EventBusTest extends AbstractSreTest {
 		assertContains(capturedIterable.value, evaluator)
 
 		capturedLogger = ArgumentCaptor::forClass(typeof(Logger))
-		var capturedThrow = ArgumentCaptor::forClass(typeof(Boolean))
+		var capturedThrow = ArgumentCaptor::forClass(typeof(boolean))
 		var capturedCollection = ArgumentCaptor::forClass(typeof(Collection))
-		this.executor.verify.executeBlockingTasks(capturedLogger.capture, capturedThrow.capture, capturedCollection.capture)
+		this.executor.verify.executeBlockingTasks(capturedLogger.capture, capturedThrow.capture.booleanValue, capturedCollection.capture)
 		assertSame(logger, capturedLogger.value)
 		assertTrue(capturedThrow.value)
 		var col = capturedCollection.value

@@ -33,8 +33,7 @@ import org.junit.Test
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/481
  */
-@SuppressWarnings("all")
-public class Bug481 extends AbstractSreRunTest {
+class Bug481 extends AbstractSreRunTest {
 
 	public static val NB_AGENTS = 50
 

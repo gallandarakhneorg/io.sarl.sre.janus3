@@ -21,11 +21,8 @@
 
 package io.sarl.sre.tests.units.services.lifecycle
 
-import io.sarl.core.InnerContextAccess
-import io.sarl.core.Lifecycle
-import io.sarl.lang.core.SREutils
-import java.util.UUID
 import io.sarl.lang.annotation.PrivateAPI
+import java.util.UUID
 
 /**
  * @author $Author: sgalland$
@@ -38,9 +35,9 @@ package agent MyAgent2 {
 	@PrivateAPI(isCallerOnly = true)
 	new (s1 : LifeSkill, s2 : MySkill0, s3 : InnerSkill) {
 		super(UUID::randomUUID, UUID::randomUUID)
-		SREutils.createSkillMapping(this, typeof(Lifecycle), s1)
-		SREutils.createSkillMapping(this, typeof(MyCap), s2)
-		SREutils.createSkillMapping(this, typeof(InnerContextAccess), s3)
+		setSkill(s1)
+		setSkill(s3)
+		setSkill(s2)
 	}
 	
 }

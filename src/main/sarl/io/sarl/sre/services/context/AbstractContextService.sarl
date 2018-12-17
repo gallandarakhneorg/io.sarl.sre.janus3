@@ -51,7 +51,7 @@ abstract class AbstractContextService extends AbstractSreService implements Cont
 	 *
 	 * @param context the new root context.
 	 */
-	public abstract def setRootContext(context : Context)
+	abstract def setRootContext(context : Context)
 
 	/** Replies the internal data structure for storing the contexts.
 	 *

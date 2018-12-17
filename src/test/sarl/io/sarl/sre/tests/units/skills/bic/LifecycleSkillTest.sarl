@@ -38,11 +38,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertArrayEquals
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.anyInt
 import static org.mockito.Mockito.verifyZeroInteractions
@@ -116,14 +111,14 @@ class LifecycleSkillTest extends AbstractSreTest {
 		
 		assertSame(agentID, id)
 		
-		var argument0 = ArgumentCaptor::forClass(typeof(Integer))
+		var argument0 = ArgumentCaptor::forClass(typeof(int))
 		var argument1 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument2 = ArgumentCaptor::forClass(typeof(Context))
 		var argument3 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument4 = ArgumentCaptor::forClass(typeof(Class))
 		var argument5 = ArgumentCaptor::forClass(typeof(Object))
 		this.service.verify(1.times).spawnAgent(
-			argument0.capture, argument1.capture, argument2.capture,
+			argument0.capture.intValue, argument1.capture, argument2.capture,
 				argument3.capture, argument4.capture, argument5.capture)
 		assertEquals(1, argument0.value)
 		assertSame(this.spawnerID, argument1.value)
@@ -167,13 +162,13 @@ class LifecycleSkillTest extends AbstractSreTest {
 		assertSame(agentID3, iterator.next)
 		assertFalse(iterator.hasNext)
 		
-		var argument0 = ArgumentCaptor::forClass(typeof(Integer))
+		var argument0 = ArgumentCaptor::forClass(typeof(int))
 		var argument1 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument2 = ArgumentCaptor::forClass(typeof(Context))
 		var argument3 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument4 = ArgumentCaptor::forClass(typeof(Class))
 		var argument5 = ArgumentCaptor::forClass(typeof(Object))
-		this.service.verify(1.times).spawnAgent(argument0.capture, argument1.capture, argument2.capture,
+		this.service.verify(1.times).spawnAgent(argument0.capture.intValue, argument1.capture, argument2.capture,
 				argument3.capture, argument4.capture, argument5.capture)
 		assertEquals(3, argument0.value)
 		assertSame(this.spawnerID, argument1.value)
@@ -210,13 +205,13 @@ class LifecycleSkillTest extends AbstractSreTest {
 		
 		assertSame(agentID, id)
 		
-		var argument0 = ArgumentCaptor::forClass(typeof(Integer))
+		var argument0 = ArgumentCaptor::forClass(typeof(int))
 		var argument1 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument2 = ArgumentCaptor::forClass(typeof(Context))
 		var argument3 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument4 = ArgumentCaptor::forClass(typeof(Class))
 		var argument5 = ArgumentCaptor::forClass(typeof(Object))
-		this.service.verify(1.times).spawnAgent(argument0.capture, argument1.capture, argument2.capture,
+		this.service.verify(1.times).spawnAgent(argument0.capture.intValue, argument1.capture, argument2.capture,
 				argument3.capture, argument4.capture, argument5.capture)
 		assertEquals(1, argument0.value)
 		assertSame(this.spawnerID, argument1.value)
@@ -262,13 +257,13 @@ class LifecycleSkillTest extends AbstractSreTest {
 		assertSame(agentID3, iterator.next)
 		assertFalse(iterator.hasNext)
 		
-		var argument0 = ArgumentCaptor::forClass(typeof(Integer))
+		var argument0 = ArgumentCaptor::forClass(typeof(int))
 		var argument1 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument2 = ArgumentCaptor::forClass(typeof(Context))
 		var argument3 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument4 = ArgumentCaptor::forClass(typeof(Class))
 		var argument5 = ArgumentCaptor::forClass(typeof(Object))
-		this.service.verify(1.times).spawnAgent(argument0.capture, argument1.capture, argument2.capture,
+		this.service.verify(1.times).spawnAgent(argument0.capture.intValue, argument1.capture, argument2.capture,
 				argument3.capture, argument4.capture, argument5.capture)
 		assertEquals(3, argument0.value)
 		assertSame(this.spawnerID, argument1.value)
@@ -305,13 +300,13 @@ class LifecycleSkillTest extends AbstractSreTest {
 		
 		assertSame(agentID, id)
 		
-		var argument0 = ArgumentCaptor::forClass(typeof(Integer))
+		var argument0 = ArgumentCaptor::forClass(typeof(int))
 		var argument1 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument2 = ArgumentCaptor::forClass(typeof(Context))
 		var argument3 = ArgumentCaptor::forClass(typeof(UUID))
 		var argument4 = ArgumentCaptor::forClass(typeof(Class))
 		var argument5 = ArgumentCaptor::forClass(typeof(Object))
-		verify(this.service, times(1)).spawnAgent(argument0.capture, argument1.capture, argument2.capture,
+		verify(this.service, times(1)).spawnAgent(argument0.capture.intValue, argument1.capture, argument2.capture,
 				argument3.capture, argument4.capture, argument5.capture)
 		assertEquals(1, argument0.value)
 		assertSame(this.spawnerID, argument1.value)

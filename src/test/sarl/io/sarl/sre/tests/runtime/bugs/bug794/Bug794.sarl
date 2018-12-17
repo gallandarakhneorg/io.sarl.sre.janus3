@@ -33,8 +33,7 @@ import org.junit.Test
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/794
  */
-@SuppressWarnings("all")
-public class Bug794 extends AbstractSreRunTest {
+class Bug794 extends AbstractSreRunTest {
 
 	@Test
 	def spawn1 {

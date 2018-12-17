@@ -36,14 +36,12 @@ package agent ChildAgent0 extends TestingAgent {
 
 	uses Lifecycle
 
-	override runAgentTest : boolean {
-		return false
+	override runAgentTest : RunPolicy {
+		return null
 	}
 
 	on MemberJoined {
-		synchronized(getRawResults) {
-			addResult("CHILD1:" + occurrence.agentType.simpleName)
-		}
+		addResult("CHILD1:" + occurrence.agentType.simpleName)
 	}
 
 	on AgentKilled {

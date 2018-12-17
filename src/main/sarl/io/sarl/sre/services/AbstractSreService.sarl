@@ -39,8 +39,9 @@ abstract class AbstractSreService extends AbstractService {
 	protected final override doStart {
 		try {
 			onStart
-		} finally {
 			notifyStarted
+		} catch (exception : Throwable) {
+			notifyFailed(exception)
 		}
 	}
 
@@ -55,10 +56,12 @@ abstract class AbstractSreService extends AbstractService {
 	protected final override doStop {
 		try {
 			onStop
-		} finally {
 			notifyStopped
+		} catch (exception : Throwable) {
+			notifyFailed(exception)
 		}
 	}
+
 	/** Do something when stopping the service.
 	 * 
 	 * <p>This function is called from {@link #doStop()}

@@ -36,7 +36,7 @@ import java.util.Comparator
  */
 abstract class AgentTraitLife {
 
-	private static val COMPARATOR : Comparator<WeakReference<AgentTask>> = [ tr1, tr2 |
+	static val COMPARATOR : Comparator<WeakReference<AgentTask>> = [ tr1, tr2 |
 		val t1 = tr1.get
 		val t2 = tr2.get
 		if(t1 === t2) return 0

@@ -48,6 +48,10 @@ import static io.sarl.sre.skills.bic.SchedulesSkill.BinFlags.*
 
 import static extension io.sarl.sre.services.lifecycle.AgentLife.*
 import static extension io.sarl.sre.services.lifecycle.BehaviorLife.*
+import io.sarl.core.Time
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeoutException
 
 /** 
  * Skill that permits to execute tasks with an executor service.
@@ -58,11 +62,11 @@ import static extension io.sarl.sre.services.lifecycle.BehaviorLife.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@SuppressWarnings("use_reserved_sarl_annotation")
+@SuppressWarnings("use_reserved_sarl_annotation", "potential_field_synchronization_problem")
 @PrivateAPI(isCallerOnly = true)
 skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 
-	uses Logging
+	uses Logging, Time
 
 	private static class BinFlags {
 		static var installationOrder = -1
@@ -77,7 +81,6 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 		}
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	var executorService : ExecutorService
 
 	var activeTaskRepository : Map<String, TaskDescription> = null
@@ -392,8 +395,9 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			synchronized (mutex) {
 				description = preRunTask(task, procedure)
 			}
+			var osDelay = Math::round(delay.toOSDuration)
 			val logger = getLogger
-			val sf = this.executorService.schedule(logger, delay, TimeUnit::MILLISECONDS,
+			val sf = this.executorService.schedule(logger, osDelay, TimeUnit::MILLISECONDS,
 				new SingleRunner(this, this.owner, description, logger))
 			synchronized (mutex) {
 				description = postRunTask(description, task, sf)
@@ -409,8 +413,9 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			synchronized (mutex) {
 				description = preRunTask(task, procedure)
 			}
+			var osPeriod = Math::round(period.toOSDuration)
 			val logger = getLogger
-			val sf = this.executorService.scheduleAtFixedRate(logger, 0, period, TimeUnit::MILLISECONDS,
+			val sf = this.executorService.scheduleAtFixedRate(logger, 0, osPeriod, TimeUnit::MILLISECONDS,
 					new PeriodicRunner(this, this.owner, description, logger))
 			synchronized (mutex) {
 				description = postRunTask(description, task, sf)
@@ -426,18 +431,29 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			synchronized (mutex) {
 				description = preRunTask(task, procedure)
 			}
+			var osDelay = Math::round(delay.toOSDuration)
 			var future : Future<?>
-			if (delay <= 0) {
+			if (osDelay <= 0) {
 				future = this.executorService.executeAsap(new InfiniteRunner(this, this.owner, description, getLogger))
 			} else {
 				var logger = getLogger
-				future = this.executorService.scheduleWithFixedDelay(logger, 0, delay, TimeUnit::MILLISECONDS,
+				future = this.executorService.scheduleWithFixedDelay(logger, 0, osDelay, TimeUnit::MILLISECONDS,
 						new PeriodicRunner(this, this.owner, description, logger))
 			}
 			synchronized (mutex) {
 				description = postRunTask(description, task, future)
 			}
 			return description.task
+		}
+		return task
+	}
+
+	def at(task : AgentTask = null, time : long, procedure : (Agent)=>void) : AgentTask {
+		if (owner.life.state.alive) {
+			val delay = Math::round(time - getTime)
+			if (delay > 0.0) {
+				return in(task, delay, procedure)
+			}
 		}
 		return task
 	}
@@ -499,7 +515,11 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 
 		new (task : AgentTask = null, future : Future<?> = null) {
 			this.taskReference = task
-			this.futureResult = future
+			if (future === null) {
+				this.futureResult = new FutureReceiver
+			} else {
+				this.futureResult = future
+			}
 		}
 
 		synchronized def toString : String {
@@ -519,11 +539,74 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 		}
 
 		synchronized def setFuture(future : Future<?>) {
+			var receiver : FutureReceiver
+			if (this.futureResult instanceof FutureReceiver) {
+				receiver = this.futureResult
+			} else {
+				receiver = null
+			}
 			this.futureResult = future
+			if (receiver !== null && this.futureResult !== null) {
+				receiver.apply(this.futureResult)
+			}
 		}
 
 	}
-	
+
+	/** 
+	 * A future definition that enables to interact with the future
+	 * object's even if it is not already provided by the thread manager.
+	 * This receiver will be replaced by the real future object as soon
+	 * as it is provided by the thread manager. Then, any interaction with
+	 * the receiver will be propagated to the real future.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 0.9
+	 */
+	private static class FutureReceiver implements Future<Object> {
+
+		val cancelFlag = new AtomicBoolean
+
+		val mayInterruptIfRunningFlag = new AtomicBoolean
+
+		package new {
+			//
+		}
+
+		def apply(future : Future<?>) {
+			if (future !== null && !future.isCancelled && !future.isDone && this.cancelFlag.get) {
+				future.cancel(this.mayInterruptIfRunningFlag.get)
+			}
+		}
+
+		override cancel(mayInterruptIfRunning : boolean) : boolean {
+			this.mayInterruptIfRunningFlag.set(mayInterruptIfRunning)
+			this.cancelFlag.set(true)
+			return true
+		}
+
+		override isCancelled : boolean {
+			this.cancelFlag.get
+		}
+
+		override isDone : boolean {
+			false
+		}
+
+		override get : Object throws InterruptedException, ExecutionException {
+			throw new ExecutionException(new UnsupportedOperationException)
+		}
+
+		override get(timeout : long, unit : TimeUnit) : Object
+					throws InterruptedException, ExecutionException, TimeoutException {
+			throw new ExecutionException(new UnsupportedOperationException)
+		}
+
+	}
+
 	/** 
 	 * Type of task termination.
 	 * 
@@ -697,6 +780,7 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			true
 		}
 
+		@SuppressWarnings("discouraged_reference")
 		protected override coreRun(task : AgentTask) : TaskTermination {
 			var owner = ^agent.get
 			assert owner !== null

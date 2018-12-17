@@ -29,17 +29,16 @@ import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Scope
 import io.sarl.lang.util.SynchronizedSet
-import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.AddressScope
 import io.sarl.util.Collections3
 import io.sarl.util.Scopes
 import java.text.MessageFormat
-import java.util.Iterator
 import java.util.Map
 import java.util.UUID
-import javax.inject.Inject
 import java.util.stream.Stream
+import javax.inject.Inject
+import io.sarl.sre.capacities.InformedEventListener
 
 /** 
  * Abstract implementation of an event space.
@@ -55,6 +54,8 @@ import java.util.stream.Stream
 @PrivateAPI(isCallerOnly = true)
 abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 
+	static val DEFAULT_ROUTER = new LocalEventTransportService
+
 	val mutexInstance = new Object
 
 	/** 
@@ -62,8 +63,31 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 	 */
 	protected var logger : LoggingService
 
-	private var executor : ExecutorService
+	/** Router of the events.
+	 * @since 0.8
+	 */
+	var router : EventTransportService = DEFAULT_ROUTER
 
+	/** Set the event router.
+	 * 
+	 * @param router the router.
+	 * @since 0.8
+	 */
+	@Inject
+	def setEventTransportService(router : EventTransportService) {
+		assert router !== null
+		this.router = router
+	}
+
+	/** Replies the event router.
+	 * 
+	 * @param router the router.
+	 * @since 0.9
+	 */
+	def getEventTransportService : EventTransportService {
+		this.router
+	}
+	
 	/** Set the logging service to use.
 	 * 
 	 * @param logger the logger.
@@ -71,15 +95,6 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 	@Inject
 	def setLoggingService(logger : LoggingService) {
 		this.logger = logger
-	}
-
-	/** Set the executor service to use.
-	 *
-	 * @param executor the executor.
-	 */
-	@Inject
-	def setExecutor(executor : ExecutorService) {
-		this.executor = executor
 	}
 
 	/** Replies the mutex for synchronization. */
@@ -91,9 +106,10 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 	 *
 	 * @return the entire participant structure.
 	 */
-	protected abstract def getInternalParticipantStructure : Map<UUID, Participant>
+	@PrivateAPI
+	abstract def getInternalParticipantStructure : Map<UUID, Participant>
 	
-	protected final def registerToSpace(entity : EventListener) : Address {
+	protected final def registerToSpace(entity : InformedEventListener) : Address {
 		assert entity !== null
 		var id = entity.ID
 		var address = new Address(this.spaceID, id)
@@ -152,7 +168,9 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 		ensureEventSource(eventSource, ^event)
 		assert this.spaceID == ^event.source.spaceID, "The source address must belong to this space"
 		try {
-			^event.emitLocally(scope)
+			if (eventTransportService.routeEvent(^event, this, scope)) {
+				^event.emitLocally(scope)
+			}
 		} catch (e : Throwable) {
 			this.logger.kernelLogger.severe(MessageFormat::format(Messages::AbstractEventSpace_0, ^event, scope, e))
 		}
@@ -241,71 +259,6 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 				this.executor.executeAsap(receptionTask)
 			}*/
 		}
-	}
-
-	/** 
-	 * Description of a participant.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $FullVersion$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 0.6.0
-	 */
-	public static class Participant {
-		
-		val participantAddress : Address
-	
-		val participant : EventListener
-
-		/** Create a participant.
-		 * 
-		 * @param address the address of the participant.
-		 * @param eventListener the participant.
-		 */
-		package static def createAndInit(address : Address, eventListener : EventListener) : Participant {
-			var participant = new Participant(address, eventListener)
-			var links = new AddressLazyLinks
-			links.participant = participant
-			SREutils::setSreSpecificData(address, links)
-			return participant
-		}
-
-		/** Constructor.
-		 *
-		 * @param address the address of the participant.
-		 * @param eventListener the participant.
-		 */
-		private new (address : Address, eventListener : EventListener) {
-			this.participantAddress = address
-			this.participant = eventListener
-		}
-
-		/** Replies participant address. */
-		def getAddress : Address {
-			this.participantAddress
-		}
-
-		/** Replies the participant. */
-		def getParticipant : EventListener {
-			this.participant
-		}
-
-		override equals(obj : Object) : boolean {
-			if (obj instanceof Participant) {
-				return obj.address == address
-			}
-			return false
-		}
-
-		override hashCode : int {
-			address.hashCode
-		}
-
-		override toString : String {
-			this.participantAddress?.toString
-		}
-		
 	}
 
 }

@@ -21,30 +21,29 @@
 
 package io.sarl.sre.tests.testutils
 
-import static org.junit.Assert.*
-
 import com.google.inject.Module
+import io.sarl.bootstrap.SRE
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.sre.Kernel
-import io.sarl.sre.boot.ProgrammaticBootstrap
-import io.sarl.sre.boot.factories.BootFactory
-import io.sarl.sre.boot.factories.Factories
-import io.sarl.sre.boot.factories.LoggingFactory
+import io.sarl.sre.boot.SreMain
+import io.sarl.sre.boot.configs.subconfigs.BootConfig
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.tests.api.Nullable
 import java.util.List
 import java.util.Map
 import java.util.UUID
 import java.util.concurrent.TimeoutException
+import java.util.logging.Handler
 import java.util.logging.Level
+import java.util.logging.LogRecord
+import org.arakhne.afc.bootique.log4j.configs.Log4jIntegrationConfig
+import org.arakhne.afc.bootique.variables.VariableNames
 import org.junit.ComparisonFailure
 import org.junit.Rule
-import java.util.logging.LogRecord
-import java.util.logging.Handler
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
-import io.sarl.bootstrap.SRE
-import io.sarl.sre.boot.injection.modules.InjectionConstants
+
+import static io.sarl.bootstrap.SRE.*
 
 /**
  * Abstract class for creating unit tests that needs to launch a SRE instance.
@@ -55,7 +54,6 @@ import io.sarl.sre.boot.injection.modules.InjectionConstants
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-//@SuppressWarnings("all")
 abstract class AbstractSreRunTest extends AbstractSreTest {
 
 	/** The logging level when logging is enable during tests.
@@ -63,20 +61,6 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	 * @since 0.7
 	 */
 	public static val TEST_LOGGING_LEVEL = Level::ALL
-	
-	/** Standard timeout in seconds.
-	 *
-	 * @see #EXTRA_TIMEOUT
-	 * @see #NO_TIMEOUT
-	 */
-	public static val STANDARD_TIMEOUT = 40
-
-	/** Extra timeout in seconds.
-	 *
-	 * @see #STANDARD_TIMEOUT
-	 * @see #NO_TIMEOUT
-	 */
-	public static val EXTRA_TIMEOUT = 240
 
 	/** No timeout.
 	 *
@@ -93,23 +77,19 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	/**
 	 * Reference to the instance of the SRE bootstrap.
 	 */
-	protected var bootstrap : ProgrammaticBootstrap
+	protected var bootstrap : SreMain
 
 	@Nullable
 	var results : Map<UUID, List<Object>>
 
-	@Nullable
-	var testingModule : Class<? extends Module>
-	
 	@Rule
 	public var sreRunWatcher = new TestWatcher {
 		protected override starting(description : Description) {
 			SRE::resetServiceLoader
 			SRE::bootstrap = null
-			testingModule = InjectionConstants::DEFAULT_ROOT_INJECTION_MODULE
 			val skipRun = description.getAnnotation(typeof(SreRun))
 			if (skipRun !== null) {
-				runSre(skipRun.type, skipRun.enableLogging)
+				skipRun.type.runSre(skipRun.enableLogging)
 			}
 		}
 
@@ -135,6 +115,23 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	/** 
 	 * Replies result at the given index of the run of the agent.
 	 * 
+	 * @param source - the source of the data.
+	 * @param type - the type of the result.
+	 * @param index - the index of the result.
+	 * @return the value; or <code>null</code> if no result.
+	 */
+	@Pure
+	protected static def get(source : List<?>, type : Class<T>, index : int) : T with T {
+		var element = source.get(index);
+		if (element === null || type.isInstance(element)) {
+			return type.cast(element);
+		}
+		return null
+	}
+
+	/** 
+	 * Replies result at the given index of the run of the agent.
+	 * 
 	 * @param agentId the identifier of the agent.
 	 * @param type - the type of the result.
 	 * @param index - the index of the result.
@@ -143,15 +140,18 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	@Pure
 	protected def getResult(agentId : UUID = null, type : Class<T>, index : int) : T with T {
 		if (this.results !== null) {
-			synchronized (this.results) {
-				try {
-					var res = this.results.get(agentId ?: bootAgent)
-					if (res !== null) {
-						return type.cast(res.get(index))
-					}
-				} catch (exception : Throwable) {
-					//
+			try {
+				var res : List<Object>
+				synchronized (this.results) {
+					res = this.results.get(agentId ?: bootAgent)
 				}
+				if (res !== null) {
+					synchronized (res) {
+						return type.cast(res.get(index))
+					} 
+				}
+			} catch (exception : Throwable) {
+				//
 			}
 		}
 		return null
@@ -163,9 +163,12 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	 */
 	protected def getNumberOfResults(agentId : UUID = null) : int {
 		if (this.results !== null) {
+			var list : List<Object>
 			synchronized (this.results) {
-				var list = this.results.get(agentId ?: bootAgent)
-				if (list === null) {
+				list = this.results.get(agentId ?: bootAgent)
+			}
+			if (list !== null) {
+				synchronized (list) {
 					return list.size
 				}
 			}
@@ -183,15 +186,22 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	}
 
 	/**
-	 * Replies result at the given index of the run of the agent.
+	 * Replies result for the boot agent or the agent with the given identifier.
+	 *
+	 * @param agentId the identifier of the agent for which the results must be retrieved.
+	 *     If {@code null} or not provided, the results associated to the boot agent are
+	 *     replied.
 	 * @return the results.
 	 */
 	@Pure
 	protected def getResults(agentId : UUID = null) : List<Object> {
 		if (this.results !== null) {
+			var res : List<Object> 
 			synchronized (this.results) {
-				var res = this.results.get(agentId ?: bootAgent)
-				if (res !== null) {
+				res = this.results.get(agentId ?: bootAgent)
+			}
+			if (res !== null) {
+				synchronized (res) {
 					return res.unmodifiableView
 				}
 			}
@@ -199,7 +209,38 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 		return emptyList
 	}
 
-	/**
+	/** 
+	 * Replies all the results for all the agents.
+	 * @return the results.
+	 */
+	@Pure
+	protected def getAllResultsPerAgent() : Map<UUID, List<Object>> {
+		if (this.results !== null) {
+			return results
+		}
+		return emptyMap
+	}
+
+	/** 
+	 * Replies all the results for all the agents.
+	 * @return the results.
+	 */
+	@Pure
+	protected def getAllResults() : List<Object> {
+		if (this.results !== null) {
+			var all = newArrayList
+			synchronized (this.results) {
+				for (values : this.results.values) {
+					all += values
+				}
+			}
+			return all
+		}
+		return emptyList
+	}
+
+	
+	/** 
 	 * Replies the initialization parameters for the agents.
 	 * @return the parameters.
 	 */
@@ -219,10 +260,13 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	@Pure
 	protected def indexOfResult(agentId : UUID = null, type : Class<?>, fromIndex : int = 0) : int {
 		if (this.results !== null) {
-			synchronized(this.results) {
-				try {
-					var res = this.results.get(agentId ?: bootAgent)
-					if (res !== null) {
+			try {
+				var res : List<Object>
+				synchronized(this.results) {
+					res = this.results.get(agentId ?: bootAgent)
+				}
+				if (res !== null) {
+					synchronized (res) {
 						for (var i = fromIndex; i < res.size; i++) {
 							var r = res.get(i)
 							if (type.isInstance(r)) {
@@ -230,9 +274,9 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 							}
 						}
 					}
-				} catch (exception : Throwable) {
-					//
 				}
+			} catch (exception : Throwable) {
+			//
 			}
 		}
 		return -1
@@ -259,7 +303,7 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 		try {
 			waitForTheKernel(timeout)
 		} catch (exception : TimeoutException) {
-			kern.stopKernel
+			Kernel::executeKernelStopWhenNoAgentAlive(kern)
 			throw exception
 		}
 		return kern
@@ -271,16 +315,7 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	 */
 	@Pure
 	protected def getTestingModule : Class<? extends Module> {
-		this.testingModule
-	}
-
-	/** Change the module that should be injected in order to proceed tests.
-	 *
-	 * @param type the module, never {@code null}.
-	 */
-	protected def setTestingModule(type : Class<? extends Module>) {
-		assert type !== null
-		this.testingModule = type
+		null
 	}
 
 	/** Assert the the given kernel has no error on its logs.
@@ -306,13 +341,28 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	 */
 	protected def setupTheSreKernel(type : Class<? extends TestingAgent>, enableLogging : boolean,
 		trackLogErrors : boolean) : Kernel {
+		System::setProperty(VariableNames::toPropertyName(BootConfig::BOOT_AGENT_NAME), type.name)
+		var k = setupTheSreKernel(enableLogging, trackLogErrors)
+		this.bootstrap.startAgent(type, getAgentInitializationParameters)
+		return k
+	}
+
+	/** 
+	 * Set-up the SRE platform.
+	 * 
+	 * @param enableLogging - indicates if the logging is enable or not, i.e. messages are output.
+	 * @param trackLogErrors indicates if the logged errors should be tracked.
+	 * @return the kernel.
+	 * @throws Exception - if the kernel cannot be launched.
+	 */
+	protected def setupTheSreKernel(enableLogging : boolean,
+		trackLogErrors : boolean) : Kernel {
 		assertNull("SRE already launched.", this.sreKernel)
-		val logLevel = if (enableLogging) TEST_LOGGING_LEVEL else Level::OFF
-		System::setProperty(Factories::toPropertyName(LoggingFactory::VERBOSE_LEVEL_NAME), logLevel.name)
-		System::setProperty(Factories::toPropertyName(BootFactory::BOOT_AGENT_NAME), type.name)
+		val logLevel = if(enableLogging) TEST_LOGGING_LEVEL else Level::OFF
+		System::setProperty(VariableNames::toPropertyName(Log4jIntegrationConfig::LEVEL), logLevel.name)
 		val module = getTestingModule
 		this.results = newHashMap
-		this.bootstrap = new ProgrammaticBootstrap
+		this.bootstrap = new SreMain
 		this.bootstrap.startWithoutAgent(module)
 		this.sreKernel = this.bootstrap.kernel
 		if (trackLogErrors) {
@@ -321,19 +371,20 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 					if (record.level === Level.SEVERE) {
 						val res = getAgentInitializationParameters().get(0) as List<Object>
 						if (res !== null) {
-						synchronized (res) {
-							res += record
-						}
+							synchronized (res) {
+								res += record
+							}
 						}
 					}
 				}
+
 				override flush {
 				}
+
 				override close {
 				}
 			})
 		}
-		this.bootstrap.startAgent(type, getAgentInitializationParameters)
 		return this.sreKernel
 	}
 
@@ -356,10 +407,11 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	 * @param predicate the predicate to use as stop condition.
 	 * @throws Exception - if the kernel cannot be launched.
 	 */
+	@SuppressWarnings("discouraged_reference")
 	def waitForTheKernel(timeout : int, predicate : (Map<UUID, List<Object>>)=>boolean) {
 		var endTime : long
 		if (timeout >= 0) {
-			endTime = System::currentTimeMillis() + timeout * 1000
+			endTime = System::currentTimeMillis() + timeout.seconds
 		} else {
 			endTime = -1
 		}
@@ -371,6 +423,15 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 		if (isSreRunning) {
 			throw new TimeoutException
 		}
+	}
+
+	/** 
+	 * Forget any reference to a Janus kernel.
+	 *
+	 * @since 0.9
+	 */
+	protected def forgetTheKernel {
+		this.sreKernel = null;
 	}
 
 }

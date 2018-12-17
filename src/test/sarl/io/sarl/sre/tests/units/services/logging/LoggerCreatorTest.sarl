@@ -25,10 +25,12 @@ import io.sarl.sre.services.logging.LoggerCreator
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import java.util.UUID
 import java.util.logging.Level
+import java.util.logging.Logger
+import javax.inject.Provider
 import org.junit.Test
+import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertSame
+import static extension org.mockito.Mockito.*
 
 /**
  * @author $Author: sgalland$
@@ -39,115 +41,31 @@ import static org.junit.Assert.assertSame
 class LoggerCreatorTest extends AbstractSreTest {
 
 	@Test
-	def getLevelStrings {
-		var t = LoggerCreator::getLevelStrings
-		assertNotNull(t)
-		assertEquals(8, t.length)
-		assertEquals("none", t.get(0))
-		assertEquals("error", t.get(1))
-		assertEquals("warning", t.get(2))
-		assertEquals("info", t.get(3))
-		assertEquals("fine", t.get(4))
-		assertEquals("finer", t.get(5))
-		assertEquals("finest", t.get(6))
-		assertEquals("all", t.get(7))
-	}
-
-	@Test
-	def parseLoggingLevel {
-		assertSame(Level::ALL, LoggerCreator::parseLoggingLevel("all"))
-		assertSame(Level::ALL, LoggerCreator::parseLoggingLevel("ALL"))
-		assertSame(Level::ALL, LoggerCreator::parseLoggingLevel("7"))
-		//
-		assertSame(Level::FINEST, LoggerCreator::parseLoggingLevel("debug"))
-		assertSame(Level::FINEST, LoggerCreator::parseLoggingLevel("DEBUG"))
-		assertSame(Level::FINEST, LoggerCreator::parseLoggingLevel("finest"))
-		assertSame(Level::FINEST, LoggerCreator::parseLoggingLevel("FINEST"))
-		assertSame(Level::FINEST, LoggerCreator::parseLoggingLevel("6"))
-		//
-		assertSame(Level::FINER, LoggerCreator::parseLoggingLevel("finer"))
-		assertSame(Level::FINER, LoggerCreator::parseLoggingLevel("FINER"))
-		assertSame(Level::FINER, LoggerCreator::parseLoggingLevel("5"))
-		//
-		assertSame(Level::FINE, LoggerCreator::parseLoggingLevel("fine"))
-		assertSame(Level::FINE, LoggerCreator::parseLoggingLevel("FINE"))
-		assertSame(Level::FINE, LoggerCreator::parseLoggingLevel("config"))
-		assertSame(Level::FINE, LoggerCreator::parseLoggingLevel("config"))
-		assertSame(Level::FINE, LoggerCreator::parseLoggingLevel("4"))
-		//
-		assertSame(Level::INFO, LoggerCreator::parseLoggingLevel("info"))
-		assertSame(Level::INFO, LoggerCreator::parseLoggingLevel("INFO"))
-		assertSame(Level::INFO, LoggerCreator::parseLoggingLevel("true"))
-		assertSame(Level::INFO, LoggerCreator::parseLoggingLevel("TRUE"))
-		assertSame(Level::INFO, LoggerCreator::parseLoggingLevel("3"))
-		//
-		assertSame(Level::WARNING, LoggerCreator::parseLoggingLevel("warning"))
-		assertSame(Level::WARNING, LoggerCreator::parseLoggingLevel("WARNING"))
-		assertSame(Level::WARNING, LoggerCreator::parseLoggingLevel("warn"))
-		assertSame(Level::WARNING, LoggerCreator::parseLoggingLevel("WARN"))
-		assertSame(Level::WARNING, LoggerCreator::parseLoggingLevel("2"))
-		//
-		assertSame(Level::SEVERE, LoggerCreator::parseLoggingLevel("severe"))
-		assertSame(Level::SEVERE, LoggerCreator::parseLoggingLevel("SEVERE"))
-		assertSame(Level::SEVERE, LoggerCreator::parseLoggingLevel("error"))
-		assertSame(Level::SEVERE, LoggerCreator::parseLoggingLevel("ERROR"))
-		assertSame(Level::SEVERE, LoggerCreator::parseLoggingLevel("1"))
-		//
-		assertSame(Level::OFF, LoggerCreator::parseLoggingLevel("none"))
-		assertSame(Level::OFF, LoggerCreator::parseLoggingLevel("NONE"))
-		assertSame(Level::OFF, LoggerCreator::parseLoggingLevel("false"))
-		assertSame(Level::OFF, LoggerCreator::parseLoggingLevel("FALSE"))
-		assertSame(Level::OFF, LoggerCreator::parseLoggingLevel("0"))
-		//
-		assertSame(Level::INFO, LoggerCreator::parseLoggingLevel(UUID::randomUUID.toString))
-		assertSame(Level::INFO, LoggerCreator::parseLoggingLevel(null))
-	}
-
-	@Test
-	def fromInt {
-		assertSame(Level::OFF, LoggerCreator::fromInt(-32))
-		assertSame(Level::OFF, LoggerCreator::fromInt(-1))
-		assertSame(Level::OFF, LoggerCreator::fromInt(0))
-		assertSame(Level::SEVERE, LoggerCreator::fromInt(1))
-		assertSame(Level::WARNING, LoggerCreator::fromInt(2))
-		assertSame(Level::INFO, LoggerCreator::fromInt(3))
-		assertSame(Level::FINE, LoggerCreator::fromInt(4))
-		assertSame(Level::FINER, LoggerCreator::fromInt(5))
-		assertSame(Level::FINEST, LoggerCreator::fromInt(6))
-		assertSame(Level::ALL, LoggerCreator::fromInt(7))
-		assertSame(Level::ALL, LoggerCreator::fromInt(8))
-		assertSame(Level::ALL, LoggerCreator::fromInt(35))
-	}
-
-	@Test
-	def toIntLevel {
-		assertEquals(0, LoggerCreator::toInt(Level::OFF))
-		assertEquals(1, LoggerCreator::toInt(Level::SEVERE))
-		assertEquals(2, LoggerCreator::toInt(Level::WARNING))
-		assertEquals(3, LoggerCreator::toInt(Level::INFO))
-		assertEquals(3, LoggerCreator::toInt(null as Level))
-		assertEquals(4, LoggerCreator::toInt(Level::FINE))
-		assertEquals(4, LoggerCreator::toInt(Level::CONFIG))
-		assertEquals(5, LoggerCreator::toInt(Level::FINER))
-		assertEquals(6, LoggerCreator::toInt(Level::FINEST))
-		assertEquals(7, LoggerCreator::toInt(Level::ALL))
-	}
-
-	@Test
 	def createPlatformLogger {
+		var config = typeof(Provider).mock
+		var log = typeof(Logger).mock
+		when(config.get).thenReturn(log)
 		var expectedLevel = Level::ALL
-		var creator = new LoggerCreator("format", Level::CONFIG, "name")
+		var creator = new LoggerCreator(Level::CONFIG, "name", config)
 		var logger = creator.createPlatformLogger
-		assertEquals(expectedLevel, logger.level)
+		assertSame(log, logger)
+		var argument0 = ArgumentCaptor::forClass(typeof(Level))
+		verify(logger, 1.times).level = argument0.capture
+		assertEquals(expectedLevel, argument0.value)
 	}
 
 	@Test
 	def createAgentLogger {
-		var creator = new LoggerCreator("format", Level::CONFIG, "name")
+		var config = typeof(Provider).mock
+		var log = typeof(Logger).mock
+		when(config.get).thenReturn(log)
+		var expectedLevel = Level::CONFIG
+		var creator = new LoggerCreator(Level::CONFIG, "name", config)
 		var parent = creator.createPlatformLogger
 		var name = UUID::randomUUID.toString
 		var logger = creator.createModuleLogger(name, parent)
-		assertEquals(Level::CONFIG, logger.level)
+		assertNotSame(log, logger)
+		assertEquals(expectedLevel, logger.level)
 	}
 
 }

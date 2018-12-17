@@ -21,9 +21,6 @@
 
 package io.sarl.sre.tests.runtime.services.context;
 
-import com.google.inject.Module
-import io.sarl.sre.boot.injection.modules.LiteSrePlatformModule
-
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -31,9 +28,4 @@ import io.sarl.sre.boot.injection.modules.LiteSrePlatformModule
  * @mavenartifactid $ArtifactId$
  */
 class LocalSpaceRepositoryTest extends AbstractSpaceRepositoryTest {
-
-	override getTestingModule : Class<? extends Module> {
-		typeof(LiteSrePlatformModule)
-	}
-
 }

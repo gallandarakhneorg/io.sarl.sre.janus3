@@ -36,7 +36,7 @@ package agent GetSpacesClassTestAgent extends TestingAgent {
 
 	uses DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		var ctx = defaultContext
 		for (sp : ctx.getSpaces(typeof(OpenEventSpaceSpecification))) {
 			addResult("1/" + sp.spaceID.spaceSpecification.simpleName)
@@ -49,7 +49,7 @@ package agent GetSpacesClassTestAgent extends TestingAgent {
 		for (sp : ctx.getSpaces(typeof(MySpaceSpec))) {
 			addResult("3/" + sp.spaceID.spaceSpecification.simpleName)
 		}
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

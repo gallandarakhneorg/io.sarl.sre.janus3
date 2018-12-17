@@ -33,7 +33,7 @@ package agent TAgent1 extends TestingAgent {
 
 	uses C1
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		setSkill(new S1 [it.addResult])
 		//
 		fct
@@ -42,7 +42,7 @@ package agent TAgent1 extends TestingAgent {
 		//
 		fct
 		//
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

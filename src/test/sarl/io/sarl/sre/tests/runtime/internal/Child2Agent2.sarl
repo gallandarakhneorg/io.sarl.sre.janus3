@@ -38,20 +38,18 @@ package agent Child2Agent2 extends TestingAgent {
 	
 	uses Schedules, ExternalContextAccess, Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		val newContext = getAgentInitializationParameters.get(1) as AgentContext
 		in(500) [
 			if (join(newContext.ID, newContext.defaultSpace.spaceID.ID)) {
 				in(500) [killMe]
 			}
 		]
-		return false
+		return null
 	}
 
 	on ContextJoined {
-		synchronized(getRawResults) {
-			addResult("CHILD2")
-		}
+		addResult("CHILD2")
 	}
 
 }

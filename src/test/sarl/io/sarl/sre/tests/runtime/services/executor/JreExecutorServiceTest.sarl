@@ -20,9 +20,6 @@
  */
 package io.sarl.sre.tests.runtime.services.executor;
 
-import com.google.inject.Module
-import io.sarl.sre.boot.injection.modules.LiteSrePlatformModule
-
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -30,9 +27,4 @@ import io.sarl.sre.boot.injection.modules.LiteSrePlatformModule
  * @mavenartifactid $ArtifactId$
  */
 class JreExecutorServiceTest extends AbstractExecutorServiceRunTest {
-
-	override getTestingModule : Class<? extends Module> {
-		typeof(LiteSrePlatformModule)
-	}
-
 }

@@ -25,6 +25,7 @@ import io.sarl.core.Destroy
 import io.sarl.core.Lifecycle
 import io.sarl.core.Schedules
 import io.sarl.sre.tests.testutils.TestingAgent
+import java.util.ArrayList
 
 /**
  * @author $Author: sgalland$
@@ -36,20 +37,20 @@ package agent GetActiveTasksAgent extends TestingAgent {
 	
 	uses Schedules, Lifecycle
 	
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		var t = every(500) []
 		t.setName( "T1")
-		addResult(newArrayList(getActiveTasks))
+		addResult(new ArrayList(getActiveTasks))
 		t = in(1000) [
 			killMe
 		]
 		t.setName("T2")
-		addResult(newArrayList(getActiveTasks))
-		return false
+		addResult(new ArrayList(getActiveTasks))
+		return null
 	}
 
 	on Destroy {
-		addResult(newArrayList(getActiveTasks))
+		addResult(new ArrayList(getActiveTasks))
 	}
 
 }

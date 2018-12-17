@@ -29,6 +29,7 @@ package agent EmptyAgent {
 	
 	uses Logging, DefaultContextInteractions, Lifecycle
 	
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on Initialize {
 		info("Empty-Init")
 		new Initialized().emit [it.UUID == occurrence.spawner]

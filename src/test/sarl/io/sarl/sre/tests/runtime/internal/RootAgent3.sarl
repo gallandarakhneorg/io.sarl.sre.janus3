@@ -41,16 +41,16 @@ package agent RootAgent3 extends TestingAgent {
 
 	uses Lifecycle, InnerContextAccess, Logging, Behaviors, DefaultContextInteractions, Schedules
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		loggingName = "ROOT"
 		in(500) [
-			typeof(ChildAgent3).spawnInContext(innerContext, getRawResults)
+			typeof(ChildAgent3).spawnInContext(innerContext, rawResultMap)
 		]
-		return false
+		return null
 	}
 
 	on AgentSpawned [typeof(ChildAgent3).name == occurrence.agentType] {
-		typeof(Child2Agent3).spawn(getRawResults, innerContext)
+		typeof(Child2Agent3).spawn(rawResultMap, innerContext)
 	}
 	
 	on ContextLeft [!occurrence.isInDefaultSpace] {

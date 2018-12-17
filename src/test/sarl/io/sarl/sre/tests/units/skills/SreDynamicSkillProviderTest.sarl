@@ -46,9 +46,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertSame
-
 import static extension org.mockito.Mockito.times
 import static extension org.mockito.Mockito.verify
 

@@ -3,17 +3,17 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.sarl.sre.lite</groupId>
 	<artifactId>io.sarl.sre.lite</artifactId>
-	<version>0.8.0-SNAPSHOT</version>
+	<version>0.10.0-SNAPSHOT</version>
 	<name>Lite SARL Run-time Environment</name>
 
 	<properties>
-		<sarl.version>0.9.0-SNAPSHOT</sarl.version>
+		<sarl.version>0.10.0-SNAPSHOT</sarl.version>
 		<cliRunnerMainClass>io.sarl.sre.boot.Boot</cliRunnerMainClass>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<osgi.nls.version>3.10.0-v20140606-1445</osgi.nls.version>
-		<afc.version>15.0</afc.version>
-		<guava.version>20.0</guava.version>
+		<afc.version>16.0-SNAPSHOT</afc.version>
+		<guava.version>21.0</guava.version>
 		<guice.version>4.1.0</guice.version>
 		<compiler.level>1.8</compiler.level>
 	</properties>
@@ -48,30 +48,29 @@
 			<version>${guava.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse</groupId>
-			<artifactId>osgi</artifactId>
-			<version>${osgi.nls.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-cli</groupId>
-			<artifactId>commons-cli</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>io.bootique</groupId>
-			<artifactId>bootique</artifactId>
-			<version>0.25</version>
-		</dependency>
-		<dependency>
-			<groupId>org.arakhne.afc.core</groupId>
-			<artifactId>vmutils</artifactId>
+			<groupId>org.arakhne.afc.bootique</groupId>
+			<artifactId>bootique-applicationdata2</artifactId>
 			<version>${afc.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.eclipse.xtext</groupId>
-					<artifactId>org.eclipse.xtext.xbase.lib</artifactId>
-				</exclusion>
-			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.bootique</groupId>
+			<artifactId>bootique-synopsishelp</artifactId>
+			<version>${afc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.bootique</groupId>
+			<artifactId>bootique-printconfig</artifactId>
+			<version>${afc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.bootique</groupId>
+			<artifactId>bootique-variables</artifactId>
+			<version>${afc.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.bootique</groupId>
+			<artifactId>bootique-log4j</artifactId>
+			<version>${afc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.arakhne.afc.core</groupId>
@@ -105,7 +104,7 @@
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
-			<version>3.23.1-GA</version>
+			<version>3.25.0-GA</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -120,8 +119,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<!-- Version 3.7.0 depends on a library that is compiled with Java 9! -->
-				<version>3.6.2</version>
+				<version>3.8.1</version>
 				<configuration>
 					<source>${compiler.level}</source>
 					<target>${compiler.level}</target>

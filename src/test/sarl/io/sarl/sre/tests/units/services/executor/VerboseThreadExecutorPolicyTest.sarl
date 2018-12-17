@@ -38,8 +38,6 @@ import org.junit.runners.Suite
 import org.junit.runners.Suite.SuiteClasses
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.fail
 import static org.mockito.Mockito.never
 import static org.mockito.Mockito.only
 import static org.mockito.Mockito.verifyZeroInteractions
@@ -59,7 +57,7 @@ import static extension org.mockito.Mockito.verify
 	typeof(VerboseThreadExecutorPolicyTest.NotShutDownTest),
 	typeof(VerboseThreadExecutorPolicyTest.ShutDownTest)
 ])
-@SuppressWarnings("all")
+@SuppressWarnings("discouraged_reference")
 class VerboseThreadExecutorPolicyTest {
 
 	static class NotShutDownTest extends AbstractSreTest {
@@ -158,7 +156,7 @@ class VerboseThreadExecutorPolicyTest {
 
 	}
 
-	public static class ShutDownTest extends AbstractSreTest {
+	static class ShutDownTest extends AbstractSreTest {
 		
 		@Nullable
 		var logService : LoggingService

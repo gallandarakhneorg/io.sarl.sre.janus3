@@ -36,15 +36,13 @@ package agent ChildAgent3 extends TestingAgent {
 
 	uses Lifecycle, Logging
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		loggingName = "CHILD1"
-		return false
+		return null
 	}
 
 	on ContextLeft {
-		synchronized(getRawResults) {
-			addResult("CHILD1")
-		}
+		addResult("CHILD1")
 	}
 
 	on Bye {

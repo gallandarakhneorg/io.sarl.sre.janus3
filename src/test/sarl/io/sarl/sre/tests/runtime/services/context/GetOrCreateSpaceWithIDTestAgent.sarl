@@ -36,7 +36,7 @@ package agent GetOrCreateSpaceWithIDTestAgent extends TestingAgent {
 
 	uses DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		var id = UUID::randomUUID
 		var ctx = defaultContext
 		var ^space = ctx.getOrCreateSpaceWithID(typeof(OpenEventSpaceSpecification), id)
@@ -53,7 +53,7 @@ package agent GetOrCreateSpaceWithIDTestAgent extends TestingAgent {
 				addResult("FOUND2")
 			}
 		}
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

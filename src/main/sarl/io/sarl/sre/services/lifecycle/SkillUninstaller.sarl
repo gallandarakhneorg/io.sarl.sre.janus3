@@ -93,14 +93,14 @@ class BasicSkillUninstaller implements SkillUninstaller {
 			val builtinSkills = <BuiltinSkill>newArrayList
 			val otherSkills = <Skill>newTreeSet(Comparators::objectComparator)
 			var comparator = if (inReverseOrder) REVERSE_ORDER_COMPARATOR else ORDER_COMPARATOR
-			skills.values.forEach [ skillReference |
+			for (skillReference : skills.values) {
 				val ^skill = skillReference.get
 				if (^skill instanceof BuiltinSkill) {
 					ListUtil::add(builtinSkills, comparator, ^skill, false, false)
 				} else if (^skill !== null) {
 					otherSkills += ^skill
 				}
-			]
+			}
 			if (otherSkills.empty) {
 				return builtinSkills
 			}

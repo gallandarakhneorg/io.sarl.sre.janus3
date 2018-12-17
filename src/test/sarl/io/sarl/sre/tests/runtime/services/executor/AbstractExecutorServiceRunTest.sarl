@@ -26,8 +26,6 @@ import java.util.List
 import java.util.UUID
 import org.junit.Test
 
-import static org.junit.Assert.assertNotNull
-
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -38,63 +36,61 @@ abstract class AbstractExecutorServiceRunTest extends AbstractSreRunTest {
 
 	@Test
 	def execute {
-		typeof(ExecuteAgent).runSre(false, true, 60)
-		var results = getResults
-		assertNotNull(results)
-		assertNumberOfResults(1)
-		assertInstanceOf(typeof(UUID), results.get(0))
+		typeof(ExecuteAgent).runSre(false, true, STANDARD_TIMEOUT)
+		var all = allResults
+		assertEquals(1, all.size)
+		assertInstanceOf(typeof(UUID), all.get(0))
 	}
 
 	@Test
 	def in {
-		typeof(InAgent).runSre(false, true, 60)
-		var results = getResults
-		assertNotNull(results)
-		assertNumberOfResults(1)
-		assertInstanceOf(typeof(UUID), results.get(0))
+		typeof(InAgent).runSre(false, true, STANDARD_TIMEOUT)
+		var all = allResults
+		assertEquals(1, all.size)
+		assertInstanceOf(typeof(UUID), all.get(0))
 	}
 
 	@Test
 	def every {
-		typeof(EveryAgent).runSre(false, true, 60)
-		var results = getResults
-		assertNotNull(results)
-		assertNumberOfResults(1)
-		assertEquals(2, results.get(0))
+		typeof(EveryAgent).runSre(false, true, STANDARD_TIMEOUT)
+		var all = allResults
+		assertEquals(1, all.size)
+		assertEquals(2, all.get(0))
 	}
 
 	@Test
 	def atFixedDelay {
-		typeof(AtFixedDelayAgent).runSre(false, true, 60)
-		var results = getResults
-		assertNotNull(results)
-		assertNumberOfResults(1)
-		assertEquals(2, results.get(0))
+		typeof(AtFixedDelayAgent).runSre(false, true, STANDARD_TIMEOUT)
+		var all = allResults
+		assertEquals(1, all.size)
+		assertEquals(2, all.get(0))
 	}
 
 	@Test
 	def getActiveTasks {
-		typeof(GetActiveTasksAgent).runSre(false, true, 60)
-		assertNumberOfResults(3)
-		var actives1 = getResult(typeof(List), 0)
+		typeof(GetActiveTasksAgent).runSre(false, true, STANDARD_TIMEOUT)
+		var all = allResults
+		assertEquals(3, all.size)
+		var actives1 = all.get(typeof(List), 0)
 		assertContains(actives1, "T1")
-		var actives2 = getResult(typeof(List), 1)
+		var actives2 = all.get(typeof(List), 1)
 		assertContains(actives2, "T1", "T2")
-		var actives3 = getResult(typeof(List), 2)
+		var actives3 = all.get(typeof(List), 2)
 		assertContains(actives3)
 	}
 
 	@Test
 	def cancel {
-		typeof(CancelTaskAgent).runSre(false, true, 60)
-		assertNumberOfResults(4)
-		var actives1 = getResult(typeof(List), 0)
+		typeof(CancelTaskAgent).runSre(false, true, STANDARD_TIMEOUT)
+		var all = allResults
+		assertEquals(4, all.size)
+		var actives1 = all.get(typeof(List), 0)
 		assertContains(actives1, "T1")
-		var actives2 = getResult(typeof(List), 1)
+		var actives2 = all.get(typeof(List), 1)
 		assertContains(actives2, "T1", "T2")
-		var actives3 = getResult(typeof(List), 2)
+		var actives3 = all.get(typeof(List), 2)
 		assertContains(actives3, "T2")
-		var actives4 = getResult(typeof(List), 3)
+		var actives4 = all.get(typeof(List), 3)
 		assertContains(actives4)
 	}
 

@@ -34,7 +34,7 @@ package agent KilledInInitAgent extends TestingAgent {
 
 	uses Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		killMe
 	}
 

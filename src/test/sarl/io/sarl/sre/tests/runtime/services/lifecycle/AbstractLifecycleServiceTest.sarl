@@ -24,8 +24,6 @@ package io.sarl.sre.tests.runtime.services.lifecycle
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 
-import static org.junit.Assert.assertNotNull
-
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -37,7 +35,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def spawnAgent_1 {
 		typeof(OneAgentSpawnTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(1, results.size)
 		assertContains(results, "SPAWNED")
@@ -46,7 +44,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def spawnAgent_3 {
 		typeof(ThreeAgentsSpawnTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(3, results.size)
 		assertContains(results, "SPAWNED", "SPAWNED", "SPAWNED")
@@ -55,7 +53,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def killAgent_duringInitialize {
 		typeof(InitializeKillTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(1, results.size)
 		assertContains(results, "1")
@@ -64,7 +62,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def killAgent_duringInitializeAfterSpawn {
 		typeof(InitializeSpawnKillTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(3, results.size)
 		assertContains(results, "1", "2", "SPAWNED")
@@ -73,7 +71,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def killAgent_duringEventHandling {
 		typeof(EventHanlderKillTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(2, results.size)
 		assertContains(results, "1", "2")
@@ -82,7 +80,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def killAgent_duringTask {
 		typeof(TaskKillTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(2, results.size)
 		assertContains(results, "1", "2")
@@ -91,7 +89,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def killAgent_duringDestroy {
 		typeof(DestroyKillTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(2, results.size)
 		assertContains(results, "1", "2")
@@ -100,7 +98,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def isKillableAgent_noChild_noInnerContext {
 		typeof(NoChildNoInnerContextIsKillableTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(2, results.size)
 		assertContains(results, "1", "2")
@@ -109,7 +107,7 @@ abstract class AbstractLifecycleServiceTest extends AbstractSreRunTest {
 	@Test
 	def isKillableAgent_noChild_innerContext {
 		typeof(NoChildInnerContextIsKillableTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		var results = getResults
+		var results = allResults
 		assertNotNull(results)
 		assertEquals(2, results.size)
 		assertContains(results, "1", "2")

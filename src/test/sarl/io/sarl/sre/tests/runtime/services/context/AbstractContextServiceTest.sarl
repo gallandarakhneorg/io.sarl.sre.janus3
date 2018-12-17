@@ -22,7 +22,7 @@
 package io.sarl.sre.tests.runtime.services.context
 
 import io.sarl.lang.core.AgentContext
-import io.sarl.sre.boot.factories.BootFactory
+import io.sarl.sre.boot.configs.subconfigs.BootConfig
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import java.util.UUID
 import org.junit.Test
@@ -45,19 +45,19 @@ abstract class AbstractContextServiceTest extends AbstractSreRunTest {
 			throw new Exception(res)
 		}
 		assertInstanceOf(typeof(AgentContext), results.get(0))
-		assertEquals(UUID::fromString(BootFactory::ROOT_CONTEXT_ID_VALUE), (results.get(0) as AgentContext).ID)
+		assertEquals(UUID::fromString(BootConfig::ROOT_CONTEXT_ID_VALUE), (results.get(0) as AgentContext).ID)
 	}
 
 	@Test
 	def getContext : void {
-		var aid = typeof(GetContextTestAgent).runSre(false, true, STANDARD_TIMEOUT)
+		typeof(GetContextTestAgent).runSre(false, true, STANDARD_TIMEOUT)
 		var results = getResults
 		assertEquals(2, results.size)
 		assertInstanceOf(typeof(UUID), results.get(0))
 		var agentId = results.get(0) as UUID
-		assertEquals(aid, agentId)
+		assertEquals(getBootAgent, agentId)
 		assertInstanceOf(typeof(AgentContext), results.get(1))
-		assertEquals(UUID::fromString(BootFactory::ROOT_CONTEXT_ID_VALUE), (results.get(1) as AgentContext).ID)
+		assertEquals(UUID::fromString(BootConfig::ROOT_CONTEXT_ID_VALUE), (results.get(1) as AgentContext).ID)
 	}
 
 }

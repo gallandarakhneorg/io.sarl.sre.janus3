@@ -34,9 +34,9 @@ package agent FakeAgent2 extends TestingAgent {
 
 	uses Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("SPAWNED")
-		return false
+		return null
 	}
 
 	on MyEvent {

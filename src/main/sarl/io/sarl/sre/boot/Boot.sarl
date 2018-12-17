@@ -20,7 +20,8 @@
  */
 package io.sarl.sre.boot
 
-import io.bootique.Bootique
+import io.bootique.help.HelpOption
+import java.util.List
 
 /** 
  * This is the class that permits to boot programmatically the SRE platform with the Bootique API.
@@ -33,19 +34,38 @@ import io.bootique.Bootique
  */
 class Boot {
 
+	/** Replies the default name of the program.
+	 * 
+	 * @return the default name of the program.
+	 */
+	static def getDefaultSreProgramName : String {
+		return "sarl"
+	}
+
+	/** Create the instance of the bootique main launcher.
+	 * 
+	 * @return the main launcher.
+	 */
+	protected static def createMainObject : SreMain {
+		new SreMain
+	}
+
+	/** Replies the options of the program.
+	 * 
+	 * @return the options of the program.
+	 */
+	static def getOptions : List<HelpOption> {
+		createMainObject.options
+	}
+
 	/** Main program.
 	 *
 	 * @param args the command line arguments.
 	 */
+	@SuppressWarnings("discouraged_reference")
 	static def main(args : String*) : void {
-		// Create a bootique with the command-line arguments.
-		var bootique = Bootique.app(args)
-		// Create the bootstrap
-		var bootstrap = new ProgrammaticBootstrap
-		// Start the bootstrap
-		bootstrap.startWithoutAgent(bootique)
-		// Start the first agent
-		bootstrap.startBootAgent
+		val retCode = createMainObject.runSRE(args)
+		System::exit(retCode)
 	}
 
 }

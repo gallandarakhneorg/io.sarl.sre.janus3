@@ -31,7 +31,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertSame
 import static org.mockito.Mockito.verifyZeroInteractions
 
 import static extension org.mockito.Mockito.verify
@@ -59,15 +58,15 @@ class JreTimeServiceTest extends AbstractSreTest {
 
 	@Test
 	def getTime {
-		assertEquals(0.025, this.service.getTime(TimeUnit::MINUTES))
-		assertEquals(1.5, this.service.getTime(TimeUnit::SECONDS))
-		assertEquals(1500.0, this.service.getTime(TimeUnit::MILLISECONDS))
+		assertEpsilonEquals(0.025, this.service.getTime(TimeUnit::MINUTES))
+		assertEpsilonEquals(1.5, this.service.getTime(TimeUnit::SECONDS))
+		assertEpsilonEquals(1500.0, this.service.getTime(TimeUnit::MILLISECONDS))
 		verifyZeroInteractions(this.listener)
 	}
 
 	@Test
 	def getOSTimeFactor {
-		assertEquals(1.0, this.service.OSTimeFactor)
+		assertEpsilonEquals(1.0, this.service.OSTimeFactor)
 		verifyZeroInteractions(this.listener)
 	}
 

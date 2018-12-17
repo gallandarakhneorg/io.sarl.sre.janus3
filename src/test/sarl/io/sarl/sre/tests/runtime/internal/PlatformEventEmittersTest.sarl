@@ -34,8 +34,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Suite
 import org.junit.runners.Suite.SuiteClasses
 
-import static org.junit.Assert.*
-
 /**
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -64,7 +62,7 @@ class PlatformEventEmittersTest {
 		@Test
 		def withinAgentAndBehavior {
 			typeof(MyAgent0).runSre(false, true, STANDARD_TIMEOUT)
-			assertContains(getResults, "AGENT", "BEHAVIOR")
+			assertContains(allResults, "AGENT", "BEHAVIOR")
 		}
 
 	}
@@ -74,7 +72,7 @@ class PlatformEventEmittersTest {
 		@Test
 		def withinAgentAndBehavior {
 			typeof(MyAgent1).runSre(false, true, STANDARD_TIMEOUT)
-			assertContains(getResults, "AGENT", "BEHAVIOR")
+			assertContains(allResults, "AGENT", "BEHAVIOR")
 		}
 
 	}
@@ -85,12 +83,13 @@ class PlatformEventEmittersTest {
 		def run {
 			typeof(MyWaiterAgent0).runSre(false, true, STANDARD_TIMEOUT)
 			
-			assertEquals(5, getNumberOfResults)
-			assertEquals("SPAWNER", getResult(typeof(String), 0))
-			var ^event = getResult(typeof(AgentSpawned), 1)
-			var spawner = getResult(typeof(UUID), 2)
-			var ^space = getResult(typeof(SpaceID), 3)
-			var spawnId = getResult(typeof(UUID), 4)
+			var all = allResults
+			assertEquals(5, all.size)
+			assertEquals("SPAWNER", all.get(typeof(String), 0))
+			var ^event = all.get(typeof(AgentSpawned), 1)
+			var spawner = all.get(typeof(UUID), 2)
+			var ^space = all.get(typeof(SpaceID), 3)
+			var spawnId = all.get(typeof(UUID), 4)
 
 			assertNotNull(^event)
 			assertEquals(typeof(MySpawnedAgent0).name, ^event.agentType)
@@ -101,18 +100,18 @@ class PlatformEventEmittersTest {
 		
 	}
 
-	@SuppressWarnings("all")
-	public static class AgentKilledTest extends AbstractSreRunTest {
+	static class AgentKilledTest extends AbstractSreRunTest {
 		
 		@Test
 		def run {
 			typeof(MyWaiterAgent1).runSre(false, true, STANDARD_TIMEOUT)
 			
-			assertEquals(4, getNumberOfResults)
-			assertEquals("SPAWNER", getResult(typeof(String), 0))
-			var ^event = getResult(typeof(AgentKilled), 1)
-			var ^space = getResult(typeof(SpaceID), 2)
-			var spawnId = getResult(typeof(UUID), 3)
+			var all = allResults
+			assertEquals(4, all.size)
+			assertEquals("SPAWNER", all.get(typeof(String), 0))
+			var ^event = all.get(typeof(AgentKilled), 1)
+			var ^space = all.get(typeof(SpaceID), 2)
+			var spawnId = all.get(typeof(UUID), 3)
 
 			assertNotNull(^event)
 			assertEquals(typeof(MySpawnedAgent1).name, ^event.agentType)
@@ -129,12 +128,13 @@ class PlatformEventEmittersTest {
 		def run {
 			typeof(MyWaiterAgent2).runSre(false, true, STANDARD_TIMEOUT)
 			
-			assertEquals(5, getNumberOfResults)
-			assertEquals("SPAWNER", getResult(typeof(String), 0))
-			var ^event = getResult(typeof(MemberJoined), 1)
-			var parent = getResult(typeof(UUID), 2)
-			var ^space = getResult(typeof(SpaceID), 3)
-			var spawnId = getResult(typeof(UUID), 4)
+			var all = allResults
+			assertEquals(5, all.size)
+			assertEquals("SPAWNER", all.get(typeof(String), 0))
+			var ^event = all.get(typeof(MemberJoined), 1)
+			var parent = all.get(typeof(UUID), 2)
+			var ^space = all.get(typeof(SpaceID), 3)
+			var spawnId = all.get(typeof(UUID), 4)
 
 			assertNotNull(^event)
 			assertEquals(parent, ^event.source.UUID)
@@ -151,11 +151,12 @@ class PlatformEventEmittersTest {
 		def run {
 			typeof(MyWaiterAgent3).runSre(false, true, STANDARD_TIMEOUT)
 			
-			assertEquals(4, getNumberOfResults)
-			assertEquals("SPAWNER", getResult(typeof(String), 0))
-			var ^event = getResult(typeof(MemberLeft), 1)
-			var ^space = getResult(typeof(SpaceID), 2)
-			var parent = getResult(typeof(UUID), 3)
+			var all = allResults
+			assertEquals(4, all.size)
+			assertEquals("SPAWNER", all.get(typeof(String), 0))
+			var ^event = all.get(typeof(MemberLeft), 1)
+			var ^space = all.get(typeof(SpaceID), 2)
+			var parent = all.get(typeof(UUID), 3)
 
 			assertNotNull(^event)
 			assertEquals(typeof(MySpawnedAgent3).name, ^event.agentType)
@@ -170,24 +171,20 @@ class PlatformEventEmittersTest {
 		@Test
 		def run {
 			typeof(RootAgent0).runSre(false, true, STANDARD_TIMEOUT)
-			
-			assertContains(getResults,
-					"ROOT:ChildAgent", // Spawning
-					"ROOT:Child2Agent", // Arrival of Child2 within the Inner context of Root.
-					"CHILD1:Child2Agent") // Arrival of Child2 within the Inner context of Root.
+			assertContains(allResults,
+					"ROOT:ChildAgent0", // Spawning
+					"ROOT:Child2Agent0", // Arrival of Child2 within the Inner context of Root.
+					"CHILD1:Child2Agent0") // Arrival of Child2 within the Inner context of Root.
 		}
 
 	}
 
-	@SuppressWarnings("all")
-	public static class MemberLeftTest extends AbstractSreRunTest {
+	static class MemberLeftTest extends AbstractSreRunTest {
 
 		@Test
 		def run {
 			typeof(RootAgent1).runSre(false, true, STANDARD_TIMEOUT)
-			
-			assertTrue(getResults.contains("ROOT:Child2Agent")) // Suicide of Child2
-			assertTrue(getResults.contains("CHILD1:Child2Agent")) // Suicide of Child2
+			assertContains(allResults, "ROOT:ChildAgent1", "ROOT:Child2Agent1", "CHILD1:Child2Agent1")
 		}
 
 	}
@@ -197,8 +194,7 @@ class PlatformEventEmittersTest {
 		@Test
 		def run {
 			typeof(RootAgent2).runSre(false, true, STANDARD_TIMEOUT)
-			
-			assertContains(getResults, "CHILD2") // Child2 joined the inner context of ROOT
+			assertContains(allResults, "CHILD2")
 		}
 
 	}
@@ -208,8 +204,7 @@ class PlatformEventEmittersTest {
 		@Test
 		def run {
 			typeof(RootAgent3).runSre(false, true, STANDARD_TIMEOUT)
-			
-			assertContains(getResults, "CHILD2") // Child2 left the inner context of ROOT
+			assertContains(allResults, "CHILD2") // Child2 left the inner context of ROOT
 		}
 
 	}
@@ -220,9 +215,10 @@ class PlatformEventEmittersTest {
 		def run {
 			typeof(MyWaiterAgent4).runSre(false, true, STANDARD_TIMEOUT)
 			
-			assertEquals(2, getNumberOfResults)
-			var data1 = getResult(typeof(Data), 0)
-			var data2 = getResult(typeof(Data), 1)
+			var all = allResults
+			assertEquals(2, all.size)
+			var data1 = all.get(typeof(Data), 0)
+			var data2 = all.get(typeof(Data), 1)
 
 			var rest = validateSpawner(data1, data2)
 			rest.validateSpawned

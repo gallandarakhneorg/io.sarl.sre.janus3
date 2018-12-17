@@ -36,14 +36,12 @@ package agent ChildAgent2 extends TestingAgent {
 
 	uses Lifecycle
 
-	override runAgentTest : boolean {
-		return false
+	override runAgentTest : RunPolicy {
+		return null
 	}
 
 	on ContextJoined {
-		synchronized(getRawResults) {
-			addResult("CHILD1")
-		}
+		addResult("CHILD1")
 	}
 
 	on AgentKilled {

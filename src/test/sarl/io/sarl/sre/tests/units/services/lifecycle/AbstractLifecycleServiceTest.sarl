@@ -34,6 +34,7 @@ import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.lifecycle.AbstractLifecycleService
 import io.sarl.sre.services.lifecycle.AgentLife
 import io.sarl.sre.services.lifecycle.AgentState
+import io.sarl.sre.services.lifecycle.ContextReference
 import io.sarl.sre.services.lifecycle.InvalidSarlSpecificationException
 import io.sarl.sre.services.lifecycle.KernelAgentLifecycleListener
 import io.sarl.sre.services.lifecycle.LifecycleServiceListener
@@ -51,17 +52,12 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.verifyNoMoreInteractions
 import static org.mockito.Mockito.verifyZeroInteractions
 import static org.mockito.Mockito.when
 
 import static extension org.mockito.Mockito.verify
-import io.sarl.sre.services.lifecycle.ContextReference
 
 /**
  * @author $Author: sgalland$
@@ -227,9 +223,10 @@ abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> 
 		
 		// Agent Initialize
 		var capEvent = ArgumentCaptor::forClass(typeof(Event))
-		var capGatherEvents = ArgumentCaptor::forClass(typeof(Boolean))
-		var capThrownExceptions = ArgumentCaptor::forClass(typeof(Boolean))
-		this.eventBus.verify.fireEventAndWait(capEvent.capture, capGatherEvents.capture, capThrownExceptions.capture)
+		var capGatherEvents = ArgumentCaptor::forClass(typeof(boolean))
+		var capThrownExceptions = ArgumentCaptor::forClass(typeof(boolean))
+		this.eventBus.verify.fireEventAndWait(capEvent.capture, capGatherEvents.capture.booleanValue,
+			capThrownExceptions.capture.booleanValue)
 		assertTrue(capGatherEvents.value)
 		assertTrue(capThrownExceptions.value)
 		assertInstanceOf(typeof(Initialize), capEvent.value)
@@ -313,9 +310,10 @@ abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> 
 
 		// Destroy event
 		var capEvent = ArgumentCaptor::forClass(typeof(Event))
-		var capGatherEvents = ArgumentCaptor::forClass(typeof(Boolean))
-		var capThrownExceptions = ArgumentCaptor::forClass(typeof(Boolean))
-		this.eventBus.verify.fireEventAndWait(capEvent.capture, capGatherEvents.capture, capThrownExceptions.capture)
+		var capGatherEvents = ArgumentCaptor::forClass(typeof(boolean))
+		var capThrownExceptions = ArgumentCaptor::forClass(typeof(boolean))
+		this.eventBus.verify.fireEventAndWait(capEvent.capture, capGatherEvents.capture.booleanValue,
+			capThrownExceptions.capture.booleanValue)
 		assertFalse(capGatherEvents.value)
 		assertFalse(capThrownExceptions.value)
 		assertInstanceOf(typeof(Destroy), capEvent.value)

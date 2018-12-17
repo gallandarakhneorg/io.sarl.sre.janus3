@@ -21,20 +21,6 @@
 
 package io.sarl.sre.tests.units.skills.bic
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
-import static extension org.mockito.Mockito.verify
-import static org.mockito.Mockito.when
-
-import java.util.UUID
-
-import org.junit.Before
-import org.junit.Test
-import org.mockito.ArgumentCaptor
-
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.Event
@@ -47,6 +33,14 @@ import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.Nullable
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
+import java.util.UUID
+import org.junit.Before
+import org.junit.Test
+import org.mockito.ArgumentCaptor
+
+import static org.mockito.Mockito.when
+
+import static extension org.mockito.Mockito.verify
 
 /**
  * @author $Author: sgalland$
@@ -54,8 +48,7 @@ import io.sarl.util.OpenEventSpaceSpecification
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@SuppressWarnings("all")
-public class DefaultContextInteractionsSkillTest extends AbstractSreTest {
+class DefaultContextInteractionsSkillTest extends AbstractSreTest {
 
 	@Nullable
 	var contextId : UUID

@@ -22,7 +22,6 @@
 package io.sarl.sre.tests.units.skills.bic
 
 import io.sarl.lang.core.Agent
-import io.sarl.lang.scoping.batch.SARLTimeExtensions
 import io.sarl.sre.services.time.TimeService
 import io.sarl.sre.skills.bic.TimeSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
@@ -31,8 +30,9 @@ import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Test
 
-import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
+import io.sarl.lang.scoping.extensions.time.TimeExtensions
 
 /**
  * @author $Author: sgalland$
@@ -59,9 +59,25 @@ class TimeSkillTest extends AbstractSreTest {
 			if (tu === null) {
 				tu = TimeUnit::SECONDS
 			}
-			return SARLTimeExtensions::convertFromTo(1234, TimeUnit::MILLISECONDS, tu)
+			return TimeExtensions::convertFromTo(1234, TimeUnit::MILLISECONDS, tu)
 		]
-		when(this.service.OSTimeFactor).thenReturn(5678.0)
+		when(this.service.getOSTimeFactor).thenReturn(5678.0)
+		when(this.service.toOSTime(anyDouble)).thenAnswer [
+			var value = (it.getArgument(0) as Number).doubleValue
+			return value * 2.0
+		]
+		when(this.service.fromOSTime(anyDouble)).thenAnswer [
+			var value = (it.getArgument(0) as Number).doubleValue
+			return value * 3.0
+		]
+		when(this.service.toOSDuration(anyDouble)).thenAnswer [
+			var value = (it.getArgument(0) as Number).doubleValue
+			return value * 4.0
+		]
+		when(this.service.fromOSDuration(anyDouble)).thenAnswer [
+			var value = (it.getArgument(0) as Number).doubleValue
+			return value * 5.0
+		]
 		this.^agent = typeof(Agent).mock
 		this.^skill = new TimeSkill(this.^agent)
 		this.^skill.timeService = this.service
@@ -90,6 +106,27 @@ class TimeSkillTest extends AbstractSreTest {
 	@Test
 	def getOSTimeFactor {
 		assertEpsilonEquals(5678.0, this.^skill.OSTimeFactor)
+	}
+
+	@Test
+	def fromOSDuration {
+		assertEpsilonEquals(617.28, this.^skill.fromOSDuration(123.456))
+	}
+
+	@Test
+	def fromOSTime {
+		assertEpsilonEquals(370.368, this.^skill.fromOSTime(123.456))
+	}
+
+	@Test
+	def toOSDuration {
+		assertEpsilonEquals(493.824, this.^skill.toOSDuration(123.456))
+	}
+
+	
+	@Test
+	def toOSTime {
+		assertEpsilonEquals(246.912, this.^skill.toOSTime(123.456))
 	}
 
 }

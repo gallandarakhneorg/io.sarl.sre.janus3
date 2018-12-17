@@ -21,7 +21,6 @@
 
 package io.sarl.sre.tests.units.services
 
-import com.google.common.util.concurrent.AbstractService
 import com.google.common.util.concurrent.Service
 import io.sarl.sre.services.AbstractSreService
 import io.sarl.sre.services.infrastructure.InfrastructureService
@@ -32,10 +31,10 @@ package interface Serv extends Service {
 	def getStopOrder : int
 }
 
-package interface Serv1 extends Serv {
+package interface SreServ1 extends Serv {
 }
 
-package class Serv1Impl extends AbstractSreService implements Serv1 {
+package class SreServ1Impl extends AbstractSreService implements SreServ1 {
 	public var order = -1
 	public var sorder = -1
 	val counter : AtomicInteger
@@ -51,17 +50,17 @@ package class Serv1Impl extends AbstractSreService implements Serv1 {
 		this.sorder
 	}
 	override onStart {
-		this.order = counter.incrementAndGet
+		this.order = counter.getAndIncrement
 	}
 	override onStop {
-		this.sorder = counter2.incrementAndGet
+		this.sorder = counter2.getAndIncrement
 	}
 }
 
-package interface Serv2 extends Serv {		
+package interface SreServ2 extends Serv {		
 }
 
-package class Serv2Impl extends AbstractSreService implements Serv2 {
+package class SreServ2Impl extends AbstractSreService implements SreServ2 {
 	public var order = -1;
 	public var sorder = -1;
 	val counter : AtomicInteger
@@ -77,45 +76,17 @@ package class Serv2Impl extends AbstractSreService implements Serv2 {
 		this.sorder
 	}
 	override onStart {
-		this.order = counter.incrementAndGet
+		this.order = counter.getAndIncrement
 	}
 	override onStop {
-		this.sorder = counter2.incrementAndGet
+		this.sorder = counter2.getAndIncrement
 	}
 }
 
-package interface Serv3 extends Serv {		
+package interface SreServ3 extends Serv {		
 }
 
-package class Serv3Impl extends AbstractService implements Serv3 {
-	public var order = -1
-	public var sorder = -1
-	val counter : AtomicInteger
-	val counter2 : AtomicInteger
-	new (counter : AtomicInteger, counter2 : AtomicInteger) {
-		this.counter = counter
-		this.counter2 = counter2
-	}
-	override getStartOrder : int {
-		this.order
-	}
-	override getStopOrder : int {
-		this.sorder
-	}
-	override doStart {
-		this.order = counter.incrementAndGet
-		notifyStarted
-	}
-	override doStop {
-		this.sorder = counter2.incrementAndGet
-		notifyStopped
-	}
-}
-
-package interface Serv4 extends Serv {		
-}
-
-package class Serv4Impl extends AbstractSreService implements Serv4 {
+package class SreServ3Impl extends AbstractSreService implements SreServ3 {
 	public var order = -1
 	public var sorder = -1
 	val counter : AtomicInteger
@@ -131,17 +102,17 @@ package class Serv4Impl extends AbstractSreService implements Serv4 {
 		this.sorder
 	}
 	override onStart {
-		this.order = counter.incrementAndGet
+		this.order = counter.getAndIncrement
 	}
 	override onStop {
-		this.sorder = counter2.incrementAndGet
+		this.sorder = counter2.getAndIncrement
 	}
 }
 
-package interface Serv5 extends Serv {		
+package interface SreServ4 extends Serv {		
 }
 
-package class Serv5Impl extends AbstractSreService implements Serv5 {
+package class SreServ4Impl extends AbstractSreService implements SreServ4 {
 	public var order = -1
 	public var sorder = -1
 	val counter : AtomicInteger
@@ -157,17 +128,17 @@ package class Serv5Impl extends AbstractSreService implements Serv5 {
 		this.sorder
 	}
 	override onStart {
-		this.order = counter.incrementAndGet
+		this.order = counter.getAndIncrement
 	}
 	override onStop {
-		this.sorder = counter2.incrementAndGet
+		this.sorder = counter2.getAndIncrement
 	}
 }
 
-package interface Serv6 extends Serv, InfrastructureService {
+package interface SreServ5 extends Serv, InfrastructureService {
 }
 
-package class Serv6Impl extends AbstractSreService implements Serv6 {
+package class SreServ5Impl extends AbstractSreService implements SreServ5 {
 	public var order = -1
 	public var sorder = -1
 	val counter : AtomicInteger
@@ -183,9 +154,9 @@ package class Serv6Impl extends AbstractSreService implements Serv6 {
 		this.sorder
 	}
 	override onStart {
-		this.order = counter.incrementAndGet
+		this.order = counter.getAndIncrement
 	}
 	override onStop {
-		this.sorder = counter2.incrementAndGet
+		this.sorder = counter2.getAndIncrement
 	}
 }

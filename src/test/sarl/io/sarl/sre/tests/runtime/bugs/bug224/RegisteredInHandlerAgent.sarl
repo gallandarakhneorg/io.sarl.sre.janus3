@@ -34,22 +34,21 @@ import io.sarl.sre.tests.testutils.TestingAgent
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/224
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent RegisteredInHandlerAgent extends TestingAgent {
 
 	uses DefaultContextInteractions, Lifecycle, Schedules, Behaviors
 
 	var ^behavior : MyBehavior
 
-	@SuppressWarnings("potential_field_synchronization_problem")
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		this.^behavior = new MyBehavior(this)
 		addResult(this.^behavior)
 		emit(new MyEvent)
 		in(1000) [killMe]
-		return false
+		return null
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	on MyEvent {
 		registerBehavior(this.^behavior)
 	}

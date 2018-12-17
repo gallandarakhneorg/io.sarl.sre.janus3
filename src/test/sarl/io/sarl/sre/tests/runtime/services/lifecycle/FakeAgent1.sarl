@@ -31,9 +31,9 @@ import io.sarl.sre.tests.testutils.TestingAgent
  */
 package agent FakeAgent1 extends TestingAgent {
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("SPAWNED")
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

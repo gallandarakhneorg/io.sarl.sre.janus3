@@ -37,6 +37,7 @@ import static io.sarl.sre.skills.bic.TimeSkill.BinFlags.*
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 skill TimeSkill extends BuiltinSkill implements Time {
 
 	private static class BinFlags {
@@ -52,7 +53,6 @@ skill TimeSkill extends BuiltinSkill implements Time {
 		}
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	var timeService : TimeService
 
 	/** Set the backend time service.
@@ -69,5 +69,21 @@ skill TimeSkill extends BuiltinSkill implements Time {
 	def getOSTimeFactor : double {
 		this.timeService.OSTimeFactor
 	}
-
+	
+	def fromOSDuration(timeDuration : double) : double {
+		this.timeService.fromOSDuration(timeDuration)
+	}
+	
+	def fromOSTime(timeValue : double) : double {
+		this.timeService.fromOSTime(timeValue)
+	}
+	
+	def toOSDuration(timeDuration : double) : double {
+		this.timeService.toOSDuration(timeDuration)
+	}
+	
+	def toOSTime(timeValue : double) : double {
+		this.timeService.toOSTime(timeValue)
+	}
+	
 }

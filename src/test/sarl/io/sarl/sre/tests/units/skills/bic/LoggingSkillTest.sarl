@@ -22,7 +22,6 @@
 package io.sarl.sre.tests.units.skills.bic
 
 import io.sarl.lang.core.Agent
-import io.sarl.sre.services.logging.LoggerCreator
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.skills.bic.LoggingSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
@@ -38,11 +37,6 @@ import org.junit.Test
 import org.mockito.ArgumentCaptor
 
 import static java.lang.Math.*
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.atLeast
 import static org.mockito.Mockito.reset
@@ -330,15 +324,14 @@ class LoggingSkillTest extends AbstractSreTest {
 
 	@Test
 	def getLogLevel {
-		var expected = LoggerCreator.toInt(this.logger.level)
-		assertEquals(expected, this.^skill.logLevel)
+		assertEquals(4, this.^skill.logLevel)
 	}
 
 	@Test
 	def setLogLevel {
 		for (i : 0..<10) {
 			this.^skill.logLevel = i
-			assertEquals(max(0, min(7, i)), this.^skill.getLogLevel)
+			assertEquals(max(0, min(4, i)), this.^skill.getLogLevel)
 		}
 	}
 

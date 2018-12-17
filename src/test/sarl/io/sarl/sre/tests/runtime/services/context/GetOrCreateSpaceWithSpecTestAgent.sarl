@@ -38,7 +38,7 @@ package agent GetOrCreateSpaceWithSpecTestAgent extends TestingAgent {
 
 	uses DefaultContextInteractions
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		var id = UUID::randomUUID
 		var ctx = defaultContext
 		var ^space = ctx.getOrCreateSpaceWithSpec(typeof(OpenEventSpaceSpecification), id)
@@ -63,7 +63,7 @@ package agent GetOrCreateSpaceWithSpecTestAgent extends TestingAgent {
 		}
 		var space4 = ctx.getOrCreateSpaceWithSpec(typeof(MySpaceSpec), id)
 		assertSame(space3, space4)
-		return true
+		return RunPolicy::IMMEDIATE_KILLING
 	}
 
 }

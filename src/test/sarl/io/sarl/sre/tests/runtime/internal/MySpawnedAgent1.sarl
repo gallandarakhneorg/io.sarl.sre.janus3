@@ -36,9 +36,9 @@ package agent MySpawnedAgent1 extends TestingAgent {
 
 	uses Schedules, Lifecycle
 
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		in(500) [killMe]
-		return false
+		return null
 	}
 
 	on AgentKilled {

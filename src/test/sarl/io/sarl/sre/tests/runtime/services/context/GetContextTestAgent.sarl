@@ -22,7 +22,7 @@
 package io.sarl.sre.tests.runtime.services.context
 
 import io.sarl.core.ExternalContextAccess
-import io.sarl.sre.boot.factories.BootFactory
+import io.sarl.sre.boot.configs.subconfigs.BootConfig
 import io.sarl.sre.tests.testutils.TestingAgent
 import java.util.UUID
 
@@ -36,11 +36,11 @@ package agent GetContextTestAgent extends TestingAgent {
 
 	uses ExternalContextAccess
 
-	override runAgentTest : boolean {
-		var ctx = getContext(UUID::fromString(BootFactory::ROOT_CONTEXT_ID_VALUE))
+	override runAgentTest : RunPolicy {
+		var ctx = getContext(UUID::fromString(BootConfig::ROOT_CONTEXT_ID_VALUE))
 		addResult(ID)
 		addResult(ctx)
-		return true
+		return RunPolicy::DIFFERED_KILLING
 	}
 
 }

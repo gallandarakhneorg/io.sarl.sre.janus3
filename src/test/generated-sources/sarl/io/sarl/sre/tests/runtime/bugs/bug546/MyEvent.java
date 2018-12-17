@@ -33,7 +33,7 @@ import io.sarl.lang.core.Event;
  * @mavenartifactid $ArtifactId$
  * @see https://github.com/sarl/sarl/issues/546
  */
-@SarlSpecification("0.9")
+@SarlSpecification("0.10")
 @SarlElementType(15)
 @SuppressWarnings("all")
 class MyEvent extends Event {
@@ -48,5 +48,5 @@ class MyEvent extends Event {
   }
   
   @SyntheticMember
-  private final static long serialVersionUID = 588368462L;
+  private static final long serialVersionUID = 588368462L;
 }

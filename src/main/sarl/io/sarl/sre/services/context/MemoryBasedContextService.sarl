@@ -22,9 +22,15 @@ package io.sarl.sre.services.context
 
 import java.util.Map
 import java.util.UUID
+import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.util.Collections3
+import com.google.common.collect.Iterables
+import java.util.Collections
 
 /** 
- * A service managing the root context and enabling the creation of contexts by injection.
+ * A service managing the root context and enabling the creation of contexts by injection into the
+ * local memory.
+ * The context repository is not shared among different instances of the SRE kernel.
  *
  * <p>This service is thread-safe.
  *  
@@ -49,6 +55,11 @@ class MemoryBasedContextService extends AbstractInjectionBasedContextService {
 			}
 		}
 		repository
+	}
+	
+	def getAllContexts : SynchronizedIterable<Context> {
+		var all = Iterables::concat(Collections::singletonList(rootContext), this.contextInternalStructure.values)
+		return Collections3::unmodifiableSynchronizedIterable(all, this.mutex)
 	}
 	
 }

@@ -34,7 +34,7 @@ package agent MyAgent0 extends TestingAgent {
 		setSkill(log as Skill)
 	}
 	
-	def runAgentTest : boolean {
+	def runAgentTest : RunPolicy {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")
 	}
 	

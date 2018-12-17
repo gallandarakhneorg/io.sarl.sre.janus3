@@ -20,14 +20,10 @@
  */
 package io.sarl.sre.services.logging
 
-import io.sarl.sre.boot.factories.LoggingFactory
 import java.io.PrintStream
-import java.util.logging.Level
-import java.util.logging.LogRecord
+import javax.inject.Provider
 import java.util.logging.Logger
-import java.util.logging.SimpleFormatter
-import java.util.logging.StreamHandler
-import org.arakhne.afc.inputoutput.stream.WriterOutputStream
+import java.util.logging.Level
 
 /** 
  * Helper for creating a logger.
@@ -43,16 +39,19 @@ class LoggerCreator {
 
 	val defaultProgramName : String
 
+	val loggerProvider : Provider<Logger>
+
 	/** Build a logger creator.
 	 *
-	 * @param defaultFormat the default format for the log lines.
 	 * @param defaultLevel the logging level for new loggers.
 	 * @param defaultProgramName the default name of the program.
+	 * @param loggerProvider the provider of loggers.
 	 */
-	new (defaultFormat : String, defaultLevel : Level, defaultProgramName : String) {
+	new (defaultLevel : Level, defaultProgramName : String,
+			loggerProvider : Provider<java.util.logging.Logger>) {
 		this.defaultLevel = defaultLevel
 		this.defaultProgramName = defaultProgramName
-		jreLogLineFormat = defaultFormat
+		this.loggerProvider = loggerProvider
 	}
 
 	/** 
@@ -64,10 +63,13 @@ class LoggerCreator {
 	 * @since 0.7.0
 	 */
 	def createConsoleLogger(name : String, output : PrintStream) : Logger {
-		val logger = Logger::getLogger(name)
-		val nhandler = new OutputStreamConsoleHandler(output)
-		for (handler : logger.handlers) {
-			logger.removeHandler(handler)
+		val logger = this.loggerProvider.get
+		val nhandler = new JulOutputStreamConsoleHandler(output)
+		var allHandlers = logger.handlers
+		if (allHandlers !== null) {
+			for (handler : allHandlers) {
+				logger.removeHandler(handler)
+			}
 		}
 		logger.addHandler(nhandler)
 		logger.useParentHandlers = false
@@ -76,19 +78,22 @@ class LoggerCreator {
 	}
 
 	/** 
-	 * Create a logger with the given name for the platform.
+	 * Create a logger for the platform.
 	 * 
 	 * @return the logger.
 	 * @since 0.7.0
 	 */
 	def createPlatformLogger() : Logger {
-		val logger = Logger::anonymousLogger
-		val stderr = new StandardErrorOutputConsoleHandler
+		val logger = this.loggerProvider.get
+		val stderr = new JulStandardErrorOutputConsoleHandler
 		stderr.level = Level::ALL
-		val stdout = new StandardOutputConsoleHandler
+		val stdout = new JulStandardOutputConsoleHandler
 		stdout.level = Level::ALL
-		for (handler : logger.handlers) {
-			logger.removeHandler(handler)
+		var allHandlers = logger.handlers
+		if (allHandlers !== null) {
+			for (handler : allHandlers) {
+				logger.removeHandler(handler)
+			}
 		}
 		logger.addHandler(stderr)
 		logger.addHandler(stdout)
@@ -114,277 +119,6 @@ class LoggerCreator {
 		logger.useParentHandlers = true
 		logger.level = this.defaultLevel
 		return logger
-	}
-
-	/** 
-	 * Change the format of the log lines that is used by the new JRE loggers.
-	 * See {@link Logger} for details on the syntax.
-	 *
-	 * @param format the log line's format.
-	 */
-	static def setJreLogLineFormat(format : String) {
-		assert !format.isNullOrEmpty
-		System::setProperty(LoggingFactory::JRE_FORMAT_PROPERTY_KEY, format)
-	}
-
-	/** 
-	 * Extract the logging level from the given string.
-	 *
-	 * @param level the string representation of the logging level.
-	 * @return the logging level.
-	 */
-	static def parseLoggingLevel(level : String) : Level {
-		if (level === null) {
-			return Level::INFO
-		}
-		switch (level.toLowerCase) {
-		case "none",
-		case "false",
-		case "off",
-		case "0":
-			return Level::OFF
-		case "severe",
-		case "error",
-		case "1":
-			return Level::SEVERE
-		case "warn",
-		case "warning",
-		case "2":
-			return Level::WARNING
-		case "info",
-		case "true",
-		case "3":
-			return Level::INFO
-		case "fine",
-		case "config",
-		case "4":
-			return Level::FINE
-		case "finer",
-		case "5":
-			return Level::FINER
-		case "finest",
-		case "debug",
-		case "6":
-			return Level::FINEST
-		case "all", //$NON-NLS-1$
-		case "7": //$NON-NLS-1$
-			return Level::ALL
-		default: {
-				try {
-					return fromInt(Integer.parseInt(level));
-				} catch (exception : Throwable) {
-					//
-				}
-				return Level::INFO
-			}
-		}
-	}
-
-	/** 
-	 * Convert a numerical representation of logging level to the logging level.
-	 * 
-	 * @param num
-	 * - the numerical index that corresponds to the given level.
-	 * @return the logging level.
-	 */
-	static def fromInt(num : int) : Level {
-		switch (num) {
-		case 0:
-			return Level::OFF
-		case 1:
-			return Level::SEVERE
-		case 2:
-			return Level::WARNING
-		case 3:
-			return Level::INFO
-		case 4:
-			return Level::FINE
-		case 5:
-			return Level::FINER
-		case 6:
-			return Level::FINEST
-		case 7:
-			return Level::ALL
-		default: {
-				if (num < 0) {
-					return Level::OFF
-				}
-				return Level::ALL
-			}
-		}
-	}
-
-	/** 
-	 * Convert a logging level to its numerical equivalent.
-	 * 
-	 * @param level
-	 *            - the logging level.
-	 * @return the numerical index that corresponds to the given level.
-	 */
-	static def toInt(level : Level) : int {
-		if (level == Level::OFF) {
-			return 0
-		}
-		if (level == Level::SEVERE) {
-			return 1
-		}
-		if (level == Level::WARNING) {
-			return 2
-		}
-		if (level == Level::INFO) {
-			return 3
-		}
-		if (level == Level::CONFIG) {
-			return 4
-		}
-		if (level == Level::FINE) {
-			return 4
-		}
-		if (level == Level::FINER) {
-			return 5
-		}
-		if (level == Level::FINEST) {
-			return 6
-		}
-		if (level == Level::ALL) {
-			return 7
-		}
-		return 3
-	}
-
-	/** 
-	 * Convert a string representing a logging level into its numerical representation.
-	 * 
-	 * <p>This is a convenient function that calls {@link #parseLoggingLevel(String)} and {@link #toInt(Level)}.
-	 * 
-	 * @param level
-	 * - the string representation of the logging level.
-	 * @return the numerical index that corresponds to the given level.
-	 */
-	static def toInt(level : String) : int {
-		level.parseLoggingLevel.toInt
-	}
-
-	/** 
-	 * Replies the string representations for the logging levels.
-	 * 
-	 * @return the string representations, indexed by the numerical index of the level.
-	 */
-	static def getLevelStrings : String[] {
-		return #[
-			"none",
-			"error",
-			"warning",
-			"info",
-			"fine",
-			"finer",
-			"finest",
-			"all"
-		]
-	}
-
-	/** A console handler that supports to be link to the standard output or the standard error output.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $FullVersion$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 0.6.0
-	 */
-	static class OutputStreamConsoleHandler extends StreamHandler {
-
-		/** 
-		 * Constructor.
-		 * 
-		 * @param stream the original stream.
-		 */
-		new (stream : PrintStream) {
-			super(ensureOut(stream), new SimpleFormatter)
-			assert stream !== null, "a logger handler cannot have a null output stream"
-			this.level = Level::ALL
-		}
-
-		@SuppressWarnings("discouraged_reference")
-		private static def ensureOut(out : PrintStream) : PrintStream {
-			if (out === null) {
-				new PrintStream(new WriterOutputStream(System.console.writer))
-			} else {
-				out
-			}
-		}
-
-		def publish(record : LogRecord) {
-			super.publish(record)
-			flush
-		}
-
-		/** Replies if the given log level is loggable.
-		 * 
-		 * @param recordLevel the level to test.
-		 * @return {@code true} if loggable level.
-		 */
-		protected def isLoggableRecord(recordLevel : Level) : boolean {
-			true
-		}
-
-		override isLoggable(record : LogRecord) : boolean {
-			if (record !== null) {
-				val level = record.level
-				assert level !== null
-				if (level.isLoggableRecord) {
-					return super.isLoggable(record)
-				}
-			}
-			return false
-		}
-
-	}
-
-	/** A console handler that supports to be link to the standard output.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $FullVersion$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 0.6.0
-	 */
-	static class StandardOutputConsoleHandler extends OutputStreamConsoleHandler {
-
-		/** Constructor.
-		 */
-		@SuppressWarnings("discouraged_reference")
-		new {
-			super(System::out)
-		}
-
-		def isLoggableRecord(level : Level) : boolean {
-			level !== Level.WARNING && level !== Level.SEVERE
-		}
-
-	}
-
-	/** A console handler that supports to be link to the standard error output.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $FullVersion$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 0.6.0
-	 */
-	static class StandardErrorOutputConsoleHandler extends OutputStreamConsoleHandler {
-
-		/** Constructor.
-		 */
-		@SuppressWarnings("discouraged_reference")
-		new {
-			super(System::err)
-			this.level = Level::WARNING
-		}
-
-		def isLoggableRecord(level : Level) : boolean {
-			level === Level.WARNING || level === Level.SEVERE
-		}
-
 	}
 
 }

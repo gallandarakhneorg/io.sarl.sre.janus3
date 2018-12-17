@@ -25,9 +25,9 @@ import io.sarl.lang.core.Address
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
 import io.sarl.lang.core.Event
-import io.sarl.lang.core.EventListener
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
+import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.context.ContextService
 import io.sarl.sre.services.context.ExternalContextMemberListener
@@ -45,10 +45,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
-import static org.junit.Assert.assertTrue
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.verifyNoMoreInteractions
 import static org.mockito.Mockito.when
@@ -90,7 +86,7 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 	var ^skill : ExternalContextAccessSkill
 
 	@Nullable
-	var eventBusListener : EventListener
+	var eventBusListener : InformedEventListener
 
 	@Nullable
 	var eventBus : MyInternalEventBusSkill2
@@ -99,7 +95,7 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 	def setUp {
 		this.contextId = UUID::randomUUID
 		this.^agentId = UUID::randomUUID
-		this.eventBusListener = typeof(EventListener).mock
+		this.eventBusListener = typeof(InformedEventListener).mock
 		this.eventBus = new MyInternalEventBusSkill2().spy
 		when(this.eventBus.associatedEventBusListener).thenReturn(this.eventBusListener)
 		this.rootContext = typeof(Context).mock

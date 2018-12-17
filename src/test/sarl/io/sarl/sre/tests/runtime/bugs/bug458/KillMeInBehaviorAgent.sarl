@@ -33,21 +33,20 @@ import io.sarl.sre.tests.testutils.TestingAgent
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 package agent KillMeInBehaviorAgent extends TestingAgent {
 
 	uses Behaviors, Schedules, DefaultContextInteractions
 
 	var ^behavior : KillMeBehavior
 
-	@SuppressWarnings("potential_field_synchronization_problem")
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		this.^behavior = new KillMeBehavior(this)
 		registerBehavior(this.^behavior)
 		in(500) [emit(new FakeEvent)]
-		return false
+		return null
 	}
 
-	@SuppressWarnings("potential_field_synchronization_problem")
 	on Destroy {
 		unregisterBehavior(this.^behavior)
 	}

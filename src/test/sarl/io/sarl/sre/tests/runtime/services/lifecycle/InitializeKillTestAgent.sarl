@@ -35,11 +35,11 @@ package agent InitializeKillTestAgent extends TestingAgent {
 	uses Lifecycle
 
 	@Override
-	override runAgentTest : boolean {
+	override runAgentTest : RunPolicy {
 		addResult("1")
 		hiddenKillMe
 		addResult("2")
-		return false
+		return null
 	}
 
 	def hiddenKillMe {

@@ -37,8 +37,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.junit.Assert.assertSame
-import static org.mockito.ArgumentMatchers.*
 import static org.mockito.ArgumentMatchers.anyLong
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.verifyZeroInteractions
@@ -273,9 +271,10 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 		assertSame(future, rfuture)
 
 		var capturedRunnable = ArgumentCaptor::forClass(typeof(Runnable))
-		var capturedDelay = ArgumentCaptor::forClass(typeof(Long))
+		var capturedDelay = ArgumentCaptor::forClass(typeof(long))
 		var capturedUnit = ArgumentCaptor::forClass(typeof(TimeUnit))
-		this.scheduledExecutor.verify.schedule(capturedRunnable.capture, capturedDelay.capture, capturedUnit.capture)
+		this.scheduledExecutor.verify.schedule(capturedRunnable.capture, capturedDelay.capture.longValue,
+			capturedUnit.capture)
 		assertInstanceOf(typeof(SreRunnable), capturedRunnable.value)
 		var jr = capturedRunnable.value as SreRunnable
 		assertSame(logger, jr.logger)
@@ -301,9 +300,10 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 		assertSame(future, rfuture)
 
 		var capturedRunnable = ArgumentCaptor::forClass(typeof(Runnable))
-		var capturedDelay = ArgumentCaptor::forClass(typeof(Long))
+		var capturedDelay = ArgumentCaptor::forClass(typeof(long))
 		var capturedUnit = ArgumentCaptor::forClass(typeof(TimeUnit))
-		this.scheduledExecutor.verify.schedule(capturedRunnable.capture, capturedDelay.capture, capturedUnit.capture)
+		this.scheduledExecutor.verify.schedule(capturedRunnable.capture, capturedDelay.capture.longValue,
+			capturedUnit.capture)
 		assertInstanceOf(typeof(SreRunnable), capturedRunnable.value)
 		var jr = capturedRunnable.value as SreRunnable
 		assertSame(logger, jr.logger)
@@ -329,9 +329,9 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 		assertSame(future, rfuture)
 
 		var capturedCallable = ArgumentCaptor::forClass(typeof(Callable))
-		var capturedDelay = ArgumentCaptor::forClass(typeof(Long))
+		var capturedDelay = ArgumentCaptor::forClass(typeof(long))
 		var capturedUnit = ArgumentCaptor::forClass(typeof(TimeUnit))
-		this.scheduledExecutor.verify.schedule(capturedCallable.capture, capturedDelay.capture, capturedUnit.capture)
+		this.scheduledExecutor.verify.schedule(capturedCallable.capture, capturedDelay.capture.longValue, capturedUnit.capture)
 		assertInstanceOf(typeof(SreCallable), capturedCallable.value)
 		var jc = capturedCallable.value as SreCallable<?>
 		assertSame(logger, jc.logger)
@@ -357,9 +357,9 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 		assertSame(future, rfuture)
 
 		var capturedCallable = ArgumentCaptor::forClass(typeof(Callable))
-		var capturedDelay = ArgumentCaptor::forClass(typeof(Long))
+		var capturedDelay = ArgumentCaptor::forClass(typeof(long))
 		var capturedUnit = ArgumentCaptor::forClass(typeof(TimeUnit))
-		this.scheduledExecutor.verify.schedule(capturedCallable.capture, capturedDelay.capture, capturedUnit.capture)
+		this.scheduledExecutor.verify.schedule(capturedCallable.capture, capturedDelay.capture.longValue, capturedUnit.capture)
 		assertInstanceOf(typeof(SreCallable), capturedCallable.value)
 		var jc = capturedCallable.value as SreCallable<?>
 		assertSame(logger, jc.logger)
@@ -385,11 +385,11 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 		assertSame(future, rfuture)
 
 		var capturedRunnable = ArgumentCaptor::forClass(typeof(Runnable))
-		var capturedDelay = ArgumentCaptor::forClass(typeof(Long))
-		var capturedPeriod = ArgumentCaptor::forClass(typeof(Long))
+		var capturedDelay = ArgumentCaptor::forClass(typeof(long))
+		var capturedPeriod = ArgumentCaptor::forClass(typeof(long))
 		var capturedUnit = ArgumentCaptor::forClass(typeof(TimeUnit))
-		this.scheduledExecutor.verify.scheduleAtFixedRate(capturedRunnable.capture, capturedDelay.capture, 
-				capturedPeriod.capture, capturedUnit.capture)
+		this.scheduledExecutor.verify.scheduleAtFixedRate(capturedRunnable.capture, capturedDelay.capture.longValue, 
+				capturedPeriod.capture.longValue, capturedUnit.capture)
 		assertInstanceOf(typeof(SreRunnable), capturedRunnable.value)
 		var jr = capturedRunnable.value as SreRunnable
 		assertSame(logger, jr.logger)
@@ -416,11 +416,11 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 		assertSame(future, rfuture)
 
 		var capturedRunnable = ArgumentCaptor::forClass(typeof(Runnable))
-		var capturedDelay = ArgumentCaptor::forClass(typeof(Long))
-		var capturedPeriod = ArgumentCaptor::forClass(typeof(Long))
+		var capturedDelay = ArgumentCaptor::forClass(typeof(long))
+		var capturedPeriod = ArgumentCaptor::forClass(typeof(long))
 		var capturedUnit = ArgumentCaptor::forClass(typeof(TimeUnit))
-		this.scheduledExecutor.verify.scheduleAtFixedRate(capturedRunnable.capture, capturedDelay.capture, 
-				capturedPeriod.capture, capturedUnit.capture)
+		this.scheduledExecutor.verify.scheduleAtFixedRate(capturedRunnable.capture, capturedDelay.capture.longValue, 
+				capturedPeriod.capture.longValue, capturedUnit.capture)
 		assertInstanceOf(typeof(SreRunnable), capturedRunnable.value)
 		var jr = capturedRunnable.value as SreRunnable
 		assertSame(logger, jr.logger)
@@ -447,11 +447,11 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 		assertSame(future, rfuture)
 
 		var capturedRunnable = ArgumentCaptor::forClass(typeof(Runnable))
-		var capturedDelay = ArgumentCaptor::forClass(typeof(Long))
-		var capturedPeriod = ArgumentCaptor::forClass(typeof(Long))
+		var capturedDelay = ArgumentCaptor::forClass(typeof(long))
+		var capturedPeriod = ArgumentCaptor::forClass(typeof(long))
 		var capturedUnit = ArgumentCaptor::forClass(typeof(TimeUnit))
-		this.scheduledExecutor.verify.scheduleWithFixedDelay(capturedRunnable.capture, capturedDelay.capture, 
-				capturedPeriod.capture, capturedUnit.capture)
+		this.scheduledExecutor.verify.scheduleWithFixedDelay(capturedRunnable.capture, capturedDelay.capture.longValue, 
+				capturedPeriod.capture.longValue, capturedUnit.capture)
 		assertInstanceOf(typeof(SreRunnable), capturedRunnable.value)
 		var jr = capturedRunnable.value as SreRunnable
 		assertSame(logger, jr.logger)
@@ -478,11 +478,11 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 		assertSame(future, rfuture)
 
 		var capturedRunnable = ArgumentCaptor::forClass(typeof(Runnable))
-		var capturedDelay = ArgumentCaptor::forClass(typeof(Long))
-		var capturedPeriod = ArgumentCaptor::forClass(typeof(Long))
+		var capturedDelay = ArgumentCaptor::forClass(typeof(long))
+		var capturedPeriod = ArgumentCaptor::forClass(typeof(long))
 		var capturedUnit = ArgumentCaptor::forClass(typeof(TimeUnit))
-		this.scheduledExecutor.verify.scheduleWithFixedDelay(capturedRunnable.capture, capturedDelay.capture, 
-				capturedPeriod.capture, capturedUnit.capture)
+		this.scheduledExecutor.verify.scheduleWithFixedDelay(capturedRunnable.capture, capturedDelay.capture.longValue, 
+				capturedPeriod.capture.longValue, capturedUnit.capture)
 		assertInstanceOf(typeof(SreRunnable), capturedRunnable.value)
 		var jr = capturedRunnable.value as SreRunnable
 		assertSame(logger, jr.logger)
