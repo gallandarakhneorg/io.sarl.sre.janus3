@@ -24,6 +24,7 @@ package io.sarl.sre.tests.units.services.lifecycle
 import io.sarl.lang.core.Skill
 import io.sarl.sre.capacities.InternalEventBusCapacity
 import java.util.UUID
+import io.sarl.core.Logging
 
 /**
  * @author $Author: sgalland$
@@ -33,9 +34,10 @@ import java.util.UUID
  */
 package agent MyAgent1 {
 
-	new (cap : InternalEventBusCapacity) {
+	new (cap : InternalEventBusCapacity, cap1 : Logging) {
 		super(UUID::randomUUID, UUID::randomUUID)
 		setSkill(cap as Skill)
+		setSkill(cap1 as Skill)
 	}
 
 }

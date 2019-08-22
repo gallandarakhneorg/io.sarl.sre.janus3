@@ -40,20 +40,6 @@ import java.util.logging.Logger
  */
 interface ExecutorService extends Service {
 
-	/** This function ask to the executor service to give the execution resource
-	 * to another thread if possible.
-	 * 
-	 * @since 0.7.0
-	 */
-	@SuppressWarnings("discouraged_reference")
-	static def yield : void {
-		try {
-			Thread::sleep(1)
-		} catch (e : Throwable) {
-			// Ignore any exception
-		}
-	}
-
 	/** This function simulate the never return from this call.
 	 * The {@link EarlyExitException} is thrown.
 	 *

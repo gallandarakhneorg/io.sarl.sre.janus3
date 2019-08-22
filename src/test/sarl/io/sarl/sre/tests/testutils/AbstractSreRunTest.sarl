@@ -430,7 +430,7 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 	 *
 	 * @since 0.9
 	 */
-	protected def forgetTheKernel {
+	protected def forgetTheKernel : void {
 		this.sreKernel = null;
 	}
 

@@ -146,6 +146,8 @@ final class AgentLife {
 	 *
 	 * <p>This function is invoked for executing the born stage of the agent.
 	 *
+	 * <p>If an exception is thrown into the initialization code of the agent, the exception is forwarded.
+	 *
 	 * @param skillUninstaller the skill uninstaller.
 	 * @param logger the logger to use for reporting initialization errors when the agent's logger is unavailable
 	 * @param startError the exception that avoid to start the agent.
@@ -159,38 +161,36 @@ final class AgentLife {
 		if (this.state == AgentState::UNSTARTED) {
 			this.state = AgentState::INITIALIZING
 			try {
-				try {
-					var eb = spawningContext.attachAgentToPlatform
-	
-					// Notify the agent about its creation.
-					// Assume event handlers were run after returning from the fireEventAndWait function.
-					var initEvent = new Initialize(spawningAgent, initializationParameters)
-					initEvent.source = addressInInnerDefaultSpace
-					// Any exception into the inits are thrown outside the call below.
-					var delayedEvents = eb.fireEventAndWait(initEvent, true, true)
-	
-					if (this.state == AgentState::INITIALIZING) {
-						this.state = AgentState::ALIVE
-	
-						if (delayedEvents !== null) {
-							for (delayedEvent : delayedEvents) {
-								eb.fireEvent(delayedEvent)
-							}
+				var eb = spawningContext.attachAgentToPlatform
+
+				// Notify the agent about its creation.
+				// Assume event handlers were run after returning from the fireEventAndWait function.
+				var initEvent = new Initialize(spawningAgent, initializationParameters)
+				initEvent.source = addressInInnerDefaultSpace
+				// Any exception into the inits are thrown outside the call below.
+				var delayedEvents = eb.fireEventAndWait(initEvent, true, true)
+
+				if (this.state == AgentState::INITIALIZING) {
+					this.state = AgentState::ALIVE
+
+					if (delayedEvents !== null) {
+						for (delayedEvent : delayedEvents) {
+							eb.fireEvent(delayedEvent)
 						}
-						return true
-					} else {
-						stop(skillUninstaller, logger, true)
-						return false
 					}
-				} catch (e : Throwable) {
-					this.agentLogger.error(e.localizedMessage, e)
+					return true
+				} else {
 					stop(skillUninstaller, logger, true)
 					return false
 				}
 			} catch (e : Throwable) {
-				logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
-				stop(skillUninstaller, logger, false)
-				return false
+				try {
+					this.agentLogger.error(e.localizedMessage, e)
+				} catch (iex : Throwable) {
+					logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
+				}
+				stop(skillUninstaller, logger, true)
+				throw e
 			}
 		} else {
 			return false

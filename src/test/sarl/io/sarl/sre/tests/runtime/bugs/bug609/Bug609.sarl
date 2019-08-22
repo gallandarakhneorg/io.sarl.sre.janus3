@@ -38,7 +38,10 @@ class Bug609 extends AbstractSreRunTest {
 	@Test
 	def killMeInInit {
 		typeof(TAgent1).runSre(false)
-		assertEquals(1, getResults.size)
+		var r = getAllResultsPerAgent
+		assertEquals(1, r.size)
+		var l = r.values.get(0)
+		assertEquals(1, l.size)
 	}
 
 }

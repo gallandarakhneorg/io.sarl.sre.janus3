@@ -73,5 +73,9 @@ package skill MySkill implements InternalEventBusCapacity {
 	override getEventBus : EventBus {
 		throw new UnsupportedOperationException
 	}
-	
+
+	override getEventBus(type : Class<T>) : T with T extends EventBus {
+		throw new UnsupportedOperationException
+	}
+
 }

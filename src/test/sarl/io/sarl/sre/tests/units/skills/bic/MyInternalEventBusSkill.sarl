@@ -91,6 +91,10 @@ import static extension org.mockito.Mockito.mock
 	override getEventBus : EventBus {
 		throw new UnsupportedOperationException
 	}
-	
+
+	override getEventBus(type : Class<T>) : T with T extends EventBus {
+		throw new UnsupportedOperationException
+	}
+
 }
 	

@@ -42,7 +42,7 @@ package agent TAgent1 extends TestingAgent {
 	}
 
 	on Destroy {
-		addResult(occurrence)
+		addResult("on Destroy")
 	}
 
 }

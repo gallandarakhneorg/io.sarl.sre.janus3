@@ -376,7 +376,7 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		when(specification.create(any, any)).thenReturn(^space)
 		var classType : Class<OpenEventSpaceSpecification> = any
 		when(this.injector.getInstance(classType)).thenReturn(specification)
-		this.repository.getOrCreateSpaceWithID(sid, typeof(OpenEventSpaceSpecification))
+		var fake = this.repository.getOrCreateSpaceWithID(sid, typeof(OpenEventSpaceSpecification))
 		
 		var listener = typeof(SpaceRepositoryListener).mock
 		this.repository.addSpaceRepositoryListener(listener)
@@ -407,7 +407,7 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 
 		this.repository.removeSpaceRepositoryListener(listener)
 		
-		this.repository.getOrCreateSpaceWithID(sid, typeof(OpenEventSpaceSpecification))
+		var fake = this.repository.getOrCreateSpaceWithID(sid, typeof(OpenEventSpaceSpecification))
 		
 		verifyNoMoreInteractions(listener)
 	}

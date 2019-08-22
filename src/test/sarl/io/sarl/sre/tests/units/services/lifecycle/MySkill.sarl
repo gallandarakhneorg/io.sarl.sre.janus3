@@ -35,6 +35,13 @@ import io.sarl.sre.skills.internal.EventBus
  */
 package skill MySkill implements InternalEventBusCapacity {
 
+	var failure = false
+
+	@SuppressWarnings("potential_field_synchronization_problem")
+	def setFailure(failure : boolean) {
+		this.failure = failure
+	}
+
 	override registerEventBusListener(listener : Object, filter : (Event)=>boolean, callback : (Object)=>void) {
 	}
 
@@ -44,11 +51,20 @@ package skill MySkill implements InternalEventBusCapacity {
 	override unregisterEventBusListener(type : Class<?>, callback : (Object)=>void) {
 	}
 
+	@SuppressWarnings("potential_field_synchronization_problem")
 	override fireEventAndWait(^event : Event, gatherEvents : boolean, thrownExceptions : boolean) : Iterable<Event> {
+		if (this.failure) {
+			throw new RuntimeException
+		}
 		emptyList
 	}
 
-	override fireEventAndWait(^event : Event, gatherEvents : boolean, thrownExceptions : boolean, listener : Object) : Iterable<Event> {
+	@SuppressWarnings("potential_field_synchronization_problem")
+	override fireEventAndWait(^event : Event, gatherEvents : boolean, thrownExceptions : boolean,
+		listener : Object) : Iterable<Event> {
+		if (this.failure) {
+			throw new RuntimeException
+		}
 		null
 	}
 
@@ -70,5 +86,9 @@ package skill MySkill implements InternalEventBusCapacity {
 	override getEventBus : EventBus {
 		throw new UnsupportedOperationException
 	}
-		
+
+	override getEventBus(type : Class<T>) : T with T extends EventBus {
+		throw new UnsupportedOperationException
+	}
+
 }

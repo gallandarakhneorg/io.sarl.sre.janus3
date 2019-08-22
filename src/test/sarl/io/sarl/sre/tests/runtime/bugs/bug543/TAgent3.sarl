@@ -38,7 +38,7 @@ package agent TAgent3 extends TestingAgent {
 		var sk2 = getSkill(typeof(C1))
 		addResult(Boolean.valueOf(sk1 === sk2))
 		//
-		return RunPolicy::IMMEDIATE_KILLING
+		return RunPolicy::DIFFERED_KILLING
 	}
 
 }

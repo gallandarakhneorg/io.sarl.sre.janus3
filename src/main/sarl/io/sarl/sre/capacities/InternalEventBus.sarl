@@ -151,4 +151,12 @@ capacity InternalEventBusCapacity {
 	 */
 	def getEventBus : EventBus
 
+	/** Replies the backend event bus.
+	 * 
+	 * @param type the expected type of the event bus.
+	 * @return the event bus instance.
+	 * @since 0.10
+	 */
+	def getEventBus(type : Class<T>) : T with T extends EventBus
+
 }

@@ -20,10 +20,8 @@
  */
 package io.sarl.sre.services.time
 
-import io.sarl.sre.services.AbstractSreService
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
-import org.arakhne.afc.util.ListenerCollection
 
 /**
  * Time service based on the JRE standard time.
@@ -35,9 +33,7 @@ import org.arakhne.afc.util.ListenerCollection
  * @since 0.6.0
  */
 @Singleton
-class JreTimeService extends AbstractSreService implements TimeService {
-
-	var listeners : ListenerCollection<TimeListener> = null
+class JreTimeService extends AbstractTimeService {
 
 	def getOSCurrentTime : long {
 		System::currentTimeMillis	
@@ -56,22 +52,6 @@ class JreTimeService extends AbstractSreService implements TimeService {
 		return currentTime.convertFromTo(TimeUnit::MILLISECONDS, tu)
 	}
 
-	def fromOSDuration(timeDuration : double) : double {
-		timeDuration / OSTimeFactor
-	}
-
-	def fromOSTime(timeValue : double) : double {
-		timeValue / OSTimeFactor
-	}
-
-	def toOSDuration(timeDuration : double) : double {
-		timeDuration * OSTimeFactor
-	}
-
-	def toOSTime(timeValue : double) : double {
-		timeValue * OSTimeFactor
-	}
-
 	def getOSTimeFactor : double {
 		1.0
 	}
@@ -83,40 +63,6 @@ class JreTimeService extends AbstractSreService implements TimeService {
 
 	def setTimeIfPossible(time : double) : boolean {
 		false
-	}
-	
-	/** Notifies about time changes.
-	 */
-	protected def fireTimeChanged {
-		var list : ListenerCollection<TimeListener>
-		synchronized(this) {
-			list = this.listeners
-		}
-		if (list !== null) {
-			for (listener : list.getListeners(typeof(TimeListener))) {
-				listener.timeChanged(this)
-			}
-		}
-	}
-	
-	def addTimeListener(listener : TimeListener) {
-		synchronized (this) {
-			if (this.listeners === null) {
-				this.listeners = new ListenerCollection
-			}
-			this.listeners.add(typeof(TimeListener), listener);
-		}
-	}
-	
-	def removeTimeListener(listener : TimeListener) {
-		synchronized (this) {
-			if (this.listeners !== null) {
-				this.listeners.remove(typeof(TimeListener), listener);
-				if (this.listeners.empty) {
-					this.listeners = null
-				}
-			}
-		}
 	}
 	
 }

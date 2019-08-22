@@ -42,7 +42,7 @@ package agent TAgent1 extends TestingAgent {
 		//
 		fct
 		//
-		return RunPolicy::IMMEDIATE_KILLING
+		return RunPolicy::DIFFERED_KILLING
 	}
 
 }

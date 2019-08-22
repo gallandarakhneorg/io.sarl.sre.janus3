@@ -40,10 +40,11 @@ package agent TAgent2 extends TestingAgent {
 		//
 		clearSkill(typeof(C1))
 		//
-		var sk = getSkill(typeof(C1))
-		assert sk !== null
+		// Expected exception: UnimplementedCapacityException
+		var fake = getSkill(typeof(C1))
+		assert fake === null
 		//
-		return RunPolicy::IMMEDIATE_KILLING
+		return null
 	}
 
 }

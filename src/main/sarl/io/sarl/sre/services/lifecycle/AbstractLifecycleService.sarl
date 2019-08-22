@@ -256,7 +256,14 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 						// Start the agent's life
 						var life = ^agent.life
 						try {
-							if (life.start(this.skillUninstaller, this.logger, spawningAgent, parent, params)) {
+							var started = false
+							try {
+								started = life.start(this.skillUninstaller, this.logger, spawningAgent, parent,
+									params)
+							} catch (e : Throwable) {
+								errors += new CannotSpawnException(agentClazz, e)
+							}
+							if (started) {
 								// Add the agent in the system. It is synchronized because additions may occur in parallel
 								synchronized (agents) {
 									agents += ^agent

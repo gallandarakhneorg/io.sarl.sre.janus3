@@ -89,6 +89,10 @@ import io.sarl.lang.core.Agent
 	override getEventBus : EventBus {
 		this.eventBus
 	}
+
+	override getEventBus(type : Class<T>) : T with T extends EventBus {
+		type.cast(this.eventBus)
+	}
 	
 	protected override install {
 		// Register the agent as a direct event listener.

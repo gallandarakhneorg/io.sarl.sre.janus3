@@ -21,9 +21,6 @@
 package io.sarl.sre.tests.runtime.bugs.bug872
 
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
-import io.sarl.tests.api.Repeat
-import io.sarl.tests.api.RepeatRule
-import org.junit.Rule
 import org.junit.Test
 
 /** Tests for issue #872: Invalid synchronization of the member agent collection.
@@ -39,15 +36,10 @@ import org.junit.Test
 @SuppressWarnings("all")
 class Bug872 extends AbstractSreRunTest {
 
-	@Rule
-	public var repeatRule = new RepeatRule
-	
 	@Test
-	@Repeat(5)
 	def run_01 {
 		typeof(TopAgent).runSre(false, true, SHORT_TIMEOUT)
 		assertFalse(bootAgent.getResult(typeof(Boolean), 0))
-		forgetTheKernel
 	}
 
 }
