@@ -1,0 +1,17 @@
+= Janus version 3
+
+Janus is the official SARL run-time environment.
+
+The third version of Janus is completely rewritten in SARL programming language,
+and provides specific implementation optimizations.
+
+The major differences with the version 2 (current official version) are:
+
+- Implementation language: **SARL** instead of Java
+- **Simplified framework** architecture (network support is removed, and assumed to be provided by third party libraries)
+- Use of the **Bootique framework** to make easier the booting process and the module extension by third parties.
+- Optimization into the background code to be faster.
+
+Contact:
+Stéphane Galland <stephane.galland@utbm.fr>
+
