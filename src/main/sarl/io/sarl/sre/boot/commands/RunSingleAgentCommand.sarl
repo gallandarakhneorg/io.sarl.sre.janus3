@@ -38,6 +38,8 @@ import java.text.MessageFormat
 
 /**
  * Command for running the SRE with a single agent at boot time.
+ * The first command-line argument that is a agent's class is considered
+ * as the agent to be launched.
  *
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -59,24 +61,25 @@ class RunSingleAgentCommand extends AbstractRunCommand {
 	}
 
 	override run(cli : Cli) : CommandOutcome {
-		if (cli.standaloneArguments().isEmpty()) {
-			return CommandOutcome.failed(255, Messages::RunSingleAgentCommand_1)
+		var args = cli.standaloneArguments()
+		if (args.empty) {
+			return CommandOutcome::failed(255, Messages::RunSingleAgentCommand_1)
 		}
 
 		try {
 			val bootstrap = getSREBootstrap
 			if (bootstrap === null) {
-				return CommandOutcome.failed(255, Messages::RunSingleAgentCommand_3)
+				return CommandOutcome::failed(255, Messages::RunSingleAgentCommand_3)
 			}
-			var config = this.configuration.get
-			var bootAgent = config.boot.getBootAgent(cli.class.classLoader)
-			bootstrap.startAgent(bootAgent, config.boot.commandLineArgs)
+			var config = cli.synchronizeCliWithBootConfig(1)
+			bootstrap.startAgentsFromConfig(config)
+			bootstrap.waitForTermination
 		} catch (exception : Throwable) {
 			return CommandOutcome.failed(255,
 				MessageFormat::format(Messages::RunSingleAgentCommand_2, exception.localizedMessage), exception)
 		}
 		
-		return CommandOutcome.succeeded
+		return CommandOutcome::succeeded
 	}
 
 }

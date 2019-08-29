@@ -38,17 +38,17 @@ import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.sre.tests.testutils.IddleTestingAgent
 import io.sarl.sre.tests.testutils.ModuleMock
 import io.sarl.tests.api.Nullable
+import java.util.List
 import java.util.UUID
 import org.arakhne.afc.bootique.log4j.configs.Level
 import org.arakhne.afc.bootique.log4j.configs.Log4jIntegrationConfig
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
 import static extension org.mockito.ArgumentMatchers.*
 import static extension org.mockito.Mockito.*
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
-import java.util.List
 
 /**
  * @author $Author: sgalland$
@@ -113,8 +113,9 @@ class SreMainTest extends AbstractSreTest {
 	private def createConfiguration(bootAgent : Class<?>, sreConfig : SreConfig = null) {
 		this.bootConfig = new BootConfig
 		this.bootConfig.bootAgent = bootAgent.name
-		this.bootConfig.commandLineArgs = #[ typeof(IddleTestingAgent).name, "a" ]
-		this.bootConfig = spy(this.bootConfig);
+		this.bootConfig.agentStartArgs = #["a"]
+		this.bootConfig.commandLineArgs = #[typeof(IddleTestingAgent).name, "a"]
+		this.bootConfig = this.bootConfig.spy
 		when(this.configurationFactory.config(typeof(Class).any, typeof(String).any)).thenReturn(this.bootConfig)
 		if (sreConfig !== null) {
 			when(sreConfig.getBoot).thenReturn(this.bootConfig)

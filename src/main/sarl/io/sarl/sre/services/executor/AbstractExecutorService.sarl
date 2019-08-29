@@ -31,6 +31,8 @@ import java.util.logging.Logger
 import java.util.stream.StreamSupport
 import javax.inject.Inject
 
+import static extension io.sarl.sre.services.executor.Runnables.*
+
 /** 
  * Abstract implementation for the services that executes the tasks.
  * 
@@ -230,24 +232,10 @@ abstract class AbstractExecutorService extends AbstractSreService implements Exe
 		}
 		return 0
 	}
-	
-	/** Create a task with the given consumer.
-	 * 
-	 * @param <T> the type of the returned value.
-	 * @param consumer the consumer.
-	 * @param logger the logger to use.
-	 * @return the task.
-	 */
-	protected def wrap(consumer : Consumer<? super T>, logger : Logger) : SreConsumer<T> with T {
-		if (consumer instanceof SreConsumer<?>) {
-			return consumer as SreConsumer<T>
-		}
-		return new SreConsumer(consumer, logger)
-	}
 
 	override applyBlockingConsumer(logger : Logger, collection : Iterable<T>, task : Consumer<? super T>) with T {
 		// Assuming that the task is properly synchronized on the collection.
-		StreamSupport::stream(collection.spliterator, true).forEach(wrap(task, logger))
+		StreamSupport::stream(collection.spliterator, true).forEach(task.protectConsumer(logger))
 	}
 
 }

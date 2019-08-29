@@ -353,8 +353,8 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	 * @return {@code true} if the given context is the root context, and it is empty.
 	 *     @Otherwise {@code false}.
 	 */
-	protected static def isEmptyRootContext(context : ContextReference) {
-		context !== null && context.context.rootContext && context.defaultSpace.participants.empty
+	protected def isEmptyRootContext(context : ContextReference) {
+		context.context.isEmptyRootContext
 	}
 
 	/** Replies if the given context is the root context and is empty.
@@ -363,7 +363,7 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	 * @return {@code true} if the given context is the root context, and it is empty.
 	 * @Otherwise {@code false}.
 	 */
-	protected static def isEmptyRootContext(context : Context) {
+	protected def isEmptyRootContext(context : Context) {
 		context !== null && context.rootContext && context.defaultSpace.participants.empty
 	}
 

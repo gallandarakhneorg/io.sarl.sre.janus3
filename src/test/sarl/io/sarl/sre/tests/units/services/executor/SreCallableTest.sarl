@@ -22,7 +22,7 @@
 package io.sarl.sre.tests.units.services.executor
 
 import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.sre.services.executor.SreCallable
+import io.sarl.sre.services.executor.Runnables
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.logging.Level
@@ -49,7 +49,7 @@ class SreCallableTest extends AbstractSreTest {
 	@Test
 	def call_logger_successTask {
 		var run = new AtomicBoolean
-		var callable = new SreCallable<String>([run.set(true) return "a"], this.logger)
+		var callable = Runnables::protectCallable([run.set(true) return "a"], this.logger)
 		var value = callable.call
 		assertTrue(callable.isSuccess)
 		assertEquals("a", value)
@@ -60,7 +60,7 @@ class SreCallableTest extends AbstractSreTest {
 	@Test
 	def call_logger_earlyExit1 {
 		var run = new AtomicBoolean
-		var callable = new SreCallable<String>([run.set(true); ExecutorService.neverReturn; return "b"], this.logger)
+		var callable = Runnables::protectCallable([run.set(true); ExecutorService.neverReturn; return "b"], this.logger)
 		var value = callable.call
 		assertTrue(callable.isSuccess)
 		assertNull(value)
@@ -71,7 +71,7 @@ class SreCallableTest extends AbstractSreTest {
 	@Test
 	def call_logger_earlyExit2 {
 		var run = new AtomicBoolean
-		var callable = new SreCallable<String>([ExecutorService.neverReturn; run.set(true); return "c"], this.logger)
+		var callable = Runnables::protectCallable([ExecutorService.neverReturn; run.set(true); return "c"], this.logger)
 		var value = callable.call
 		assertTrue(callable.isSuccess)
 		assertNull(value)
@@ -82,7 +82,7 @@ class SreCallableTest extends AbstractSreTest {
 	@Test
 	def call_logger_exception {
 		var run = new AtomicBoolean
-		var callable = new SreCallable<String>([run.set(true); throw new IllegalStateException()], this.logger)
+		var callable = Runnables::protectCallable([run.set(true); throw new IllegalStateException()], this.logger)
 		var value = callable.call
 		assertFalse(callable.isSuccess)
 		assertNull(value)
@@ -100,7 +100,7 @@ class SreCallableTest extends AbstractSreTest {
 	@Test
 	def call_noLogger_successTask {
 		var run = new AtomicBoolean
-		var callable = new SreCallable<String>([run.set(true); return "d"], null)
+		var callable = Runnables::protectCallable([run.set(true); return "d"], null)
 		var value = callable.call
 		assertTrue(callable.isSuccess)
 		assertEquals("d", value)
@@ -111,7 +111,7 @@ class SreCallableTest extends AbstractSreTest {
 	@Test
 	def call_noLogger_earlyExit1 {
 		var run = new AtomicBoolean
-		var callable = new SreCallable<String>([run.set(true); ExecutorService.neverReturn; return "e"], null)
+		var callable = Runnables::protectCallable([run.set(true); ExecutorService.neverReturn; return "e"], null)
 		var value = callable.call
 		assertTrue(callable.isSuccess)
 		assertNull(value)
@@ -122,7 +122,7 @@ class SreCallableTest extends AbstractSreTest {
 	@Test
 	def call_noLogger_earlyExit2 {
 		var run = new AtomicBoolean
-		var callable = new SreCallable<String>([ExecutorService.neverReturn; run.set(true); return "f"], null)
+		var callable = Runnables::protectCallable([ExecutorService.neverReturn; run.set(true); return "f"], null)
 		var value = callable.call
 		assertTrue(callable.isSuccess)
 		assertNull(value)
@@ -133,7 +133,7 @@ class SreCallableTest extends AbstractSreTest {
 	@Test
 	def call_noLogger_exception {
 		var run = new AtomicBoolean
-		var callable = new SreCallable<String>([run.set(true); throw new IllegalStateException], null)
+		var callable = Runnables::protectCallable([run.set(true); throw new IllegalStateException], null)
 		try {
 			callable.call
 			fail("Expected exception " + typeof(IllegalStateException).name)

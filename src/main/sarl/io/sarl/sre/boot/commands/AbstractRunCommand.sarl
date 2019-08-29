@@ -22,12 +22,17 @@
 package io.sarl.sre.boot.commands
 
 import com.google.inject.Provider
+import io.bootique.cli.Cli
 import io.bootique.command.CommandWithMetadata
 import io.bootique.meta.application.CommandMetadata
 import io.sarl.bootstrap.SRE
-import io.sarl.lang.core.AgentContext
-import io.sarl.sre.boot.configs.SreConfig
 import io.sarl.bootstrap.SREBootstrap
+import io.sarl.lang.core.Agent
+import io.sarl.sre.boot.configs.SreConfig
+import io.sarl.sre.boot.configs.subconfigs.BootConfig
+import java.util.List
+
+import static java.lang.Thread.*
 
 /**
  * Abstract command for running the SRE without agent at boot time.
@@ -58,14 +63,72 @@ abstract class AbstractRunCommand extends CommandWithMetadata {
 		this.configuration = configuration
 	}
 
+	/** Replies if the given value is the fully qualified name of an agent's type.
+	 * An agent's type is a {@code Class} that extends the {@code Agent} type. 
+	 *
+	 * @param value the value to test.
+	 * @return {@code true} if the given value is the fully qualified name of an agent's type.
+	 */
+	protected def isAgentType(value : String) : boolean {
+		try {
+			var t = Class::forName(value)
+			if (t !== null && typeof(Agent).isAssignableFrom(t)) {
+				return true
+			}
+		} catch (ex : Exception) {
+			//
+		}
+		return false
+	}
+
+	/** Synchronizes the command-line arguments and the SRE configuration.
+	 * This function gets the arguments from the given {@code Cli} and
+	 * updates the {@code SreConfig}.
+	 *
+	 * @param args the definition of the command line arguments
+	 * @param maxNbAgents is the maximum number of agents to be launched. 
+	 * @return the boot configuration.
+	 */
+	protected synchronized def synchronizeCliWithBootConfig(args : Cli, maxNbAgents : int) : BootConfig {
+		var config = this.configuration.get
+		var boot = config.boot
+		// Set the command line arguments
+		var a = args.standaloneArguments
+		boot.commandLineArgs = a
+		// Extract specific information from the command line
+		var bootIds : List<String>
+		var agentArgs : List<String>
+		if (maxNbAgents > 0) {
+			bootIds = newArrayList
+			agentArgs = newArrayList
+			for (arg : args.standaloneArguments) {
+				if (arg.isAgentType) {
+					bootIds += arg
+				} else {
+					agentArgs += arg
+				}
+			}
+		} else {
+			bootIds = emptyList
+			agentArgs = args.standaloneArguments
+		}
+		if (!bootIds.empty) {
+			boot.bootAgent = bootIds.get(0)
+		}
+		if (!agentArgs.empty) {
+			boot.agentStartArgs = agentArgs
+		}
+		return boot
+	}
+
 	/** Replies the SRE bootstrap.
 	 * 
 	 * @return the SRE bootstrap. 
 	 */
 	protected synchronized def getSREBootstrap : SREBootstrap {
-		val config = this.configuration.get
 		if (this.sre === null) {
 			this.sre = SRE::bootstrap
+			val config = this.configuration.get
 			switch (config.boot.rootContextBootType) {
 				case BOOT_AGENT_NAME: {
 					this.sre.setBootAgentTypeContextUUID
@@ -75,26 +138,37 @@ abstract class AbstractRunCommand extends CommandWithMetadata {
 				}
 				case DEFAULT: {
 					this.sre.setSpecificContextUUID
-					this.sre.universeContextUUID = config.boot.rootContextID
-					this.sre.universeSpaceUUID = config.boot.rootSpaceID
 				}
 				default: {
 					this.sre.setSpecificContextUUID
-					this.sre.universeContextUUID = config.boot.rootContextID
-					this.sre.universeSpaceUUID = config.boot.rootSpaceID
 				}
 			}
+			this.sre.universeContextUUID = config.boot.rootContextID
+			this.sre.universeSpaceUUID = config.boot.rootSpaceID
 		}
 		return this.sre
 	}
 
-	/** Start the SRE without agents.
+	/** Start all the boot agents that are defined into the configuration.
 	 * 
-	 * @return the universe context 
+	 * @param bootstrap the SRE bootstrap.
+	 * @param config the configuration to use.
 	 */
-	protected def startSRE : AgentContext {
-		val sre = getSREBootstrap
-		sre.startWithoutAgent
+	protected def startAgentsFromConfig(bootstrap : SREBootstrap, config : BootConfig) : void {
+		var bootAgent = config.getBootAgent(class.classLoader)
+		bootstrap.startAgent(bootAgent, config.agentStartArgs)
+	}
+
+	/** Wait for the termination of the SRE execution.
+	 * This function returns when the SRE is stopped.
+	 *
+	 * @param bootstrap the SRE bootstrap.
+	 */
+	@SuppressWarnings("discouraged_reference")
+	protected def waitForTermination(bootstrap : SREBootstrap) : void {
+		while (bootstrap.active) {
+			sleep(100)
+		}
 	}
 
 }

@@ -22,12 +22,10 @@
 package io.sarl.sre.boot.configs.subconfigs
 
 import com.google.inject.AbstractModule
-import com.google.inject.Inject
 import com.google.inject.Module
 import com.google.inject.Provides
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
-import io.bootique.annotation.Args
 import io.bootique.annotation.BQConfig
 import io.bootique.annotation.BQConfigProperty
 import io.bootique.meta.application.OptionMetadata
@@ -119,7 +117,11 @@ class BootConfig {
 
 	var commandLineArguments : String[]
 
+	var agentStartArguments : String[]
+
 	var bootAgent : String
+
+	transient var bootAgentType : Class<? extends Agent>
 
 	var rootContextBootType : RootContextType
 
@@ -166,35 +168,73 @@ class BootConfig {
 	 * @return the agent type.
 	 */
 	def getBootAgent(classLoader : ClassLoader) : Class<? extends Agent> {
-		var type = classLoader.loadClass(getBootAgent)
-		if (type !== null && typeof(Agent).isAssignableFrom(type)) {
-			return type.asSubclass(typeof(Agent))
+		if (this.bootAgentType === null) {
+			var type = classLoader.loadClass(getBootAgent)
+			if (type !== null && typeof(Agent).isAssignableFrom(type)) {
+				this.bootAgentType = type.asSubclass(typeof(Agent))
+			} else {
+				throw new InvalidAgentNameException
+			}
 		}
-		throw new InvalidAgentNameException
+		return this.bootAgentType
 	}
 
-	/** Replies the command line arguments to pass to the boot agent.
+	/** Replies the command line arguments that are passed to the program.
+	 *
+	 * <p>This function replies the arguments passed to the program. The arguments
+	 * that are passed to an agent when it is started are replied by
+	 * {@link #getAgentStartArgs()}.
 	 * 
 	 * @return the command line arguments.
+	 * @see #getAgentStartArgs()
 	 */
 	def getCommandLineArgs : String[] {
 		if (this.commandLineArguments === null || this.commandLineArguments.length <= 1) {
 			return #[]
 		}
-		var newTab = <String>newArrayOfSize(this.commandLineArguments.length - 1)
-		System::arraycopy(this.commandLineArguments, 1, newTab, 0, newTab.length)
-		return newTab
+		return this.commandLineArguments
 	}
 
 	/** Change the command line arguments that are passed to the program.
 	 * 
+	 * <p>The arguments that are passed to an agent when it is started are replied by
+	 * {@link #getAgentStartArgs()} and changed by {@link #setAgentStartArgs(String[])}.
+	 * 
 	 * @param args the command line arguments.
+	 * @see #setAgentStartArgs(String[])
 	 */
-	@Inject
-	def setCommandLineArgs(@Args args : String[]) {
+	def setCommandLineArgs(args : String[]) {
 		this.commandLineArguments = args
 	}
 
+	/** Replies the arguments to pass to an agent when it is started.
+	 *
+	 * <p>This function is a subset of the command line arguments that are
+	 * replied by {@link #getCommandLineArgs()}.
+	 * 
+	 * @return the arguments.
+	 * @see #getCommandLineArgs()
+	 */
+	def getAgentStartArgs : String[] {
+		if (this.agentStartArguments === null) {
+			this.agentStartArguments = #[]
+		}
+		return this.agentStartArguments
+	}
+
+	/** Change the arguments to pass to an agent when it is started.
+	 * 
+	 * <p>The agent start arguments constitute a subset of the command line arguments that are
+	 * replied by {@link #getCommandLineArgs()}.
+	 * The arguments that are passed to an agent when it is started are replied by
+	 * {@link #getAgentStartArgs()} and changed by {@link #setAgentStartArgs(String[])}.
+	 * 
+	 * @param args the command line arguments.
+	 */
+	def setAgentStartArgs(args : String[]) {
+		this.agentStartArguments = args
+	}
+	
 	/** 
 	 * Replies the identifier of the root context.
 	 * 
@@ -295,7 +335,7 @@ class BootConfig {
 		ensureProgramName
 	}
 
-	private def ensureProgramName {
+	private def ensureProgramName : void {
 		if (this.programName === null) {
 			this.programName = PROGRAM_NAME_VALUE
 		}
@@ -322,7 +362,7 @@ class BootConfig {
 		ensureRootContextBootType
 	}
 
-	private def ensureRootContextBootType {
+	private def ensureRootContextBootType : void {
 		if (this.rootContextBootType === null) {
 			this.rootContextBootType = RootContextType::DEFAULT
 		}

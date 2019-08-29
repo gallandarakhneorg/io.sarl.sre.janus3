@@ -22,7 +22,7 @@
 package io.sarl.sre.tests.units.services.executor
 
 import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.sre.services.executor.SreRunnable
+import io.sarl.sre.services.executor.Runnables
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.logging.Level
@@ -49,7 +49,7 @@ class SreRunnableTest extends AbstractSreTest {
 	@Test
 	def run_logger_successTask {
 		var run = new AtomicBoolean
-		var runnable = new SreRunnable([run.set(true)], this.logger)
+		var runnable = Runnables::protectRunnable([run.set(true)], this.logger)
 		runnable.run
 		assertTrue(runnable.isSuccess)
 		assertTrue(run.get)
@@ -59,7 +59,7 @@ class SreRunnableTest extends AbstractSreTest {
 	@Test
 	def run_logger_earlyExit1 {
 		var run = new AtomicBoolean
-		var runnable = new SreRunnable([run.set(true); ExecutorService.neverReturn], this.logger)
+		var runnable = Runnables::protectRunnable([run.set(true); ExecutorService.neverReturn], this.logger)
 		runnable.run
 		assertTrue(runnable.isSuccess)
 		assertTrue(run.get)
@@ -69,7 +69,7 @@ class SreRunnableTest extends AbstractSreTest {
 	@Test
 	def run_logger_earlyExit2 {
 		var run = new AtomicBoolean
-		var runnable = new SreRunnable([ExecutorService.neverReturn; run.set(true)], this.logger)
+		var runnable = Runnables::protectRunnable([ExecutorService.neverReturn; run.set(true)], this.logger)
 		runnable.run
 		assertTrue(runnable.isSuccess)
 		assertFalse(run.get)
@@ -79,7 +79,7 @@ class SreRunnableTest extends AbstractSreTest {
 	@Test
 	def run_logger_exception {
 		var run = new AtomicBoolean
-		var runnable = new SreRunnable([run.set(true); throw new IllegalStateException()], this.logger)
+		var runnable = Runnables::protectRunnable([run.set(true); throw new IllegalStateException()], this.logger)
 		runnable.run
 		assertFalse(runnable.isSuccess)
 		assertTrue(run.get)
@@ -96,7 +96,7 @@ class SreRunnableTest extends AbstractSreTest {
 	@Test
 	def run_noLogger_successTask {
 		var run = new AtomicBoolean
-		var runnable = new SreRunnable([run.set(true)], null)
+		var runnable = Runnables::protectRunnable([run.set(true)], null)
 		runnable.run
 		assertTrue(runnable.isSuccess)
 		assertTrue(run.get)
@@ -106,7 +106,7 @@ class SreRunnableTest extends AbstractSreTest {
 	@Test
 	def run_noLogger_earlyExit1 {
 		var run = new AtomicBoolean
-		var runnable = new SreRunnable([run.set(true); ExecutorService.neverReturn], null)
+		var runnable = Runnables::protectRunnable([run.set(true); ExecutorService.neverReturn], null)
 		runnable.run
 		assertTrue(runnable.isSuccess)
 		assertTrue(run.get)
@@ -116,7 +116,7 @@ class SreRunnableTest extends AbstractSreTest {
 	@Test
 	def run_noLogger_earlyExit2 {
 		var run = new AtomicBoolean
-		var runnable = new SreRunnable([ExecutorService.neverReturn; run.set(true)], null)
+		var runnable = Runnables::protectRunnable([ExecutorService.neverReturn; run.set(true)], null)
 		runnable.run
 		assertTrue(runnable.isSuccess)
 		assertFalse(run.get)
@@ -126,7 +126,7 @@ class SreRunnableTest extends AbstractSreTest {
 	@Test
 	def run_noLogger_exception {
 		var run = new AtomicBoolean
-		var runnable = new SreRunnable([run.set(true); throw new IllegalStateException()], null)
+		var runnable = Runnables::protectRunnable([run.set(true); throw new IllegalStateException()], null)
 		try {
 			runnable.run
 			fail("Expecting exception " + typeof(IllegalStateException).name)

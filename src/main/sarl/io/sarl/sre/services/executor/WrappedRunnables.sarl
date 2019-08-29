@@ -24,6 +24,7 @@ import java.util.concurrent.Callable
 import java.util.logging.Logger
 import java.util.logging.Level
 import java.util.function.Consumer
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
  * Abstract implementation of a task that could be run on the JRE executor service.
@@ -32,7 +33,8 @@ import java.util.function.Consumer
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 0.6.0
+ * @since 0.6
+ * @see io.sarl.sre.services.executor.Runnables
  */
 abstract class SreExecutable {
 
@@ -41,7 +43,7 @@ abstract class SreExecutable {
 	/** 
 	 * @param logger the logger to use.
 	 */
-	new (logger : Logger) {
+	protected new (logger : Logger) {
 		this.logger = logger
 	}
 
@@ -92,7 +94,8 @@ abstract class SreExecutable {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 0.6.0
+ * @since 0.6
+ * @see io.sarl.sre.services.executor.Runnables
  */
 class SreRunnable extends SreExecutable implements Runnable {
 
@@ -103,7 +106,7 @@ class SreRunnable extends SreExecutable implements Runnable {
 	 * @param runnable the wrapped task.
 	 * @param logger the logger to use.
 	 */
-	new (runnable : Runnable, logger : Logger) {
+	protected new (runnable : Runnable, logger : Logger) {
 		super(logger)
 		assert runnable !== null
 		this.runnable = runnable
@@ -189,7 +192,8 @@ class SreRunnable extends SreExecutable implements Runnable {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 0.6.0
+ * @since 0.6
+ * @see io.sarl.sre.services.executor.Runnables
  */
 class SreCallable<T> extends SreExecutable implements Callable<T> {
 
@@ -201,7 +205,7 @@ class SreCallable<T> extends SreExecutable implements Callable<T> {
 	 * @param callable the wrapped task.
 	 * @param logger the logger to use.
 	 */
-	new (callable : Callable<T>, logger : Logger) {
+	protected new (callable : Callable<T>, logger : Logger) {
 		super(logger)
 		assert callable !== null
 		this.callable = callable
@@ -295,7 +299,8 @@ class SreCallable<T> extends SreExecutable implements Callable<T> {
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 0.7.0
+ * @since 0.7
+ * @see io.sarl.sre.services.executor.Runnables
  */
 class SreConsumer<T> extends SreExecutable implements Consumer<T> {
 
@@ -307,7 +312,7 @@ class SreConsumer<T> extends SreExecutable implements Consumer<T> {
 	 * @param consumer the wrapped task.
 	 * @param logger the logger to use.
 	 */
-	new (consumer : Consumer<T>, logger : Logger) {
+	protected new (consumer : Consumer<T>, logger : Logger) {
 		super(logger)
 		assert consumer !== null
 		this.consumer = consumer
@@ -370,6 +375,7 @@ class SreConsumer<T> extends SreExecutable implements Consumer<T> {
 			this.success = true
 		}
 	}
+
 	/** Replies if the task was finished on a success.
 	 * 
 	 * @return {@code true} if the task if finished and successful. {@code false}
@@ -391,4 +397,44 @@ class SreConsumer<T> extends SreExecutable implements Consumer<T> {
 		if (this.consumer !== null) this.consumer.hashCode else 0
 	}
 	
+}
+
+/** 
+ * A specific SRE runnable for kernel tasks.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 0.10
+ * @see io.sarl.sre.services.executor.Runnables
+ */
+class SreKernelRunnable implements Runnable {
+
+	@Accessors(PUBLIC_GETTER)
+	val source : Runnable
+
+	@Accessors(PUBLIC_GETTER)
+	val name : String
+
+	protected new (source : Runnable, name : String) {
+		assert source !== null
+		this.source = source
+		this.name = name
+	}
+
+	@SuppressWarnings("discouraged_reference")
+	override run {
+		val th = Thread::currentThread
+		val oldName = th.name
+		try {
+			if (this.name !== null) {
+				th.name = this.name
+			}
+			this.source.run
+		} finally {
+			th.name = oldName
+		}
+	}
+
 }
