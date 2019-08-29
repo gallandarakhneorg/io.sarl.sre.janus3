@@ -21,9 +21,11 @@
 package io.sarl.sre.services.logging
 
 import java.io.PrintStream
-import javax.inject.Provider
-import java.util.logging.Logger
+import java.util.logging.Formatter
 import java.util.logging.Level
+import java.util.logging.Logger
+import java.util.logging.SimpleFormatter
+import javax.inject.Provider
 
 /** 
  * Helper for creating a JUL logger.
@@ -41,17 +43,48 @@ class JulLoggerCreator {
 
 	val loggerProvider : Provider<Logger>
 
+	var formatter : Formatter
+
 	/** Build a logger creator.
 	 *
 	 * @param defaultLevel the logging level for new loggers.
 	 * @param defaultProgramName the default name of the program.
 	 * @param loggerProvider the provider of loggers.
+	 * @param formatter the log message formatter to be used.
 	 */
 	new (defaultLevel : Level, defaultProgramName : String,
-			loggerProvider : Provider<java.util.logging.Logger>) {
+			loggerProvider : Provider<Logger>, formatter : Formatter = null) {
 		this.defaultLevel = defaultLevel
 		this.defaultProgramName = defaultProgramName
 		this.loggerProvider = loggerProvider
+		setFormatter(formatter)
+	}
+
+	/** Replies the log formatter.
+	 *
+	 * @return the log formatter, never {@code null}.
+	 */
+	synchronized def getFormatter : Formatter {
+		if (this.formatter === null) {
+			this.formatter = createFormatter
+		}
+		return this.formatter
+	}
+
+	/** Change the log formatter.
+	 * 
+	 * @param formatter the log formatter, or {@code null} to use the default.
+	 */
+	synchronized def setFormatter(formatter : Formatter) {
+		return this.formatter
+	}
+
+	/** Create a formatter.
+	 *
+	 * @return the newly created instance of formatter.
+	 */
+	protected def createFormatter : Formatter {
+		new SimpleFormatter
 	}
 
 	/** 
@@ -64,7 +97,7 @@ class JulLoggerCreator {
 	 */
 	def createConsoleLogger(name : String, output : PrintStream) : Logger {
 		val logger = this.loggerProvider.get
-		val nhandler = new JulOutputStreamConsoleHandler(output)
+		val nhandler = new JulOutputStreamConsoleHandler(output, getFormatter)
 		var allHandlers = logger.handlers
 		if (allHandlers !== null) {
 			for (handler : allHandlers) {
@@ -85,9 +118,9 @@ class JulLoggerCreator {
 	 */
 	def createPlatformLogger() : Logger {
 		val logger = this.loggerProvider.get
-		val stderr = new JulStandardErrorOutputConsoleHandler
+		val stderr = new JulStandardErrorOutputConsoleHandler(getFormatter)
 		stderr.level = Level::ALL
-		val stdout = new JulStandardOutputConsoleHandler
+		val stdout = new JulStandardOutputConsoleHandler(getFormatter)
 		stdout.level = Level::ALL
 		var allHandlers = logger.handlers
 		if (allHandlers !== null) {

@@ -26,6 +26,7 @@ import java.util.logging.LogRecord
 import java.util.logging.SimpleFormatter
 import java.util.logging.StreamHandler
 import org.arakhne.afc.inputoutput.stream.WriterOutputStream
+import java.util.logging.Formatter
 
 /** A console handler that supports to be link to the standard output or the standard error output.
  * 
@@ -42,8 +43,8 @@ class JulOutputStreamConsoleHandler extends StreamHandler {
 	 * 
 	 * @param stream the original stream.
 	 */
-	new (stream : PrintStream) {
-		super(ensureOut(stream), new SimpleFormatter)
+	new (stream : PrintStream, formatter : Formatter = null) {
+		super(stream.ensureOut, formatter.ensureFormatter)
 		assert stream !== null, "a logger handler cannot have a null output stream"
 		this.level = Level::ALL
 	}
@@ -57,6 +58,15 @@ class JulOutputStreamConsoleHandler extends StreamHandler {
 		}
 	}
 
+	@SuppressWarnings("discouraged_reference")
+	private static def ensureFormatter(formatter : Formatter) : Formatter {
+		if (formatter === null) {
+			new SimpleFormatter
+		} else {
+			formatter
+		}
+	}
+	
 	def publish(record : LogRecord) {
 		super.publish(record)
 		flush
@@ -97,8 +107,8 @@ class JulStandardOutputConsoleHandler extends JulOutputStreamConsoleHandler {
 	/** Constructor.
 	 */
 	@SuppressWarnings("discouraged_reference")
-	new {
-		super(System::out)
+	new(formatter : Formatter = null) {
+		super(System::out, formatter)
 	}
 
 	def isLoggableRecord(level : Level) : boolean {
@@ -120,8 +130,8 @@ class JulStandardErrorOutputConsoleHandler extends JulOutputStreamConsoleHandler
 	/** Constructor.
 	 */
 	@SuppressWarnings("discouraged_reference")
-	new {
-		super(System::err)
+	new(formatter : Formatter = null) {
+		super(System::err, formatter)
 		this.level = Level::WARNING
 	}
 
