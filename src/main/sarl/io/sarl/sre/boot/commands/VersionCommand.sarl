@@ -4,7 +4,7 @@
  * SARL is an general-purpose agent programming language.
  * More details on http://www.sarl.io
  *
- * Copyright (C) 2014-2018 the original authors or authors.
+ * Copyright (C) 2014-2019 the original authors or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import javax.inject.Singleton
 import static extension io.bootique.BQCoreModule.extend
 
 /**
- * Command for showing the sarlc version.
+ * Command for showing the SRE version.
  *
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -79,7 +79,7 @@ class VersionCommand extends CommandWithMetadata {
 
 }
 
-/** Module for the command for printing out the sarlc version.
+/** Module for the command for printing out the SRE version.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -93,7 +93,7 @@ class VersionCommandModule extends AbstractModule {
 		binder.extend.addCommand(typeof(VersionCommand))
 	}
 
-	/** Provide the command for displaying the sarlc version.
+	/** Provide the command for displaying the SRE version.
 	 * 
 	 * @param bootLogger the logger.
 	 * @return the command.
