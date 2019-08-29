@@ -395,9 +395,8 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			synchronized (mutex) {
 				description = preRunTask(task, procedure)
 			}
-			var osDelay = Math::round(delay.toOSDuration)
 			val logger = getLogger
-			val sf = this.executorService.schedule(logger, osDelay, TimeUnit::MILLISECONDS,
+			val sf = this.executorService.schedule(logger, delay, TimeUnit::MILLISECONDS,
 				new SingleRunner(this, this.owner, description, logger))
 			synchronized (mutex) {
 				description = postRunTask(description, task, sf)
@@ -413,9 +412,8 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			synchronized (mutex) {
 				description = preRunTask(task, procedure)
 			}
-			var osPeriod = Math::round(period.toOSDuration)
 			val logger = getLogger
-			val sf = this.executorService.scheduleAtFixedRate(logger, 0, osPeriod, TimeUnit::MILLISECONDS,
+			val sf = this.executorService.scheduleAtFixedRate(logger, 0, period, TimeUnit::MILLISECONDS,
 					new PeriodicRunner(this, this.owner, description, logger))
 			synchronized (mutex) {
 				description = postRunTask(description, task, sf)
@@ -431,13 +429,12 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			synchronized (mutex) {
 				description = preRunTask(task, procedure)
 			}
-			var osDelay = Math::round(delay.toOSDuration)
 			var future : Future<?>
-			if (osDelay <= 0) {
+			if (delay <= 0) {
 				future = this.executorService.executeAsap(new InfiniteRunner(this, this.owner, description, getLogger))
 			} else {
 				var logger = getLogger
-				future = this.executorService.scheduleWithFixedDelay(logger, 0, osDelay, TimeUnit::MILLISECONDS,
+				future = this.executorService.scheduleWithFixedDelay(logger, 0, delay, TimeUnit::MILLISECONDS,
 						new PeriodicRunner(this, this.owner, description, logger))
 			}
 			synchronized (mutex) {
