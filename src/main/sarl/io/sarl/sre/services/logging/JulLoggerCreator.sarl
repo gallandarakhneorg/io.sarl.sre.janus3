@@ -26,14 +26,14 @@ import java.util.logging.Logger
 import java.util.logging.Level
 
 /** 
- * Helper for creating a logger.
+ * Helper for creating a JUL logger.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-class LoggerCreator {
+class JulLoggerCreator {
 
 	val defaultLevel : Level
 

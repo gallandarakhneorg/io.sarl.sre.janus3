@@ -52,13 +52,13 @@ import javax.inject.Singleton
  * @mavenartifactid $ArtifactId$
  */
 @Singleton
-class JreLoggingService extends AbstractSreService implements LoggingService {
+class JulLoggingService extends AbstractSreService implements LoggingService {
 
 	var platformLoggerInstance : Logger
 
 	var kernelLoggerInstance : Logger
 
-	var loggerCreator : LoggerCreator
+	var loggerCreator : JulLoggerCreator
 
 	/** Change the creator of logger used by this service.
 	 * 
@@ -66,7 +66,7 @@ class JreLoggingService extends AbstractSreService implements LoggingService {
 	 * @since 0.7.0
 	 */
 	@Inject
-	def setLoggerCreator(loggerCreator : LoggerCreator) {
+	def setLoggerCreator(loggerCreator : JulLoggerCreator) {
 		this.loggerCreator = loggerCreator
 	}
 

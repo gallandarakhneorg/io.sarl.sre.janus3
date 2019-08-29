@@ -28,7 +28,7 @@ import com.google.inject.Provides
 import com.google.inject.Singleton
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
-import io.sarl.sre.services.logging.JreLoggingService
+import io.sarl.sre.services.logging.JulLoggingService
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.services.logging.QuietLoggingService
 import org.arakhne.afc.bootique.log4j.configs.Level
@@ -63,7 +63,7 @@ class LoggingServiceModule extends AbstractModule {
 		var level = loggingConfig.level
 		var srv : LoggingService
 		if (level != Level::OFF) {
-			srv = new JreLoggingService
+			srv = new JulLoggingService
 		} else {
 			srv = new QuietLoggingService
 		}

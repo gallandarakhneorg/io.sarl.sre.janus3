@@ -25,7 +25,7 @@ import com.google.common.util.concurrent.Service
 import io.sarl.sre.boot.configs.SreConfig
 import io.sarl.sre.boot.configs.subconfigs.ServicesConfig
 import io.sarl.sre.services.AbstractServiceManager
-import io.sarl.sre.services.logging.LoggerCreator
+import io.sarl.sre.services.logging.JulLoggerCreator
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.Nullable
 import java.io.PrintStream
@@ -72,7 +72,7 @@ abstract class AbstractServiceManagerTest<T extends AbstractServiceManager> exte
 	var logger : Logger
 
 	@Nullable
-	var loggerCreator : LoggerCreator
+	var loggerCreator : JulLoggerCreator
 
 	@Nullable
 	var configuration : SreConfig
@@ -89,7 +89,7 @@ abstract class AbstractServiceManagerTest<T extends AbstractServiceManager> exte
 		when(servicesConfig.stopTimeout).thenReturn(-1l)
 
 		this.logger = typeof(Logger).mock
-		this.loggerCreator = typeof(LoggerCreator).mock
+		this.loggerCreator = typeof(JulLoggerCreator).mock
 		when(this.loggerCreator.createPlatformLogger).thenReturn(this.logger)
 		when(this.loggerCreator.createModuleLogger(any, typeof(Logger).any)).thenReturn(this.logger)
 		when(this.loggerCreator.createConsoleLogger(any, typeof(PrintStream).any)).thenReturn(this.logger)
@@ -104,7 +104,7 @@ abstract class AbstractServiceManagerTest<T extends AbstractServiceManager> exte
 		this.manager = newServiceManagerInstance(this.loggerCreator, services, this.configuration)
 	}
 
-	protected abstract def newServiceManagerInstance(loggerCreator : LoggerCreator,
+	protected abstract def newServiceManagerInstance(loggerCreator : JulLoggerCreator,
 			services : Iterable<? extends Service>,
 			config : SreConfig) : T
 

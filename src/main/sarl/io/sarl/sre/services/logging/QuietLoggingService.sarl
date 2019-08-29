@@ -43,7 +43,7 @@ class QuietLoggingService extends AbstractSreService implements LoggingService {
 
 	var kernelLoggerInstance : Logger
 
-	var loggerCreator : LoggerCreator
+	var loggerCreator : JulLoggerCreator
 
 	/** Change the creator of logger used by this service.
 	 *
@@ -51,7 +51,7 @@ class QuietLoggingService extends AbstractSreService implements LoggingService {
 	 * @since 0.7.0
 	 */
 	@Inject
-	def setLoggerCreator(loggerCreator : LoggerCreator) {
+	def setLoggerCreator(loggerCreator : JulLoggerCreator) {
 		this.loggerCreator = loggerCreator
 	}
 
