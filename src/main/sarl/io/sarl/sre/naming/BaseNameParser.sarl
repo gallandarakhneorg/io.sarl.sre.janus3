@@ -20,11 +20,12 @@
  */
 package io.sarl.sre.naming
 
+import io.sarl.lang.core.Behavior
+import io.sarl.lang.core.Capacity
 import java.net.URI
 import java.util.StringTokenizer
 import java.util.UUID
-import io.sarl.lang.core.Capacity
-import io.sarl.lang.core.Behavior
+import com.google.common.util.concurrent.Service
 
 /** 
  * Parser of names that is accepting URI-based syntax.
@@ -50,6 +51,9 @@ import io.sarl.lang.core.Behavior
  * <li>{@code "behavior:[/]{0-2}agentId/behaviorName[/behaviorIndex][#fragmentName]"}</li>
  * <li>{@code "behavior:[/]{0-2}contextId/agentId/behaviorName[/behaviorIndex][#fragmentName]"}</li>
  * <li>{@code "behavior:[/]{0-2}contextId/spaceId/agentId/behaviorName[/behaviorIndex][#fragmentName]"}</li>
+ * </ul></li>
+ * <li>Service:<ul>
+ * <li>{@code "service:[/]{0-2}serviceName][#fragmentName]"}</li>
  * </ul></li>
  * </ul>
  * 
@@ -85,6 +89,9 @@ class BaseNameParser implements NameParser {
 					}
 					case BEHAVIOR: {
 						return name.refactor(2, 5, true)
+					}
+					case SERVICE: {
+						return name.refactor(1, 1)
 					}
 				}
 			}
@@ -176,7 +183,19 @@ class BaseNameParser implements NameParser {
 		return null
 	}
 
-	/** Decode the name of a context. */
+	/** Decode the name of a service.
+	 */
+	protected def decodeService(name : URI) : ServiceName {
+		val tokenizer = new StringTokenizer(name.path, "/")
+		if (tokenizer.hasMoreTokens) {
+			val token = tokenizer.nextToken
+			return new ServiceName(name, Class::forName(token) as Class<? extends Service>)
+		}
+		return null
+	}
+
+	/** Decode the name of a context.
+	 */
 	protected def decodeContext(name : URI) : ContextName {
 		val tokenizer = new StringTokenizer(name.path, "/")
 		if (tokenizer.hasMoreTokens) {
@@ -316,6 +335,9 @@ class BaseNameParser implements NameParser {
 						}
 						case BEHAVIOR: {
 							return name.decodeBehavior
+						}
+						case SERVICE: {
+							return name.decodeService
 						}
 					}
 				}

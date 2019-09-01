@@ -35,6 +35,8 @@ import io.sarl.sre.naming.SpaceName
 import io.sarl.sre.naming.AgentName
 import io.sarl.sre.naming.SkillName
 import io.sarl.sre.naming.BehaviorName
+import io.sarl.sre.naming.ServiceName
+import com.google.common.util.concurrent.Service
 
 /** 
  * Abstract implementation of a service that manages name spaces into the SRE.
@@ -106,6 +108,13 @@ abstract class AbstractNamespaceService extends AbstractSreService implements Na
 						//
 					}
 				}
+				case SERVICE: {
+					try {
+						associatedObject = (name as ServiceName).findService
+					} catch (ex : ClassCastException) {
+						//
+					}
+				}
 				default: {
 					throw new UnsupportedOperationException
 				}
@@ -148,5 +157,12 @@ abstract class AbstractNamespaceService extends AbstractSreService implements Na
 	 * @return the behavior, or {@code null} if the behavior is not found.
 	 */
 	protected abstract def findBehavior(name : BehaviorName) : Behavior
+
+	/** Find and replies the service with the given name.
+	 * 
+	 * @param name the name of the service to search for.
+	 * @return the service, or {@code null} if the service is not found.
+	 */
+	protected abstract def findService(name : ServiceName) : Service
 
 }

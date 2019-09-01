@@ -37,6 +37,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 import org.junit.runners.Suite.SuiteClasses
+import io.sarl.sre.services.logging.LoggingService
+import io.sarl.sre.naming.ServiceName
 
 /**
  * @author $Author: sgalland$
@@ -51,8 +53,10 @@ import org.junit.runners.Suite.SuiteClasses
 	typeof(BaseNameParserTest.Space),
 	typeof(BaseNameParserTest.Agent),
 	typeof(BaseNameParserTest.Skill),
-	typeof(BaseNameParserTest.Behavior)
+	typeof(BaseNameParserTest.Behavior),
+	typeof(BaseNameParserTest.Service)
 ])
+
 class BaseNameParserTest extends AbstractSarlTest {
 
 	protected static val CONTEXT_ID = "2a2c6de4-8327-431b-a916-97a05caafe14"
@@ -202,6 +206,10 @@ class BaseNameParserTest extends AbstractSarlTest {
 					}
 				}
 			}
+			case typeof(ServiceName): {
+				val n = name as ServiceName
+				elements.get(0).assertEquals(n.serviceType.name)
+			}
 			default: {
 				fail("Unsupported SarlName type in assertion function")
 			}
@@ -282,8 +290,6 @@ class BaseNameParserTest extends AbstractSarlTest {
 	}
 
 	static class Context extends AbstractSarlTest {
-
-		val CONTEXT_ID = "2a2c6de4-8327-431b-a916-97a05caafe14"
 
 		@Nullable
 		var parser : BaseNameParser
@@ -2868,6 +2874,219 @@ class BaseNameParserTest extends AbstractSarlTest {
 			this.parser.decode((
 				"behavior:" + CONTEXT_ID + "/" + SPACE_ID + "/" + AGENT_ID + "/" + BEHAVIOR_ID + "/xxx/" +
 				BEHAVIOR_IDX + "#frag").createNormalizedURI).assertNull
+		}
+
+	}
+
+	static class Service extends AbstractSarlTest {
+
+		val SERVICE_ID = typeof(LoggingService).name
+
+		@Nullable
+		var parser : BaseNameParser
+
+		@Before
+		def setUp : void {
+			this.parser = new BaseNameParser
+		}
+
+		@Test
+		def decode_String_00 {
+			this.parser.decode("service:").assertNull
+		}
+
+		@Test
+		def decode_String_01 {
+			this.parser.decode("service://" + SERVICE_ID).assertValid("service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_String_02 {
+			this.parser.decode("service:/" + SERVICE_ID).assertValid("service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_String_03 {
+			this.parser.decode("service:" + SERVICE_ID).assertValid("service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_String_04 {
+			this.parser.decode("service://" + SERVICE_ID + "/component2").assertNull
+		}
+
+		@Test
+		def decode_String_05 {
+			this.parser.decode("service:/" + SERVICE_ID + "/component2").assertNull
+		}
+
+		@Test
+		def decode_String_06 {
+			this.parser.decode("service:" + SERVICE_ID + "/component2").assertNull
+		}
+
+		@Test
+		def decode_String_fragment_00 {
+			this.parser.decode("service:#frag").assertNull
+		}
+
+		@Test
+		def decode_String_fragment_01 {
+			this.parser.decode("service://" + SERVICE_ID + "#frag").assertValid("service", "frag", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_String_fragment_02 {
+			this.parser.decode("service:/" + SERVICE_ID + "#frag").assertValid("service", "frag", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_String_fragment_03 {
+			this.parser.decode("service:" + SERVICE_ID + "#frag").assertValid("service", "frag", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_String_fragment_04 {
+			this.parser.decode("service://" + SERVICE_ID + "/component2#frag").assertNull
+		}
+
+		@Test
+		def decode_String_fragment_05 {
+			this.parser.decode("service:/" + SERVICE_ID + "/component2").assertNull
+		}
+
+		@Test
+		def decode_String_fragment_06 {
+			this.parser.decode("service:" + SERVICE_ID + "/component2").assertNull
+		}
+
+		@Test
+		def normalize_URI_00 {
+			this.parser.normalize(("service://" + SERVICE_ID).createURI).assertValid("service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def normalize_URI_01 {
+			this.parser.normalize(("service:/" + SERVICE_ID).createURI).assertValid("service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def normalize_URI_02 {
+			this.parser.normalize(("service:" + SERVICE_ID).createURI).assertValid("service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def normalize_URI_03 {
+			this.parser.normalize(("service://" + SERVICE_ID + "/component2").createURI).assertNull
+		}
+
+		@Test
+		def normalize_URI_04 {
+			this.parser.normalize(("service:/" + SERVICE_ID + "/component2").createURI).assertNull
+		}
+
+		@Test
+		def normalize_URI_05 {
+			this.parser.normalize(("service:" + SERVICE_ID + "/component2").createURI).assertNull
+		}
+
+		@Test
+		def normalize_URI_fragment_00 {
+			this.parser.normalize(("service://" + SERVICE_ID + "#frag").createURI).assertValid("service", "frag", -1,
+				SERVICE_ID)
+		}
+
+		@Test
+		def normalize_URI_fragment_01 {
+			this.parser.normalize(("service:/" + SERVICE_ID + "#frag").createURI).assertValid("service", "frag",
+				-1, SERVICE_ID)
+		}
+
+		@Test
+		def normalize_URI_fragment_02 {
+			this.parser.normalize(("service:" + SERVICE_ID + "#frag").createURI).assertValid("service", "frag", -1,
+				SERVICE_ID)
+		}
+
+		@Test
+		def normalize_URI_fragment_03 {
+			this.parser.normalize(("service://" + SERVICE_ID + "/component2#frag").createURI).assertNull
+		}
+
+		@Test
+		def normalize_URI_fragment_04 {
+			this.parser.normalize(("service:/" + SERVICE_ID + "/component2").createURI).assertNull
+		}
+
+		@Test
+		def normalize_URI_fragment_05 {
+			this.parser.normalize(("service:" + SERVICE_ID + "/component2").createURI).assertNull
+		}
+
+		@Test
+		def decode_URI_00 {
+			this.parser.decode(("service://" + SERVICE_ID).createNormalizedURI).assertValid(
+			"service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_URI_01 {
+			this.parser.decode(("service:/" + SERVICE_ID).createNormalizedURI).assertValid(
+				"service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_URI_02 {
+			this.parser.decode(("service:" + SERVICE_ID).createNormalizedURI).assertValid(
+				"service", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_URI_03 {
+			this.parser.decode(("service://" + SERVICE_ID + "/component2").createNormalizedURI).assertNull
+		}
+
+		@Test
+		def decode_URI_04 {
+			this.parser.decode(("service:/" + SERVICE_ID + "/component2").createNormalizedURI).assertNull
+		}
+
+		@Test
+		def decode_URI_05 {
+			this.parser.decode(("service:" + SERVICE_ID + "/component2").createNormalizedURI).assertNull
+		}
+
+		@Test
+		def decode_URI_fragment_00 {
+			this.parser.decode(("service://" + SERVICE_ID + "#frag").createNormalizedURI).assertValid(
+				"service", "frag", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_URI_fragment_01 {
+			this.parser.decode(("service:/" + SERVICE_ID + "#frag").createNormalizedURI).assertValid(
+				"service", "frag", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_URI_fragment_02 {
+			this.parser.decode(("service:" + SERVICE_ID + "#frag").createNormalizedURI).assertValid(
+				"service", "frag", -1, SERVICE_ID)
+		}
+
+		@Test
+		def decode_URI_fragment_03 {
+			this.parser.decode(("service://" + SERVICE_ID + "/component2#frag").createNormalizedURI).assertNull
+		}
+
+		@Test
+		def decode_URI_fragment_04 {
+			this.parser.decode(("service:/" + SERVICE_ID + "/component2").createNormalizedURI).assertNull
+		}
+
+		@Test
+		def decode_URI_fragment_05 {
+			this.parser.decode(("service:" + SERVICE_ID + "/component2").createNormalizedURI).assertNull
 		}
 
 	}

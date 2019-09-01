@@ -40,6 +40,9 @@ import java.util.UUID
 import javax.inject.Inject
 import org.eclipse.xtend.lib.annotations.Accessors
 import io.sarl.lang.core.UnimplementedCapacityException
+import io.sarl.sre.naming.ServiceName
+import com.google.common.util.concurrent.Service
+import com.google.inject.Injector
 
 /** 
  * Implementation based on injection of a service that manages name spaces into the SRE.
@@ -55,10 +58,21 @@ class InjectionBasedNamespaceService extends AbstractNamespaceService {
 	@Accessors(PROTECTED_GETTER)
 	var contextService : ContextService
 
-	/** Change the context service. */
+	@Accessors(PROTECTED_GETTER)
+	var injector : Injector
+	
+	/** Change the context service.
+	 */
 	@Inject
 	def setContextService(service : ContextService) {
 		this.contextService = service
+	}
+
+	/** Change the injector.
+	 */
+	@Inject
+	def setInjector(injector : Injector) {
+		this.injector = injector
 	}
 
 	protected override findContext(name : ContextName) : Context {
@@ -177,6 +191,23 @@ class InjectionBasedNamespaceService extends AbstractNamespaceService {
 						index++
 					}
 				}
+			}
+		}
+		return null
+	}
+
+	protected override findService(name : ServiceName) : Service {
+		var id = name.serviceType
+		if (id !== null) {
+			try {
+				var srv = this.injector.getInstance(id)
+				if (srv !== null) {
+					name.associatedService = srv
+					return srv
+				}
+			} catch (ex : Throwable) {
+				//
+				ex.printStackTrace
 			}
 		}
 		return null

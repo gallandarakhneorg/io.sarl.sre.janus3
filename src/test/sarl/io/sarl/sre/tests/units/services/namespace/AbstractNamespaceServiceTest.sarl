@@ -38,6 +38,8 @@ import io.sarl.sre.naming.SkillName
 import io.sarl.lang.core.Skill
 import io.sarl.sre.naming.BehaviorName
 import io.sarl.lang.core.Behavior
+import io.sarl.sre.naming.ServiceName
+import com.google.common.util.concurrent.Service
 
 /**
  * @author $Author: sgalland$
@@ -83,7 +85,9 @@ class AbstractNamespaceServiceTest extends AbstractSarlTest {
 			protected def findBehavior(name : BehaviorName) : Behavior {
 				throw new UnsupportedOperationException("TODO: auto-generated method stub")
 			}
-		}.spy
+			protected def findService(name : ServiceName) : Service {
+				throw new UnsupportedOperationException("TODO: auto-generated method stub")
+			}}.spy
 	}
 
 	@Test

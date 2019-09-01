@@ -30,5 +30,5 @@ package io.sarl.sre.naming
  * @since 0.10
  */
 enum NameScheme {
-	CONTEXT, SPACE, AGENT, SKILL, BEHAVIOR 
+	CONTEXT, SPACE, AGENT, SKILL, BEHAVIOR, SERVICE
 }

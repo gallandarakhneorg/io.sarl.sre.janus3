@@ -50,6 +50,8 @@ import org.junit.Test
 
 import static org.mockito.ArgumentMatchers.*
 import static extension org.mockito.Mockito.*
+import io.sarl.sre.services.logging.LoggingService
+import com.google.inject.Injector
 
 /**
  * @author $Author: sgalland$
@@ -91,6 +93,9 @@ class InjectionBasedNamespaceServiceTest extends AbstractSarlTest {
 	var contextService : ContextService
 
 	@Nullable
+	var loggingService : LoggingService
+
+	@Nullable
 	var service : InjectionBasedNamespaceService
 
 	@Before
@@ -102,8 +107,12 @@ class InjectionBasedNamespaceServiceTest extends AbstractSarlTest {
 		this.spaceId = UUID::randomUUID
 		this.agentId = UUID::randomUUID
 		this.contextService = typeof(ContextService).mock
+		this.loggingService = typeof(LoggingService).mock
+		val injector = typeof(Injector).mock
+		when(injector.getInstance(typeof(Class).any)).thenReturn(this.loggingService)
 		this.service = new InjectionBasedNamespaceService()
 		this.service.contextService = this.contextService
+		this.service.injector = injector
 
 		this.beh = new MyBehavior().spy
 
@@ -340,7 +349,22 @@ class InjectionBasedNamespaceServiceTest extends AbstractSarlTest {
 			throw new UnsupportedOperationException("TODO: auto-generated method stub")
 		}	
 	}
-	
+
+	@Test
+	def findObject_SarlName_service_found_01 : void {
+		var name = this.nameParser.decode(this.nameParser.decode("service:" + typeof(LoggingService).name))
+		var obj0 = this.service.findObject(name)
+		obj0.assertNotNull
+		var obj1 = this.service.findObject(name)
+		obj0.assertSame(obj1)
+	}
+
+	@Test
+	def findObject_SarlName_service_notfound {
+		var name = this.nameParser.decode(this.nameParser.decode("service:" + UUID::randomUUID))
+		this.service.findObject(name).assertNull
+	}
+
 	private static class MyBehavior extends Behavior {
 		new {
 			super(null)
