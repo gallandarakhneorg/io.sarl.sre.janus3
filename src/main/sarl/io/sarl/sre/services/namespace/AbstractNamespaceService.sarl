@@ -1,0 +1,152 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2019 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.services.namespace
+
+import com.google.inject.Inject
+import io.sarl.lang.core.Agent
+import io.sarl.lang.core.Behavior
+import io.sarl.lang.core.Skill
+import io.sarl.lang.core.Space
+import io.sarl.sre.naming.NameParser
+import io.sarl.sre.naming.SarlName
+import io.sarl.sre.services.AbstractSreService
+import io.sarl.sre.services.context.Context
+import org.eclipse.xtend.lib.annotations.Accessors
+import io.sarl.sre.naming.ContextName
+import io.sarl.sre.naming.SpaceName
+import io.sarl.sre.naming.AgentName
+import io.sarl.sre.naming.SkillName
+import io.sarl.sre.naming.BehaviorName
+
+/** 
+ * Abstract implementation of a service that manages name spaces into the SRE.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 0.10
+ */
+abstract class AbstractNamespaceService extends AbstractSreService implements NamespaceService {
+
+	@Accessors(PUBLIC_GETTER)
+	var nameParser : NameParser
+
+	@Inject
+	def setNameParser(nameParser : NameParser) {
+		this.nameParser = nameParser
+	}
+
+	override findObject(name : SarlName, type : Class<T>) : T with T {
+		assert type !== null
+		var obj = findObject(name)
+		if (obj !== null && type.isInstance(obj)) {
+			return type.cast(obj)
+		}
+		return null
+	}
+
+	def findObject(name : SarlName) : Object {
+		if (name === null) {
+			return null
+		}
+		var associatedObject = name.associatedObject
+		if (associatedObject === null) {
+			switch (name.scheme) {
+				case CONTEXT: {
+					try {
+						associatedObject = (name as ContextName).findContext
+					} catch (ex : ClassCastException) {
+						//
+					}
+				}
+				case SPACE: {
+					try {
+						associatedObject = (name as SpaceName).findSpace
+					} catch (ex : ClassCastException) {
+						//
+					}
+				}
+				case AGENT: {
+					try {
+						associatedObject = (name as AgentName).findAgent
+					} catch (ex : ClassCastException) {
+						//
+					}
+				}
+				case SKILL: {
+					try {
+						associatedObject = (name as SkillName).findSkill
+					} catch (ex : ClassCastException) {
+						//
+					}
+				}
+				case BEHAVIOR: {
+					try {
+						associatedObject = (name as BehaviorName).findBehavior
+					} catch (ex : ClassCastException) {
+						//
+					}
+				}
+				default: {
+					throw new UnsupportedOperationException
+				}
+			}
+		}
+		return associatedObject
+	}
+
+	/** Find and replies the context with the given name.
+	 * 
+	 * @param name the name of the context to search for.
+	 * @return the context, or {@code null} if the context is not found.
+	 */
+	protected abstract def findContext(name : ContextName) : Context
+
+	/** Find and replies the space with the given name.
+	 * 
+	 * @param name the name of the space to search for.
+	 * @return the space, or {@code null} if the space is not found.
+	 */
+	protected abstract def findSpace(name : SpaceName) : Space
+
+	/** Find and replies the agent with the given name.
+	 * 
+	 * @param name the name of the agent to search for.
+	 * @return the agent, or {@code null} if the agent is not found.
+	 */
+	protected abstract def findAgent(name : AgentName) : Agent
+
+	/** Find and replies the skill with the given name.
+	 * 
+	 * @param name the name of the skill to search for.
+	 * @return the skill, or {@code null} if the skill is not found.
+	 */
+	protected abstract def findSkill(name : SkillName) : Skill
+
+	/** Find and replies the behavior with the given name.
+	 * 
+	 * @param name the name of the behavior to search for.
+	 * @return the behavior, or {@code null} if the behavior is not found.
+	 */
+	protected abstract def findBehavior(name : BehaviorName) : Behavior
+
+}

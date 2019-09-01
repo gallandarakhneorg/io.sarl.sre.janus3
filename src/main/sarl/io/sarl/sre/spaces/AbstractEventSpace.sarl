@@ -29,16 +29,15 @@ import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Scope
 import io.sarl.lang.util.SynchronizedSet
+import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.AddressScope
 import io.sarl.util.Collections3
 import io.sarl.util.Scopes
 import java.text.MessageFormat
-import java.util.Map
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
-import io.sarl.sre.capacities.InformedEventListener
 
 /** 
  * Abstract implementation of an event space.
@@ -52,7 +51,7 @@ import io.sarl.sre.capacities.InformedEventListener
  */
 @SuppressWarnings("use_reserved_sarl_annotation")
 @PrivateAPI(isCallerOnly = true)
-abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
+abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, SpaceWithParticipants {
 
 	static val DEFAULT_ROUTER = new LocalEventTransportService
 
@@ -102,13 +101,6 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace {
 		this.mutexInstance
 	}
 
-	/** Replies the internal data structure for storing the space's participants.
-	 *
-	 * @return the entire participant structure.
-	 */
-	@PrivateAPI
-	abstract def getInternalParticipantStructure : Map<UUID, Participant>
-	
 	protected final def registerToSpace(entity : InformedEventListener) : Address {
 		assert entity !== null
 		var id = entity.ID

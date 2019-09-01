@@ -1,0 +1,350 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2019 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.sarl.sre.tests.units.services.namespace
+
+import io.sarl.core.Behaviors
+import io.sarl.core.Logging
+import io.sarl.lang.annotation.PrivateAPI
+import io.sarl.lang.core.Address
+import io.sarl.lang.core.Agent
+import io.sarl.lang.core.Behavior
+import io.sarl.lang.core.Capacity
+import io.sarl.lang.core.Event
+import io.sarl.lang.core.EventListener
+import io.sarl.lang.core.Scope
+import io.sarl.lang.core.Skill
+import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.sre.capacities.InformedEventListener
+import io.sarl.sre.naming.BaseNameParser
+import io.sarl.sre.services.context.Context
+import io.sarl.sre.services.context.ContextService
+import io.sarl.sre.services.namespace.InjectionBasedNamespaceService
+import io.sarl.sre.spaces.Participant
+import io.sarl.sre.spaces.SpaceWithParticipants
+import io.sarl.tests.api.AbstractSarlTest
+import io.sarl.tests.api.Nullable
+import io.sarl.util.Collections3
+import io.sarl.util.OpenEventSpace
+import java.util.UUID
+import org.junit.Before
+import org.junit.Test
+
+import static org.mockito.ArgumentMatchers.*
+import static extension org.mockito.Mockito.*
+
+/**
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+@SuppressWarnings("missing_abstract_modifier")
+class InjectionBasedNamespaceServiceTest extends AbstractSarlTest {
+
+	@Nullable
+	var nameParser : BaseNameParser
+
+	@Nullable
+	var contextId : UUID
+
+	@Nullable
+	var ctx : Context
+
+	@Nullable
+	var spaceId : UUID
+
+	@Nullable
+	var spc : SpaceMock
+
+	@Nullable
+	var agentId : UUID
+
+	@Nullable
+	var ag : Agent
+
+	@Nullable
+	var sk : MySkill
+
+	@Nullable
+	var beh : MyBehavior
+
+	@Nullable
+	var contextService : ContextService
+
+	@Nullable
+	var service : InjectionBasedNamespaceService
+
+	@Before
+	@SuppressWarnings("use_reserved_sarl_annotation")
+	@PrivateAPI(isCallerOnly = true)
+	def setUp : void {
+		this.nameParser = new BaseNameParser
+		this.contextId = UUID::randomUUID
+		this.spaceId = UUID::randomUUID
+		this.agentId = UUID::randomUUID
+		this.contextService = typeof(ContextService).mock
+		this.service = new InjectionBasedNamespaceService()
+		this.service.contextService = this.contextService
+
+		this.beh = new MyBehavior().spy
+
+		this.sk = new MySkill().spy
+		
+		var behSkill = new MyBehaviors(this.beh).spy
+
+		this.ag = new MyAgent(this.agentId, this.sk, behSkill).spy
+
+		var listener0 = typeof(InformedEventListener).mock
+		when(listener0.ownerInstance).thenReturn(this.ag)
+		var participant0 = typeof(Participant).mock
+		when(participant0.participant).thenReturn(listener0)
+		var map0 = newHashMap
+		map0.put(this.agentId, participant0)
+
+		var listener1 = typeof(InformedEventListener).mock
+		when(listener1.ownerInstance).thenReturn(this.ag)
+		var participant1 = typeof(Participant).mock
+		when(participant1.participant).thenReturn(listener1)
+		var map1 = newHashMap
+		map1.put(this.agentId, participant1)
+
+		this.spc = typeof(SpaceMock).mock
+		when(this.spc.internalParticipantStructure).thenReturn(map0)
+		this.ctx = typeof(Context).mock
+		when(this.ctx.getSpace(any)).thenAnswer [
+			if (this.spaceId == it.getArgument(0)) {
+				return this.spc
+			} else {
+				return null
+			}
+		]
+		when(this.contextService.getContext(any)).thenAnswer [
+			if (this.contextId == it.getArgument(0)) {
+				return this.ctx
+			} else {
+				return null
+			}
+		]
+
+		var defaultSpc = typeof(SpaceMock).mock
+		when(defaultSpc.internalParticipantStructure).thenReturn(map1)
+		var defaultCtx = typeof(Context).mock
+		when(defaultCtx.defaultSpace).thenReturn(defaultSpc)
+		when(this.contextService.rootContext).thenReturn(defaultCtx)
+	}
+
+	@Test
+	def findObject_SarlName_null {
+		this.service.findObject(null).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_context_found_01 : void {
+		var name = this.nameParser.decode(this.nameParser.decode("context:" + this.contextId))
+		var obj = this.service.findObject(name)
+		this.ctx.assertSame(obj)
+		obj = this.service.findObject(name)
+		this.ctx.assertSame(obj)
+		verify(this.contextService, only).getContext(any(typeof(UUID)))
+	}
+	
+	@Test
+	def findObject_SarlName_context_notfound {
+		var name = this.nameParser.decode(this.nameParser.decode("context:" + UUID::randomUUID))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_space_found : void {
+		var name = this.nameParser.decode(this.nameParser.decode("space:" + this.contextId + "/" + this.spaceId))
+		var obj = this.service.findObject(name)
+		this.spc.assertSame(obj)
+		obj = this.service.findObject(name)
+		this.spc.assertSame(obj)
+		verify(this.contextService, only).getContext(any(typeof(UUID)))
+	}
+
+	@Test
+	def findObject_SarlName_space_notfound_00 {
+		var name = this.nameParser.decode(this.nameParser.decode("space:" + this.contextId + "/" + UUID::randomUUID))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_space_notfound_01 {
+		var name = this.nameParser.decode(this.nameParser.decode("space:" + UUID::randomUUID + "/" + this.spaceId))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_space_notfound_02 {
+		var name = this.nameParser.decode(this.nameParser.decode("space:" + UUID::randomUUID + "/" + UUID::randomUUID))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_agent_found_01 : void {
+		var name = this.nameParser.decode(this.nameParser.decode("agent:" + this.contextId + "/" + this.spaceId + "/" + this.agentId))
+		var obj = this.service.findObject(name)
+		this.ag.assertSame(obj)
+		obj = this.service.findObject(name)
+		this.ag.assertSame(obj)
+		verify(this.contextService, only).getContext(any(typeof(UUID)))
+	}
+
+	@SuppressWarnings("unused_local_variable")
+	@Test
+	def findObject_SarlName_agent_found_02 : void {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("agent:" + this.agentId))
+		var obj = this.service.findObject(name)
+		this.ag.assertSame(obj)
+		obj = this.service.findObject(name)
+		this.ag.assertSame(obj)
+		var tmp = verify(this.contextService, only).rootContext
+	}
+
+	@Test
+	def findObject_SarlName_agent_notfound_01 {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("agent:" + this.contextId + "/" + this.spaceId + "/" + UUID::randomUUID))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_agent_notfound_02 {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("agent:" + this.contextId + "/" + UUID::randomUUID + "/" + this.agentId))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_agent_notfound_03 {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("agent:" + UUID::randomUUID + "/" + this.spaceId + "/" + this.agentId))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_skill_found_01 : void {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("skill:" + this.contextId + "/" + this.spaceId + "/" + this.agentId + "/"
+				+ typeof(MyCapacity).name))
+		var obj = this.service.findObject(name)
+		this.sk.assertSame(obj)
+		obj = this.service.findObject(name)
+		this.sk.assertSame(obj)
+		verify(this.contextService, only).getContext(any(typeof(UUID)))
+	}
+
+	@SuppressWarnings("unused_local_variable")
+	@Test
+	def findObject_SarlName_skill_found_02 : void {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("skill:" + this.agentId + "/" + typeof(MyCapacity).name))
+		verify(this.contextService, never).getContext(any(typeof(UUID)))
+		var obj = this.service.findObject(name)
+		this.sk.assertSame(obj)
+		obj = this.service.findObject(name)
+		this.sk.assertSame(obj)
+		var tmp = verify(this.contextService, only).rootContext
+	}
+
+	@Test
+	def findObject_SarlName_skill_notfound_01 {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("skill:" + this.contextId + "/" + this.spaceId + "/" + UUID::randomUUID + "/"
+				+ typeof(MyCapacity).name))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_skill_notfound_02 {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("skill:" + this.agentId + "/" + typeof(Logging).name))
+		this.service.findObject(name).assertNull
+	}
+
+	@Test
+	def findObject_SarlName_behavior_found_01 : void {
+		var name = this.nameParser.decode(
+			this.nameParser.decode("behavior:" + this.contextId + "/" + this.spaceId + "/" + this.agentId + "/" +
+			typeof(MyBehavior).name))
+		var obj = this.service.findObject(name)
+		this.beh.assertSame(obj)
+		obj = this.service.findObject(name)
+		this.beh.assertSame(obj)
+		verify(this.contextService, only).getContext(any(typeof(UUID)))
+	}
+	
+	private static interface SpaceMock extends OpenEventSpace, SpaceWithParticipants {
+		//
+	}
+
+	private static class MyAgent extends Agent {
+		new (id : UUID, sk : MySkill, behSkill : MyBehaviors) {
+			super(UUID::randomUUID, id)
+			setSkill(sk)
+			setSkill(behSkill)
+		}		
+	}
+
+	private static interface MyCapacity extends Capacity {
+		//
+	}
+
+	private static class MySkill extends Skill implements MyCapacity {
+		//
+	}
+
+	private static class MyBehaviors extends Skill implements Behaviors {
+		val beh : Behavior
+		new (x : Behavior) {
+			this.beh = x
+		}
+		override getRegisteredBehaviors : SynchronizedIterable<Behavior> {
+			Collections3::synchronizedSingleton(this.beh)
+		}
+		def asEventListener : EventListener {
+			throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		}
+		def hasRegisteredBehavior : boolean {
+			throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		}
+		def registerBehavior(attitude : Behavior, filter : (Event)=>Boolean = null, initializationParameters : Object*) : Behavior {
+			throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		}
+		def unregisterBehavior(attitude : Behavior) : Behavior {
+			throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		}
+		def wake(^event : Event, scope : Scope<Address> = null) {
+			throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		}	
+	}
+	
+	private static class MyBehavior extends Behavior {
+		new {
+			super(null)
+		}
+	}
+
+}
