@@ -93,19 +93,17 @@ class SkillNameTest extends AbstractSarlTest {
 	}
 
 	@Test
-	def getAssociatedBehavior {
-		var ref = this.name.associatedBehavior
-		ref.assertNotNull
-		ref.get.assertNull
+	def getAssociatedObject {
+		var ref = this.name.associatedObject
+		ref.assertNull
 	}
 
 	@Test
-	def setAssociatedBehavior {
+	def setAssociatedObject {
 		var beh = typeof(BehaviorMock).mock
-		this.name.associatedBehavior = beh
-		var ref = this.name.associatedBehavior
-		ref.assertNotNull
-		beh.assertSame(ref.get)
+		this.name.associatedObject = beh
+		var ref = this.name.associatedObject
+		beh.assertSame(ref)
 	}
 
 }

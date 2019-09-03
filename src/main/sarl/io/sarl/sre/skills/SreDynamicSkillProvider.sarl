@@ -78,7 +78,11 @@ class SreDynamicSkillProvider implements DynamicSkillProvider {
 		this.injector = injector
 	}
 
-	private def inject(^skill : Skill) : Skill {
+	/** Inject fields into the given skill
+	 *
+	 * @return the {@code skill}.
+	 */
+	protected def inject(^skill : Skill) : Skill {
 		this.injector.injectMembers(^skill)
 		return ^skill
 	}

@@ -47,9 +47,6 @@ class SarlNameTest extends AbstractSarlTest {
 	def setUp : void {
 		this.uri = URI::create("space://0001/0001#fragment")
 		this.name = (new SarlName(this.uri) {
-			def getAssociatedObject : Object {
-				null
-			}
 		}).spy
 	}
 
@@ -57,9 +54,6 @@ class SarlNameTest extends AbstractSarlTest {
 	def compareTo_equal {
 		var uri2 = URI::create("space://0001/0001#fragment")
 		var name2 = new SarlName(uri2) {
-			def getAssociatedObject : Object {
-				null
-			}
 		}
 		this.name.compareTo(name2).assertZero
 	}
@@ -68,9 +62,6 @@ class SarlNameTest extends AbstractSarlTest {
 	def compareTo_lower {
 		var uri2 = URI::create("space://0001/0002#fragment")
 		var name2 = new SarlName(uri2) {
-			def getAssociatedObject : Object {
-				null
-			}
 		}
 		this.name.compareTo(name2).assertStrictlyNegative
 	}
@@ -79,9 +70,6 @@ class SarlNameTest extends AbstractSarlTest {
 	def compareTo_greater {
 		var uri2 = URI::create("space://0001/0000#fragment")
 		var name2 = new SarlName(uri2) {
-			def getAssociatedObject : Object {
-				null
-			}
 		}
 		this.name.compareTo(name2).assertStrictlyPositive
 	}
@@ -93,7 +81,12 @@ class SarlNameTest extends AbstractSarlTest {
 
 	@Test
 	def getFragment {
-		this.uri.fragment.assertSame(this.name.fragment)
+		this.uri.fragment.assertSame(this.name.getFragment)
+	}
+
+	@Test
+	def hasFragment {
+		this.name.hasFragment.assertTrue
 	}
 
 	@Test

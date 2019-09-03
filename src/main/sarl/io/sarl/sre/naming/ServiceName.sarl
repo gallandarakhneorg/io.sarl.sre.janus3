@@ -21,7 +21,6 @@
 package io.sarl.sre.naming
 
 import com.google.common.util.concurrent.Service
-import io.sarl.lang.util.ClearableReference
 import java.net.URI
 import org.eclipse.xtend.lib.annotations.Accessors
 
@@ -36,8 +35,6 @@ import org.eclipse.xtend.lib.annotations.Accessors
  */
 class ServiceName extends SarlName {
 
-	transient var service : ClearableReference<Service>
-
 	@Accessors
 	val serviceType : Class<? extends Service>
 
@@ -49,39 +46,6 @@ class ServiceName extends SarlName {
 	protected new (uri : URI, service : Class<? extends Service>) {
 		super(uri)
 		this.serviceType = service
-	}
-
-	override getAssociatedObject : Object {
-		getAssociatedService.get
-	}
-
-	/** Replies the service instance that is associated to this name.
-	 * The associated service may be {@code null}. In this case, it does
-	 * not mean that the service instance does not exist into the system.
-	 * It means that the service instance is not explicitly associated
-	 * to the name.
-	 *
-	 * @return the associated service, or {@code null} if there is no
-	 *     context with the given name or if the service is not yet known.
-	 */
-	def getAssociatedService : ClearableReference<Service> {
-		if (this.service === null) {
-			this.service = new ClearableReference(null)
-		}
-		return this.service
-	}
-
-	/** Change the service instance that is associated to this name.
-	 * The associated service may be {@code null}. In this case, it does
-	 * not mean that the service instance does not exist into the system.
-	 * It means that the service instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @param context the associated service, or {@code null} if there is no
-	 * context with the given name or if the service is not yet known.
-	 */
-	def setAssociatedService(service : Service) {
-		this.service = if (service === null) null else new ClearableReference(service)
 	}
 
 }

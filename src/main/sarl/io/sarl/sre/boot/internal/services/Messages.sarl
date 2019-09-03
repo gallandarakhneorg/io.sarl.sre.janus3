@@ -48,6 +48,7 @@ final class Messages extends NLS {
 	public static var LoggingServiceModuleProvider_0 : String
 	public static var TimeServiceModuleProvider_0 : String
 	public static var NamespaceServiceModuleProvider_0 : String
+	public static var NamespaceFinderModuleProvider_0 : String
 
 	private new {
 	}

@@ -20,8 +20,6 @@
  */
 package io.sarl.sre.naming
 
-import io.sarl.lang.core.Space
-import io.sarl.lang.util.ClearableReference
 import java.net.URI
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -36,8 +34,6 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @since 0.10
  */
 class SpaceName extends SarlName {
-
-	transient var ^space : ClearableReference<Space>
 
 	@Accessors
 	val contextId : UUID
@@ -55,39 +51,6 @@ class SpaceName extends SarlName {
 		super(uri)
 		this.contextId = contextId
 		this.spaceId = spaceId
-	}
-
-	override getAssociatedObject : Object {
-		getAssociatedSpace.get
-	}
-
-	/** Replies the space instance that is associated to this name.
-	 * The associated space may be {@code null}. In this case, it does
-	 * not mean that the space instance does not exist into the system.
-	 * It means that the space instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @return the associated space, or {@code null} if there is no
-	 * space with the given name or if the space is not yet known.
-	 */
-	def getAssociatedSpace : ClearableReference<Space> {
-		if (this.^space === null) {
-			this.^space = new ClearableReference(null)
-		}
-		return this.^space
-	}
-
-	/** Change the space instance that is associated to this name.
-	 * The associated space may be {@code null}. In this case, it does
-	 * not mean that the space instance does not exist into the system.
-	 * It means that the space instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @param spacce the associated space, or {@code null} if there is no
-	 * space with the given name or if the space is not yet known.
-	 */
-	def setAssociatedSpace(^space : Space) {
-		this.^space = if(^space === null) null else new ClearableReference(^space)
 	}
 
 }

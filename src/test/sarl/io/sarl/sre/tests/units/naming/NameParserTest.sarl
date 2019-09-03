@@ -21,10 +21,20 @@
 
 package io.sarl.sre.tests.units.naming
 
+import io.sarl.sre.naming.AgentSchemeNameParser
+import io.sarl.sre.naming.BehaviorSchemeNameParser
+import io.sarl.sre.naming.ContextSchemeNameParser
 import io.sarl.sre.naming.NameParser
-import io.sarl.sre.naming.NameScheme
+import io.sarl.sre.naming.ServiceSchemeNameParser
+import io.sarl.sre.naming.SkillSchemeNameParser
+import io.sarl.sre.naming.SpaceSchemeNameParser
 import io.sarl.tests.api.AbstractSarlTest
+import io.sarl.tests.api.Nullable
+import java.net.URI
+import org.junit.Before
 import org.junit.Test
+
+import static extension java.net.URI.*
 
 /**
  * @author $Author: sgalland$
@@ -34,26 +44,75 @@ import org.junit.Test
  */
 class NameParserTest extends AbstractSarlTest {
 
-	@Test
-	def getSchemeObject_String_null {
-		NameParser::getSchemeObject(null).assertNull
+	@Nullable
+	var parser : NameParser
+
+	@Before
+	def setUp : void {
+		this.parser = new NameParser
+		this.parser.addSchemeNameParser(new ServiceSchemeNameParser)
+		this.parser.addSchemeNameParser(new ContextSchemeNameParser)
+		this.parser.addSchemeNameParser(new SpaceSchemeNameParser)
+		this.parser.addSchemeNameParser(new SkillSchemeNameParser)
+		this.parser.addSchemeNameParser(new AgentSchemeNameParser)
+		this.parser.addSchemeNameParser(new BehaviorSchemeNameParser)		
 	}
 
 	@Test
-	def getSchemeObject_String_empty {
-		NameParser::getSchemeObject("").assertNull
+	def decode_String_null {
+		var v : String = null
+		this.parser.decode(v).assertNull
 	}
 
 	@Test
-	def getSchemeObject_String_validScheme {
-		for (expected : NameScheme::values) {
-			NameParser::getSchemeObject(expected.name.toLowerCase).assertSame(expected)
-		}
+	def decode_String_empty {
+		this.parser.decode("").assertNull
 	}
 
 	@Test
-	def getSchemeObject_String_http {
-		NameParser::getSchemeObject("http").assertNull
+	def decode_String_noScheme {
+		this.parser.decode("agentName").assertNull
+	}
+
+	@Test
+	def decode_String_http {
+		this.parser.decode("http://sarl.io").assertNull
+	}
+
+	@Test
+	def normalize_URI_null {
+		this.parser.normalize(null).assertNull
+	}
+
+	@Test
+	def normalize_URI_empty {
+		this.parser.normalize("".create).assertNull
+	}
+
+	@Test
+	def normalize_URI_http {
+		this.parser.normalize("http://sarl.io".create).assertNull
+	}
+
+	@Test
+	def decode_URI_null {
+		var v : URI = null
+		this.parser.decode(v).assertNull
+	}
+
+	@Test
+	def decode_URI_empty {
+		this.parser.decode("".create).assertNull
+	}
+
+	@Test
+	def decode_URL_noScheme {
+		this.parser.decode("agentName".create).assertNull
+	}
+
+	@Test
+	def decode_URI_http {
+		this.parser.decode("http://sarl.io".create).assertNull
 	}
 
 }

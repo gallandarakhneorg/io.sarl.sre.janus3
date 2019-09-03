@@ -59,7 +59,8 @@ class ExecutorServiceModule extends AbstractModule {
 	protected override configure {
 		typeof(io.sarl.sre.services.executor.ExecutorService).bind.to(typeof(JreExecutorService)).in(typeof(Singleton))
 
-		binder.newSetBinder(typeof(Service)).addBinding.to(typeof(io.sarl.sre.services.executor.ExecutorService))
+		binder.newSetBinder(typeof(Service), typeof(SreServices)).addBinding.to(
+			typeof(io.sarl.sre.services.executor.ExecutorService))
 	}
 
 	/**

@@ -20,11 +20,13 @@
  */
 package io.sarl.sre.naming
 
-import com.google.inject.ImplementedBy
+import io.sarl.sre.boot.internal.naming.SchemeNameParsers
 import java.net.URI
+import java.util.Set
+import com.google.inject.Inject
 
 /** 
- * Parser of names
+ * Parser of names that is accepting URI-based syntax.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
@@ -32,59 +34,73 @@ import java.net.URI
  * @mavenartifactid $ArtifactId$
  * @since 0.10
  */
-@ImplementedBy(typeof(BaseNameParser))
-interface NameParser {
+class NameParser implements INameParser {
 
-	/** Parse the scheme.
+	val schemeNameParser = <NameScheme, ISchemeNameParser<?>>newTreeMap(null)
+
+	/** Change the set of scheme name parsers that is used by this base name parser.
+	 *
+	 * <p>This function is annoted in order to be used by the Guice injector.
+	 *
+	 * @param parsers the set of scheme name parsers.
 	 */
-	@Pure
-	static def getSchemeObject(scheme : String) : NameScheme {
-		if (scheme !== null) {
-			for (s : NameScheme::values) {
-				if (scheme.equalsIgnoreCase(s.name)) {
-					return s
+	@SuppressWarnings("raw_type")
+	@Inject
+	def setSchemeNameParsers(@SchemeNameParsers parsers : Set<ISchemeNameParser>) {
+		if (parsers !== null) {
+			this.schemeNameParser.clear
+			for (parser : parsers) {
+				parser.addSchemeNameParser
+			}
+		}
+	}	
+
+	override addSchemeNameParser(parser : ISchemeNameParser<?>) {
+		assert parser !== null
+		this.schemeNameParser.put(parser.scheme, parser)
+	}
+
+	override removeSchemeNameParser(scheme : NameScheme) : ISchemeNameParser<?> {
+		assert scheme !== null
+		this.schemeNameParser.remove(scheme)
+	}
+
+	@Pure	
+	def normalize(name : URI) : URI {
+		try {
+			val scheme = name.scheme
+			val schemeObj = scheme.schemeObject
+			if (schemeObj !== null
+				&& name.query.isNullOrEmpty
+				&& name.userInfo.isNullOrEmpty
+				&& name.port === -1) {
+				var parser = this.schemeNameParser.get(schemeObj)
+				if (parser !== null) {
+					return parser.refactor(name)
 				}
 			}
+		} catch (ex : Throwable) {
+			//
 		}
 		return null
 	}
 
-	/** 
-	 * Parse the string representation of the name, and create the URI representation.
-	 * 
-	 * @param name the string representation of the name.
-	 * @return the URI representation of the given name, or {@code null} if the given string cannot be parsed.
-	 */
 	@Pure
-	def decode(name : String) : URI {
-		if (!name.isNullOrEmpty) {
-			try {
-				var uri = URI::create(name)
-				return normalize(uri)
-			} catch (ex : Throwable) {
-				//
+	override decode(name : URI) : SarlName {
+		try {
+			if (name !== null && name.path !== null && name.path.startsWith("/")) {
+				var scheme = name.scheme.getSchemeObject
+				if (scheme !== null) {
+					var parser = this.schemeNameParser.get(scheme)
+					if (parser !== null) {
+						return parser.decode(name)
+					}
+				}
 			}
+		} catch (ex : Throwable) {
+			//
 		}
 		return null
 	}
-
-	/** 
-	 * Parse the string representation of the name, and create the URI representation.
-	 * 
-	 * @param name the string representation of the name.
-	 * @return the URI representation of the given name, or {@code null} if the given string cannot be parsed.
-	 */
-	@Pure
-	def normalize(name : URI) : URI
-	
-	/** 
-	 * Parse the URI of the name, and create the name object.
-	 * The argument must be a normalized URI that is computed by {@link #normalize(URI)}.
-	 * 
-	 * @param name the normalized URI representation of the name. See {@link #normalize(URI)}.
-	 * @return the name, or {@code null} if the given URI cannot be parsed.
-	 */
-	@Pure
-	def decode(name : URI) : SarlName
 
 }

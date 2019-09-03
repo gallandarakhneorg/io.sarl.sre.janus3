@@ -20,23 +20,8 @@
  */
 package io.sarl.sre.services.namespace
 
-import com.google.inject.Inject
-import io.sarl.lang.core.Agent
-import io.sarl.lang.core.Behavior
-import io.sarl.lang.core.Skill
-import io.sarl.lang.core.Space
-import io.sarl.sre.naming.NameParser
 import io.sarl.sre.naming.SarlName
 import io.sarl.sre.services.AbstractSreService
-import io.sarl.sre.services.context.Context
-import org.eclipse.xtend.lib.annotations.Accessors
-import io.sarl.sre.naming.ContextName
-import io.sarl.sre.naming.SpaceName
-import io.sarl.sre.naming.AgentName
-import io.sarl.sre.naming.SkillName
-import io.sarl.sre.naming.BehaviorName
-import io.sarl.sre.naming.ServiceName
-import com.google.common.util.concurrent.Service
 
 /** 
  * Abstract implementation of a service that manages name spaces into the SRE.
@@ -49,15 +34,7 @@ import com.google.common.util.concurrent.Service
  */
 abstract class AbstractNamespaceService extends AbstractSreService implements NamespaceService {
 
-	@Accessors(PUBLIC_GETTER)
-	var nameParser : NameParser
-
-	@Inject
-	def setNameParser(nameParser : NameParser) {
-		this.nameParser = nameParser
-	}
-
-	override findObject(name : SarlName, type : Class<T>) : T with T {
+	final override findObject(name : SarlName, type : Class<T>) : T with T {
 		assert type !== null
 		var obj = findObject(name)
 		if (obj !== null && type.isInstance(obj)) {
@@ -66,103 +43,52 @@ abstract class AbstractNamespaceService extends AbstractSreService implements Na
 		return null
 	}
 
-	def findObject(name : SarlName) : Object {
+	final override findObject(name : SarlName) : Object {
 		if (name === null) {
 			return null
 		}
 		var associatedObject = name.associatedObject
 		if (associatedObject === null) {
-			switch (name.scheme) {
-				case CONTEXT: {
-					try {
-						associatedObject = (name as ContextName).findContext
-					} catch (ex : ClassCastException) {
-						//
-					}
+			var obj = findObjectWithoutFragment(name)
+			if (name.hasFragment) {
+				// Treat the fragment
+				var field = obj.getDeclaredField(name.fragment)
+				if (field !== null) {
+					associatedObject = field
 				}
-				case SPACE: {
-					try {
-						associatedObject = (name as SpaceName).findSpace
-					} catch (ex : ClassCastException) {
-						//
-					}
-				}
-				case AGENT: {
-					try {
-						associatedObject = (name as AgentName).findAgent
-					} catch (ex : ClassCastException) {
-						//
-					}
-				}
-				case SKILL: {
-					try {
-						associatedObject = (name as SkillName).findSkill
-					} catch (ex : ClassCastException) {
-						//
-					}
-				}
-				case BEHAVIOR: {
-					try {
-						associatedObject = (name as BehaviorName).findBehavior
-					} catch (ex : ClassCastException) {
-						//
-					}
-				}
-				case SERVICE: {
-					try {
-						associatedObject = (name as ServiceName).findService
-					} catch (ex : ClassCastException) {
-						//
-					}
-				}
-				default: {
-					throw new UnsupportedOperationException
+				return field				
+			} else {
+				try {
+					associatedObject = obj
+				} catch (ex : ClassCastException) {
+					//
 				}
 			}
 		}
 		return associatedObject
 	}
 
-	/** Find and replies the context with the given name.
-	 * 
-	 * @param name the name of the context to search for.
-	 * @return the context, or {@code null} if the context is not found.
-	 */
-	protected abstract def findContext(name : ContextName) : Context
+	private static def getDeclaredField(obj : Object, fragment : String) : FieldAccess {
+		var type = obj.class
+		while (type !== null && typeof(Object) != type) {
+			try {
+				var field = type.getDeclaredField(fragment)
+				if (field !== null) {
+					return new FieldAccess(field, obj)
+				} 
+			} catch (ex : Throwable) {
+				//
+			}
+			type = type.superclass
+		}
+		return null
+	}
 
-	/** Find and replies the space with the given name.
-	 * 
-	 * @param name the name of the space to search for.
-	 * @return the space, or {@code null} if the space is not found.
+	/** Find an object with the given name, but ignoring the fragment.
+	 *
+	 * @param name the name of the object, never {@code null}.
+	 * @return the object, or {@code null} if the object was not found.
 	 */
-	protected abstract def findSpace(name : SpaceName) : Space
-
-	/** Find and replies the agent with the given name.
-	 * 
-	 * @param name the name of the agent to search for.
-	 * @return the agent, or {@code null} if the agent is not found.
-	 */
-	protected abstract def findAgent(name : AgentName) : Agent
-
-	/** Find and replies the skill with the given name.
-	 * 
-	 * @param name the name of the skill to search for.
-	 * @return the skill, or {@code null} if the skill is not found.
-	 */
-	protected abstract def findSkill(name : SkillName) : Skill
-
-	/** Find and replies the behavior with the given name.
-	 * 
-	 * @param name the name of the behavior to search for.
-	 * @return the behavior, or {@code null} if the behavior is not found.
-	 */
-	protected abstract def findBehavior(name : BehaviorName) : Behavior
-
-	/** Find and replies the service with the given name.
-	 * 
-	 * @param name the name of the service to search for.
-	 * @return the service, or {@code null} if the service is not found.
-	 */
-	protected abstract def findService(name : ServiceName) : Service
+	protected abstract def findObjectWithoutFragment(name : SarlName) : Object
 
 }

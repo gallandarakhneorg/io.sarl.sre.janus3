@@ -61,19 +61,17 @@ class ContextNameTest extends AbstractSarlTest {
 	}
 
 	@Test
-	def getAssociatedContext {
-		var ref = this.name.associatedContext
-		ref.assertNotNull
-		ref.get.assertNull
+	def getAssociatedObject {
+		var ref = this.name.associatedObject
+		ref.assertNull
 	}
 
 	@Test
 	def setAssociatedContext {
 		var ctx = typeof(Context).mock
-		this.name.associatedContext = ctx
-		var ref = this.name.associatedContext
-		ref.assertNotNull
-		ctx.assertSame(ref.get)
+		this.name.associatedObject = ctx
+		var ref = this.name.associatedObject
+		ctx.assertSame(ref)
 	}
 
 }

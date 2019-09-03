@@ -20,8 +20,6 @@
  */
 package io.sarl.sre.naming
 
-import io.sarl.lang.core.Agent
-import io.sarl.lang.util.ClearableReference
 import java.net.URI
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -36,8 +34,6 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @since 0.10
  */
 class AgentName extends SarlName {
-
-	transient var ^agent : ClearableReference<Agent>
 
 	@Accessors
 	val contextId : UUID
@@ -60,39 +56,6 @@ class AgentName extends SarlName {
 		this.contextId = contextId
 		this.spaceId = spaceId
 		this.agentId = agentId
-	}
-
-	override getAssociatedObject : Object {
-		getAssociatedAgent.get
-	}
-
-	/** Replies the agent instance that is associated to this name.
-	 * The associated agent may be {@code null}. In this case, it does
-	 * not mean that the agent instance does not exist into the system.
-	 * It means that the agent instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @return the associated agent, or {@code null} if there is no
-	 * agent with the given name or if the agent is not yet known.
-	 */
-	def getAssociatedAgent : ClearableReference<Agent> {
-		if (this.^agent === null) {
-			this.^agent = new ClearableReference(null)
-		}
-		return this.^agent
-	}
-
-	/** Change the agent instance that is associated to this name.
-	 * The associated agent may be {@code null}. In this case, it does
-	 * not mean that the agent instance does not exist into the system.
-	 * It means that the agent instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @param agent the associated agent, or {@code null} if there is no
-	 * agent with the given name or if the agent is not yet known.
-	 */
-	def setAssociatedAgent(^agent : Agent) {
-		this.^agent = if(^agent === null) null else new ClearableReference(^agent)
 	}
 
 }

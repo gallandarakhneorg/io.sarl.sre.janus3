@@ -20,11 +20,9 @@
  */
 package io.sarl.sre.naming
 
-import io.sarl.lang.util.ClearableReference
 import java.net.URI
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
-import io.sarl.sre.services.context.Context
 
 /** 
  * This class represents a context name.
@@ -37,8 +35,6 @@ import io.sarl.sre.services.context.Context
  */
 class ContextName extends SarlName {
 
-	transient var context : ClearableReference<Context>
-
 	@Accessors
 	val contextId : UUID
 
@@ -50,39 +46,6 @@ class ContextName extends SarlName {
 	protected new (uri : URI, contextId : UUID) {
 		super(uri)
 		this.contextId = contextId
-	}
-
-	override getAssociatedObject : Object {
-		getAssociatedContext.get
-	}
-
-	/** Replies the context instance that is associated to this name.
-	 * The associated context may be {@code null}. In this case, it does
-	 * not mean that the context instance does not exist into the system.
-	 * It means that the context instance is not explicitly associated
-	 * to the name.
-	 *
-	 * @return the associated context, or {@code null} if there is no
-	 *     context with the given name or if the context is not yet known.
-	 */
-	def getAssociatedContext : ClearableReference<Context> {
-		if (this.context === null) {
-			this.context = new ClearableReference(null)
-		}
-		return this.context
-	}
-
-	/** Change the context instance that is associated to this name.
-	 * The associated context may be {@code null}. In this case, it does
-	 * not mean that the context instance does not exist into the system.
-	 * It means that the context instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @param context the associated context, or {@code null} if there is no
-	 * context with the given name or if the context is not yet known.
-	 */
-	def setAssociatedContext(context : Context) {
-		this.context = if (context === null) null else new ClearableReference(context)
 	}
 
 }

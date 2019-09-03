@@ -56,14 +56,4 @@ interface NamespaceService extends Service {
 	@Pure
 	def findObject(name : SarlName) : Object
 
-	/**
-	 * Finds and replies the name of the given object.
-	 * 
-	 * @param object the object.
-	 * @return the name of the object. See the documentation of {@link NamespaceService}
-	 * for details. A {@code null} value is replied if the object is not found.
-	 */
-	@Pure
-	def findName(object : Object) : SarlName
-
 }

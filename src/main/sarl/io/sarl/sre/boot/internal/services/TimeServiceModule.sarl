@@ -44,7 +44,7 @@ class TimeServiceModule extends AbstractModule {
 	protected override configure {
 		typeof(TimeService).bind.to(typeof(JreTimeService)).in(typeof(Singleton))
 
-		binder.newSetBinder(typeof(Service)).addBinding.to(typeof(TimeService))
+		binder.newSetBinder(typeof(Service), typeof(SreServices)).addBinding.to(typeof(TimeService))
 	}
 
 }

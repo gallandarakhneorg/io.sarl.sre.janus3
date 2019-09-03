@@ -21,8 +21,6 @@
 package io.sarl.sre.naming
 
 import io.sarl.lang.core.Capacity
-import io.sarl.lang.core.Skill
-import io.sarl.lang.util.ClearableReference
 import java.net.URI
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -37,8 +35,6 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @since 0.10
  */
 class SkillName extends SarlName {
-
-	transient var ^skill : ClearableReference<Skill>
 
 	@Accessors
 	val contextId : UUID
@@ -66,40 +62,6 @@ class SkillName extends SarlName {
 		this.spaceId = spaceId
 		this.agentId = agentId
 		this.^capacity = ^capacity
-	}
-
-	override getAssociatedObject : Object {
-		getAssociatedSkill.get
-	}
-
-	/** Replies the skill instance that is associated to this name.
-	 * The associated skill may be {@code null}. In this case, it does
-	 * not mean that the skill instance does not exist into the system.
-	 * It means that the skill instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @return the associated skill, or {@code null} if there is no
-	 * skill with the given name or if the skill is not yet known.
-	 */
-	def getAssociatedSkill : ClearableReference<Skill> {
-		if (this.^skill === null) {
-			this.^skill = new ClearableReference(null)
-		}
-		return this.^skill
-	}
-
-	/** Change the skill instance that is associated to this name.
-	 * The associated skill may be {@code null}. In this case, it does
-	 * not mean that the skill instance does not exist into the system.
-	 * It means that the skill instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @param skill the associated skill, or {@code null} if there is no
-	 * skill with the given name or if the skill is not yet known.
-	 */
-	def setAssociatedSkill(^skill : Skill) {
-		assert ^skill === null || this.^capacity.isInstance(^skill)
-		this.^skill = if(^skill === null) null else new ClearableReference(^skill)
 	}
 
 }

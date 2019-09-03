@@ -44,7 +44,7 @@ class LifecycleServiceModule extends AbstractModule {
 	protected override configure {
 		typeof(LifecycleService).bind.to(typeof(InjectionBasedLifecycleService)).in(typeof(Singleton))
 
-		binder.newSetBinder(typeof(Service)).addBinding.to(typeof(LifecycleService))
+		binder.newSetBinder(typeof(Service), typeof(SreServices)).addBinding.to(typeof(LifecycleService))
 	}
 
 }

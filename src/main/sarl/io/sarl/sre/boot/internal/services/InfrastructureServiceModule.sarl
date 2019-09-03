@@ -44,7 +44,7 @@ class InfrastructureServiceModule extends AbstractModule {
 	protected override configure {
 		typeof(InfrastructureService).bind.to(typeof(BasicInfrastructureService)).in(typeof(Singleton))
 
-		binder.newSetBinder(typeof(Service)).addBinding.to(typeof(InfrastructureService))
+		binder.newSetBinder(typeof(Service), typeof(SreServices)).addBinding.to(typeof(InfrastructureService))
 	}
 
 }

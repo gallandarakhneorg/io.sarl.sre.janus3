@@ -70,19 +70,17 @@ class SpaceNameTest extends AbstractSarlTest {
 	}
 
 	@Test
-	def getAssociatedSpace {
-		var ref = this.name.associatedSpace
-		ref.assertNotNull
-		ref.get.assertNull
+	def getAssociatedObject {
+		var ref = this.name.associatedObject
+		ref.assertNull
 	}
 
 	@Test
-	def setAssociatedSpace {
+	def setAssociatedObject {
 		var spc = typeof(Space).mock
-		this.name.associatedSpace = spc
-		var ref = this.name.associatedSpace
-		ref.assertNotNull
-		spc.assertSame(ref.get)
+		this.name.associatedObject = spc
+		var ref = this.name.associatedObject
+		spc.assertSame(ref)
 	}
 
 }

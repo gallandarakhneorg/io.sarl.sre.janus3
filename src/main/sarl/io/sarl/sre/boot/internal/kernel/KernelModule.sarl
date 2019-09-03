@@ -39,6 +39,7 @@ import java.util.UUID
 import javax.inject.Named
 import javax.inject.Provider
 import javax.inject.Singleton
+import io.sarl.sre.boot.internal.services.SreServices
 
 /** 
  * Module for configuring the kernel specific components.
@@ -80,7 +81,7 @@ class KernelModule extends AbstractModule {
 	 */
 	@Provides
 	@Singleton
-	def provideServiceManager(services : Set<Service>, config : Provider<SreConfig>) : IServiceManager {
+	def provideServiceManager(@SreServices services : Set<Service>, config : Provider<SreConfig>) : IServiceManager {
 		new GoogleServiceManager(services, config.get)
 	}
 

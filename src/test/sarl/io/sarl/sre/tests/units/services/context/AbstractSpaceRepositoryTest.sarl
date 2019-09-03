@@ -365,6 +365,7 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		assertTrue(creationArg.value)
 	}
 
+	@SuppressWarnings("unused_local_variable")
 	@Test
 	def addSpaceRepositoryListener_1 {
 		var contextId = UUID::randomUUID
@@ -390,6 +391,7 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		assertTrue(destroyArg.value)
 	}
 
+	@SuppressWarnings("unused_local_variable")
 	@Test
 	def removeSpaceRepositoryListener {
 		var listener = typeof(SpaceRepositoryListener).mock

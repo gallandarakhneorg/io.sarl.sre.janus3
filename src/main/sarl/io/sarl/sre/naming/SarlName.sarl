@@ -22,6 +22,7 @@ package io.sarl.sre.naming
 
 import java.io.Serializable
 import java.net.URI
+import java.lang.ref.WeakReference
 
 /** 
  * This class represents a component name. Each component in a name is an atomic name.
@@ -43,6 +44,8 @@ import java.net.URI
  */
 abstract class SarlName implements Cloneable, Serializable, Comparable<SarlName> {
 
+	transient var associatedObject : WeakReference<Object>
+
 	val uri : URI
 
 	var scheme : NameScheme
@@ -55,7 +58,7 @@ abstract class SarlName implements Cloneable, Serializable, Comparable<SarlName>
 	/** Replies the scheme of this name. */
 	def getScheme : NameScheme {
 		if (this.scheme === null) {
-			this.scheme = NameParser::getSchemeObject(toURI.scheme)
+			this.scheme = INameParser::getSchemeObject(toURI.scheme)
 		}
 		return this.scheme
 	}
@@ -75,7 +78,22 @@ abstract class SarlName implements Cloneable, Serializable, Comparable<SarlName>
 		this.uri.fragment
 	}
 
-	/** Replies the associated object. */
-	abstract def getAssociatedObject : Object
+	/** Replies if this name has a fragment associated to it.
+	 */
+	def hasFragment : boolean {
+		!this.uri.fragment.isNullOrEmpty
+	}
+	
+	/** Replies the associated object.
+	 */
+	final def getAssociatedObject : Object {
+		this.associatedObject?.get
+	}
+
+	/** Change the associated object.
+	 */
+	final def setAssociatedObject(obj : Object) {
+		this.associatedObject = if (obj === null) null else new WeakReference(obj)
+	}
 
 }

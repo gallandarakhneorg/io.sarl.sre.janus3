@@ -47,7 +47,7 @@ class ContextServiceModule extends AbstractModule {
 		typeof(SpaceRepository).bind.to(typeof(LocalSpaceRepository))
 		typeof(ContextService).bind.to(typeof(MemoryBasedContextService)).in(typeof(Singleton))
 
-		binder.newSetBinder(typeof(Service)).addBinding.to(typeof(ContextService))
+		binder.newSetBinder(typeof(Service), typeof(SreServices)).addBinding.to(typeof(ContextService))
 	}
 
 }

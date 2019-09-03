@@ -79,19 +79,17 @@ class AgentNameTest extends AbstractSarlTest {
 	}
 	
 	@Test
-	def getAssociatedAgent {
-		var ref = this.name.associatedAgent
-		ref.assertNotNull
-		ref.get.assertNull
+	def getAssociatedObject {
+		var ref = this.name.associatedObject
+		ref.assertNull
 	}
 
 	@Test
-	def setAssociatedAgent {
+	def setAssociatedObject {
 		var spc = typeof(Agent).mock
-		this.name.associatedAgent = spc
-		var ref = this.name.associatedAgent
-		ref.assertNotNull
-		spc.assertSame(ref.get)
+		this.name.associatedObject = spc
+		var ref = this.name.associatedObject
+		spc.assertSame(ref)
 	}
 
 }

@@ -21,7 +21,6 @@
 package io.sarl.sre.naming
 
 import io.sarl.lang.core.Behavior
-import io.sarl.lang.util.ClearableReference
 import java.net.URI
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -36,8 +35,6 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @since 0.10
  */
 class BehaviorName extends SarlName {
-
-	transient var ^behavior : ClearableReference<Behavior>
 
 	@Accessors
 	val contextId : UUID
@@ -71,39 +68,6 @@ class BehaviorName extends SarlName {
 		this.agentId = agentId
 		this.behaviorType = behaviorType
 		this.behaviorIndex = behaviorIndex
-	}
-
-	override getAssociatedObject : Object {
-		getAssociatedBehavior.get
-	}
-
-	/** Replies the behavior instance that is associated to this name.
-	 * The associated behavior may be {@code null}. In this case, it does
-	 * not mean that the behavior instance does not exist into the system.
-	 * It means that the behavior instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @return the associated behavior, or {@code null} if there is no
-	 * behavior with the given name or if the behavior is not yet known.
-	 */
-	def getAssociatedBehavior : ClearableReference<Behavior> {
-		if (this.^behavior === null) {
-			this.^behavior = new ClearableReference(null)
-		}
-		return this.^behavior
-	}
-
-	/** Change the behavior instance that is associated to this name.
-	 * The associated behavior may be {@code null}. In this case, it does
-	 * not mean that the behavior instance does not exist into the system.
-	 * It means that the behavior instance is not explicitly associated
-	 * to the name.
-	 * 
-	 * @param behavior the associated agent, or {@code null} if there is no
-	 * behavior with the given name or if the behavior is not yet known.
-	 */
-	def setAssociatedBehavior(^behavior : Behavior) {
-		this.^behavior = if(^behavior === null) null else new ClearableReference(^behavior)
 	}
 
 }
