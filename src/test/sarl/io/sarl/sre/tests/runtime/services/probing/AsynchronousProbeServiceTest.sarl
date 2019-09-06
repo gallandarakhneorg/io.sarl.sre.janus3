@@ -6,7 +6,7 @@
  *
  * Copyright (C) 2014-2019 the original authors or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License")
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -19,14 +19,10 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.runtime.internal
+package io.sarl.sre.tests.runtime.services.probing
 
-import io.sarl.core.DefaultContextInteractions
-import io.sarl.core.Lifecycle
-import io.sarl.core.MemberJoined
-import io.sarl.core.Schedules
-import io.sarl.sre.tests.testutils.TestingAgent
-import java.util.UUID
+import io.sarl.sre.services.probing.Probe
+import io.sarl.sre.services.probing.ProbeService
 
 /**
  * @author $Author: sgalland$
@@ -34,29 +30,18 @@ import java.util.UUID
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@SuppressWarnings("all")
-package agent MyWaiterAgent2 extends TestingAgent {
+class AsynchronousProbeServiceTest extends AbstractProbeServiceTest {
 
-	uses Schedules, Lifecycle, DefaultContextInteractions
-
-	var spawnId : UUID
-
-	override runAgentTest : RunPolicy {
-		in(500) [
-			this.spawnId = typeof(MySpawnedAgent2).spawn(rawResultMap)
-		]
-		return null
+	protected def runTestCase_prepare {
 	}
 
-	on MemberJoined {
-		addResult("SPAWNER")
-		addResult(occurrence)
-		addResult(parentID)
-		addResult(defaultSpace.spaceID)
-		waitAndDo([this.spawnId !== null]) [
-			addResult(this.spawnId)
-			killMe
-		]
+	protected def runTestCase_beforeChangeField(service : ProbeService, probe : Probe<Integer>) {
 	}
-
+	
+	protected def runTestCase_beforeStopTest(service : ProbeService, probe : Probe<Integer>) {
+	}
+	
+	protected def runTestCase_afterStopTest(service : ProbeService, probe : Probe<Integer>) {
+	}
+	
 }

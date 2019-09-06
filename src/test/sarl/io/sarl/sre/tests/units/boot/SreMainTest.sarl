@@ -73,6 +73,7 @@ class SreMainTest extends AbstractSreTest {
 		"printconfig",
 		"rootContextId",
 		"version",
+		"XasyncProbeUpdate",
 		"XinternalErrorLogLevel",
 		"XkeepAlive",
 		"xml",

@@ -1,0 +1,132 @@
+/*
+ * $Id$
+ *
+ * SARL is an general-purpose agent programming language.
+ * More details on http://www.sarl.io
+ *
+ * Copyright (C) 2014-2019 the original authors or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.sarl.sre.services.probing
+
+import io.sarl.sre.services.namespace.FieldAccess
+import java.net.URI
+
+/** 
+ * Probe implementation is linked to a field. A probe is thread-safe.
+ * This probe buferrizes the values. In order to be updated, the
+ * {@link #sync()} function must be invoked. Then, the new value is read
+ * from the associated field, and the probe listeners are notified.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 0.10
+ */
+class FieldProbe<T> extends AbstractFieldProbe<T> {
+
+	var in = false
+
+	var init = true
+
+	var inbuffer : T
+
+	var out = false
+
+	var outbuffer : T
+
+	/** Constructor.
+	 * 
+	 * @param manager the creator of this probe, and its manager.
+	 * @param name the name of the probe
+	 * @param uri the UI of the field.
+	 * @param type the expected type of the probed value.
+	 * @param field the accessor to the probed field.
+	 */
+	protected new (manager : IProbeReleaseListener, name : String, uri : URI, type : Class<T>, field : FieldAccess) {
+		super(manager, name, uri, type, field)
+	}
+
+	@Pure
+	synchronized override isInvalid : boolean {
+		if (active) {
+			return this.in || this.out
+		}
+		return false
+	}
+
+	@Pure
+	synchronized override getValue : T {
+		if (this.active && syncIn) {
+			fireValueChanged
+		}
+		return this.inbuffer
+	}
+
+	synchronized override setValue(value : T) {
+		if (this.active) {
+			this.out = true
+			this.outbuffer = value
+		}
+	}
+
+	private def syncIn : boolean {
+		if (this.in || this.init) {
+			val enableChange = !this.init
+			this.in = false
+			this.init = false
+			var oldValue = this.inbuffer
+			var newValue = readField
+			this.inbuffer = newValue
+			return enableChange && newValue != oldValue
+		}
+		return false
+	}
+
+	private def syncOut : boolean {
+		if (this.out) {
+			this.out = false
+			var newValue = this.outbuffer
+			this.outbuffer = null
+			var oldValue = writeField(newValue)
+			return newValue != oldValue
+		}
+		return false
+	}
+
+	/** Force the synchronization of the probed value.
+	 */
+	synchronized def sync(forcedReading : boolean) {
+		if (this.active) {
+			val changed0 = syncOut
+			this.in = forcedReading || this.in
+			val changed1 = syncIn
+			if (changed0 || changed1) {
+				fireValueChanged
+			}
+		}
+	}
+
+	synchronized override release {
+		if (this.active) {
+			// Caution: Do not reset the inbuffer field in order to enable access to the value even if the probe is inactive
+			this.in = false
+			this.out = false
+			this.outbuffer = null
+			super.release
+		}
+	}
+	
+}

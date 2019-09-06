@@ -6,7 +6,7 @@
  *
  * Copyright (C) 2014-2019 the original authors or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License")
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -19,14 +19,9 @@
  * limitations under the License.
  */
 
-package io.sarl.sre.tests.runtime.internal
+package io.sarl.sre.tests.runtime.services.probing
 
-import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Lifecycle
-import io.sarl.core.MemberJoined
-import io.sarl.core.Schedules
-import io.sarl.sre.tests.testutils.TestingAgent
-import java.util.UUID
 
 /**
  * @author $Author: sgalland$
@@ -35,28 +30,24 @@ import java.util.UUID
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-package agent MyWaiterAgent2 extends TestingAgent {
+package agent ProbedAgent {
 
-	uses Schedules, Lifecycle, DefaultContextInteractions
+	uses Lifecycle
 
-	var spawnId : UUID
+	var myfield = 12
 
-	override runAgentTest : RunPolicy {
-		in(500) [
-			this.spawnId = typeof(MySpawnedAgent2).spawn(rawResultMap)
-		]
-		return null
+	on ChangeField {
+		synchronized (this) {
+			this.myfield = 24
+		}
 	}
 
-	on MemberJoined {
-		addResult("SPAWNER")
-		addResult(occurrence)
-		addResult(parentID)
-		addResult(defaultSpace.spaceID)
-		waitAndDo([this.spawnId !== null]) [
-			addResult(this.spawnId)
-			killMe
-		]
+	on StopTest {
+		killMe
 	}
 
 }
+
+event ChangeField
+
+event StopTest

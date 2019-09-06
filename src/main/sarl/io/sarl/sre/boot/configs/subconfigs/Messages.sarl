@@ -58,6 +58,8 @@ final class Messages extends NLS {
 	public static var ServicesConfigModule_0 : String
 	public static var ServicesConfigModule_1 : String
 	public static var ServicesConfigModule_2 : String
+	public static var ServicesConfigModule_3 : String
+	public static var ServicesConfigModule_4 : String
 	public static var ServicesConfigModuleProvider_0 : String
 
 	private new {

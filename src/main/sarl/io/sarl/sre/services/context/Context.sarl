@@ -136,13 +136,16 @@ class Context implements AgentContext {
 	}
 
 	private def ensureRepository : SpaceRepository {
-		var instance = this.repositoryInstance
-		// Create the repository
+		var instance : SpaceRepository
 		var addListener = false
-		if (instance === null) {
-			instance = this.repositoryProvider.get
-			this.repositoryInstance = instance
-			addListener = true
+		synchronized (this) {
+			instance = this.repositoryInstance
+			// Create the repository
+			if (instance === null) {
+				instance = this.repositoryProvider.get
+				this.repositoryInstance = instance
+				addListener = true
+			}
 		}
 		// Create the repository
 		var ds = this.defaultSpaceInstance

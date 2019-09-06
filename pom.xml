@@ -137,37 +137,6 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>io.sarl.maven</groupId>
-				<artifactId>io.sarl.maven.sre</artifactId>
-				<version>${sarl.version}</version>
-				<configuration>
-					<sreName>JANUS2</sreName>
-					<standaloneSRE>false</standaloneSRE>
-					<commandLineOptions>
-						<hideInfo>--log=warning</hideInfo>
-						<hideLogo>--nologo</hideLogo>
-						<showInfo>--log=info</showInfo>
-						<showLogo></showLogo>
-						<defaultContextId>--worldid</defaultContextId>
-						<randomContextId>--randomid</randomContextId>
-						<bootAgentContextId>--bootid</bootAgentContextId>
-						<embedded>--embedded</embedded>
-						<noMoreOption>--</noMoreOption>
-					</commandLineOptions>
-					<mainClass>${cliRunnerMainClass}</mainClass>
-				</configuration>
-
-				<executions>
-					<execution>
-						<goals>
-							<goal>updatemanifest</goal>
-						</goals>
-					</execution>
-				</executions>
-
-			</plugin>
 						
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

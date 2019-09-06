@@ -84,15 +84,43 @@ class ServicesConfig {
 	 */
 	public static val STOP_TIMEOUT_VALUE = 10.seconds
 
+	/** 
+	 * Name of the property for the flag that indicates if the probe manager uses an asynchronous
+	 * update mechanism.
+	 * 
+	 * @see #ASYNCHRONOUS_PROBE_UPDATE_VALUE
+	 */
+	public static val ASYNCHRONOUS_PROBE_UPDATE_NAME = PREFIX + ".asynchronousProbeUpdate"
+
+	/** 
+	 * The default value for the flag that indicates if the probe manager uses an asynchronous
+	 * update mechanism.
+	 * 
+	 * @see #ASYNCHRONOUS_PROBE_UPDATE_NAME
+	 */
+	public static val ASYNCHRONOUS_PROBE_UPDATE_VALUE = true
+
 	@Accessors(PUBLIC_GETTER)
 	var startTimeout = START_TIMEOUT_VALUE
 
 	@Accessors(PUBLIC_GETTER)
 	var stopTimeout = STOP_TIMEOUT_VALUE
 
+	@Accessors(PUBLIC_GETTER)
+	var asynchronousProbeUpdate = ASYNCHRONOUS_PROBE_UPDATE_VALUE
+
 	var executorsConfig : ExecutorsConfig
-	
-	
+
+	/** Change the flag that enables to select the type of probe manager
+	 * 
+	 * @param doAsync is {@code true} if the asynchronous update is prefered.
+	 */
+	@BQConfigProperty("Flag that indicates if the probe service must use an asynchronous update mechanism, or"
+		+ " a synchronous update mechanism.")
+	def setAsynchronousProbeUpdate(doAsync : boolean) {
+		this.asynchronousProbeUpdate = doAsync
+	}
+
 	/** Change the timeout for the start of all the services.
 	 *
 	 * @param timeout the new timeout in milliseconds.
@@ -156,7 +184,9 @@ class ServicesConfigModule extends AbstractModule {
 
 	static val XSERVICESTARTTIMEOUT_OPTION = "XserviceStartTimeout"
 
-	static val XSERVICESTOPTIMEOUT = "XserviceStopTimeout"
+	static val XSERVICESTOPTIMEOUT_OPTION = "XserviceStopTimeout"
+
+	static val XASYNCPROBEUPDATE_OPTION = "XasyncProbeUpdate"
 
 	override configure : void {
 		VariableDecls::extend(binder).declareVar(START_TIMEOUT_NAME)
@@ -167,10 +197,17 @@ class ServicesConfigModule extends AbstractModule {
 				.build).mapConfigPath(XSERVICESTARTTIMEOUT_OPTION, START_TIMEOUT_NAME)
 
 		VariableDecls::extend(binder).declareVar(STOP_TIMEOUT_NAME)
-		binder.extend.addOption(OptionMetadata::builder(XSERVICESTOPTIMEOUT,
+		binder.extend.addOption(OptionMetadata::builder(XSERVICESTOPTIMEOUT_OPTION,
 				MessageFormat::format(Messages::ServicesConfigModule_1, STOP_TIMEOUT_VALUE))
 			.valueRequired(Messages::ServicesConfigModule_2)
-			.build).mapConfigPath(XSERVICESTOPTIMEOUT, STOP_TIMEOUT_NAME)
+			.build).mapConfigPath(XSERVICESTOPTIMEOUT_OPTION, STOP_TIMEOUT_NAME)
+
+		VariableDecls::extend(binder).declareVar(ASYNCHRONOUS_PROBE_UPDATE_NAME)
+		binder.extend.addOption(
+			OptionMetadata::builder(XASYNCPROBEUPDATE_OPTION,
+				MessageFormat::format(Messages::ServicesConfigModule_3, ASYNCHRONOUS_PROBE_UPDATE_NAME)).valueRequired(
+				Messages::ServicesConfigModule_4).build).mapConfigPath(XASYNCPROBEUPDATE_OPTION,
+					ASYNCHRONOUS_PROBE_UPDATE_NAME)
 	}
 
 }

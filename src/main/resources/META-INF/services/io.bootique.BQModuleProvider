@@ -19,6 +19,7 @@ io.sarl.sre.boot.internal.services.LoggingServiceModuleProvider
 io.sarl.sre.boot.internal.services.TimeServiceModuleProvider
 io.sarl.sre.boot.internal.services.NamespaceFinderModuleProvider
 io.sarl.sre.boot.internal.services.NamespaceServiceModuleProvider
+io.sarl.sre.boot.internal.services.ProbeServiceModuleProvider
 io.sarl.sre.boot.internal.skills.BuiltinCapacityModuleProvider
 io.sarl.sre.boot.internal.skills.EventBusModuleProvider
 io.sarl.sre.boot.internal.spaces.SpacesModuleProvider

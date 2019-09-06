@@ -33,6 +33,7 @@ import io.sarl.sre.tests.testutils.TestingAgent
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@SuppressWarnings("all")
 package agent MyWaiterAgent4 extends TestingAgent {
 
 	uses Schedules, Lifecycle, DefaultContextInteractions
