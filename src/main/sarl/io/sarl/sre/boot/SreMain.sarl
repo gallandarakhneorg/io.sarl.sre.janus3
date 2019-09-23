@@ -51,6 +51,7 @@ import org.arakhne.afc.util.OutputParameter
 import org.eclipse.xtend.lib.annotations.Accessors
 
 import static io.sarl.bootstrap.SRE.*
+import com.google.common.util.concurrent.Service
 
 /** Class that implements the standard main function for running a SARL run-time environment
  * with bootique modules.
@@ -375,6 +376,21 @@ class SreMain implements SREBootstrap {
 				}
 			}
 		}
+	}
+
+	synchronized override getService(serviceType : Class<T>) : T with T {
+		if (typeof(Service).isAssignableFrom(serviceType)) {
+			var kern : Kernel
+			synchronized (this) {
+				kern = this.kernel
+			}
+			if (kern !== null) {
+				var castedServiceType = serviceType.asSubclass(typeof(Service))
+				var serv = kern.getService(castedServiceType)
+				return serviceType.cast(serv)
+			}
+		}
+		return null
 	}
 
 }

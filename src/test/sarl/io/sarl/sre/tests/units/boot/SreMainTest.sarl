@@ -49,6 +49,7 @@ import org.mockito.ArgumentCaptor
 
 import static extension org.mockito.ArgumentMatchers.*
 import static extension org.mockito.Mockito.*
+import io.sarl.sre.services.logging.LoggingService
 
 /**
  * @author $Author: sgalland$
@@ -218,6 +219,20 @@ class SreMainTest extends AbstractSreTest {
 		createBootiqueMock
 		this.bootstrap.startWithoutAgent(this.bootique)
 		assertSame(this.runtime, this.bootstrap.runtime)
+	}
+
+	@Test
+	def getService_start0 {
+		assertNull(this.bootstrap.getService(typeof(LoggingService)))
+	}
+
+	@Test
+	def getService_start1 {
+		createBootiqueMock
+		this.bootstrap.startWithoutAgent(this.bootique)
+		var serv = this.bootstrap.getService(typeof(LifecycleService))
+		serv.assertNotNull
+		assertInstanceOf(typeof(LifecycleService), serv)
 	}
 
 	@Test
