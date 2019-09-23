@@ -242,10 +242,9 @@ final class AgentLife {
 					^event.source = addressInInnerDefaultSpace
 					this.eventBus.fireEventAndWait(^event, false, false)
 				} catch (e : Throwable) {
-					var log = this.agentLogger
-					if (log !== null) {
-						log.error(e.localizedMessage, e)
-					} else {
+					try {
+						this.agentLogger.error(e.localizedMessage, e)
+					} catch (ex : Throwable) {
 						logger.kernelLogger.log(Level::SEVERE, e.localizedMessage, e)
 					}
 				}
