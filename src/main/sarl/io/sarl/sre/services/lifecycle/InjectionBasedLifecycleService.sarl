@@ -95,12 +95,36 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 			agentClazz : Class<T>,
 			parent : UUID,
 			nbAgents : int,
+			skillProviders : Iterable<DynamicSkillProvider>,
 			agentId : (int) => UUID) : Provider<T> with T extends Agent {
-			val agentInjectionModule = new JustInTimeAgentInjectionModule<T>(agentClazz, parent, agentId, this.skillProvider)
+			var sproviders = skillProviders.createSkillProvider
+			val agentInjectionModule = new JustInTimeAgentInjectionModule<T>(agentClazz, parent, agentId, sproviders)
 			val agentInjector = this.injector.createChildInjector(agentInjectionModule)
 			return [
 				agentInjector.getInstance(agentClazz)
 			]
+		}
+
+		private def createSkillProvider(providers : Iterable<DynamicSkillProvider>) : DynamicSkillProvider {
+			if (providers !== null) {
+				var iterator = providers.iterator
+				if (iterator.hasNext) {
+					return [^agent, ^capacity |
+						var r = this.skillProvider.installSkill(^agent, ^capacity)
+						if (r !== null) {
+							return r
+						}
+						for (provider : providers) {
+							r = provider.installSkill(^agent, ^capacity)
+							if (r !== null) {
+								return r
+							}
+						}
+						return null
+					]
+				}
+			}
+			return this.skillProvider
 		}
 	
 	}

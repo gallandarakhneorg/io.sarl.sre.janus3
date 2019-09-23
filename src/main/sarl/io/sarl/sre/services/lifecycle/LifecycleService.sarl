@@ -28,6 +28,7 @@ import java.util.List
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
+import io.sarl.lang.core.DynamicSkillProvider
 
 /** 
  * This service provides the tools to manage the life-cycle of the agents.
@@ -111,6 +112,19 @@ interface LifecycleService extends Service {
 	 * @param listener listener on the spawning events in the local kernel.
 	 */
 	def removeKernelAgentLifecycleListener(listener : KernelAgentLifecycleListener)
+
+	/** Add a dynamic skill provider that must be used for the agents that are spawned
+	 * after the call to this function.
+	 *
+	 * @param provider is the provider of skills for newly created agents.
+	 */
+	def addDynamicSkillProvider(provider : DynamicSkillProvider)
+
+	/** Remove a dynamic skill provider that must be not be used any more for the agents that are spawned.
+	 * 
+	 * @param provider is the provider of skills to be removed.
+	 */
+	def removeDynamicSkillProvider(provider : DynamicSkillProvider)
 
 }
 

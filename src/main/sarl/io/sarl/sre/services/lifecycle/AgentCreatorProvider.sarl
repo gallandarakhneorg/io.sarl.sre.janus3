@@ -23,6 +23,7 @@ package io.sarl.sre.services.lifecycle
 import io.sarl.lang.core.Agent
 import java.util.UUID
 import javax.inject.Provider
+import io.sarl.lang.core.DynamicSkillProvider
 
 /** 
  * Provider of agent instance creator.
@@ -40,11 +41,12 @@ interface AgentCreatorProvider {
 	 * @param agentClazz the type of agent to create.
 	 * @param parent the identifier of the agents' parent.
 	 * @param nbAgents the number of agents to create.
+	 * @param skillProviders is a list of additionnal skill providers that should be considered by the created agent.
 	 * @param agentId lambda function which replies the identifier
 	 *      of the agent to be created at the given index.
 	 */
 	def getAgentCreator(agentClazz : Class<T>, parent : UUID, nbAgents : int,
-		agentId : (int) => UUID) : Provider<T> with T extends Agent
+		skillProviders : Iterable<DynamicSkillProvider>, agentId : (int) => UUID) : Provider<T> with T extends Agent
 
 }
 

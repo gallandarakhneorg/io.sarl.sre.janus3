@@ -38,6 +38,8 @@ import javax.inject.Singleton
 import org.arakhne.afc.util.ListenerCollection
 
 import static extension io.sarl.sre.services.lifecycle.AgentLife.*
+import io.sarl.lang.core.DynamicSkillProvider
+import io.sarl.util.Collections3
 
 /** 
  * Implementation of a spawning service that is based on the other services of the SRE platform.
@@ -69,6 +71,8 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	var platformContextEventEmitter : ExternalContextMemberListener
 
 	var executor : ExecutorService
+
+	var userDynamicSkillProviders : List<DynamicSkillProvider>
 
 	/** 
 	 * Constructs the service.
@@ -246,7 +250,7 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 				} else {
 					// Create the shared injector that is also able to create the agent instance.
 					val agentInstanceCreator = this.agentCreatorProvider.getAgentCreator(agentClazz, parent.ID,
-						nbAgents, agentIds)
+						nbAgents, dynamicSkillProviders, agentIds)
 					// Create the block of code for creating a single agent
 					val agentCreator : Runnable = [
 						val ^agent = agentInstanceCreator.get()
@@ -408,6 +412,41 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 		// Test if the agent is the latest on this kernel.
 		if (defaultContextBeforeKilled.emptyRootContext) {
 			onAgentFrameworkStop
+		}
+	}
+
+	/** Replies the dynamic skill providers that are defined by the user of the service. */
+	protected synchronized def getDynamicSkillProviders : Iterable<DynamicSkillProvider> {
+		if (this.userDynamicSkillProviders === null) {
+			return emptyList
+		}
+		return Collections3::unmodifiableSynchronizedIterable(this.userDynamicSkillProviders, this)
+	}
+
+	/** Add a dynamic skill provider that must be used for the agents that are spawned
+	 * after the call to this function.
+	 * 
+	 * @param provider is the provider of skills for newly created agents.
+	 */
+	synchronized def addDynamicSkillProvider(provider : DynamicSkillProvider) {
+		assert provider !== null
+		if (this.userDynamicSkillProviders === null) {
+			this.userDynamicSkillProviders = newArrayList
+		}
+		this.userDynamicSkillProviders += provider
+	}
+
+	/** Remove a dynamic skill provider that must be not be used any more for the agents that are spawned.
+	 * 
+	 * @param provider is the provider of skills to be removed.
+	 */
+	synchronized def removeDynamicSkillProvider(provider : DynamicSkillProvider) {
+		assert provider !== null
+		if (this.userDynamicSkillProviders !== null) {
+			this.userDynamicSkillProviders.remove(provider)
+			if (this.userDynamicSkillProviders.empty) {
+				this.userDynamicSkillProviders = null
+			}
 		}
 	}
 
