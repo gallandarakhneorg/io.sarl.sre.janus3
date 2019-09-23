@@ -41,11 +41,6 @@ package class MySpace implements Space {
 		this.id = id
 	}
 	
-	@Deprecated
-	override getID : SpaceID {
-		this.id
-	}
-
 	override getSpaceID : SpaceID {
 		this.id
 	}

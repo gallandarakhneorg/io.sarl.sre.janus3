@@ -38,7 +38,7 @@ import org.junit.Test
 abstract class AbstractSpaceTest extends AbstractSreTest {
 
 	@Test
-	def getID {
+	def getSpaceID {
 		var spaceId = new SpaceID(UUID::randomUUID, UUID::randomUUID, typeof(OpenEventSpaceSpecification))
 		var base = new AbstractSpace(spaceId) {
 			def getParticipants : SynchronizedSet<UUID> {
@@ -46,6 +46,18 @@ abstract class AbstractSpaceTest extends AbstractSreTest {
 			}
 		}
 		assertEquals(spaceId, base.spaceID)
+	}
+
+	@Test
+	@Deprecated
+	def getID {
+		var spaceId = new SpaceID(UUID::randomUUID, UUID::randomUUID, typeof(OpenEventSpaceSpecification))
+		var base = new AbstractSpace(spaceId) {
+			def getParticipants : SynchronizedSet<UUID> {
+				throw new UnsupportedOperationException
+			}
+		}
+		assertEquals(spaceId, base.ID)
 	}
 
 }

@@ -73,11 +73,6 @@ abstract class AbstractSpace extends SRESpecificDataContainer implements Space {
 		this.spaceID.toString
 	}
 
-	@Deprecated
-	final def getID : SpaceID {
-		getSpaceID
-	}
-
 	final def getSpaceID : SpaceID {
         this.id
     }
