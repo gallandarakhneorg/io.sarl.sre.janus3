@@ -29,13 +29,13 @@ import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Scope
 import io.sarl.lang.util.SynchronizedSet
-import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.AddressScope
 import io.sarl.util.Collections3
 import io.sarl.util.Scopes
 import java.text.MessageFormat
 import java.util.UUID
+import java.util.logging.Level
 import java.util.stream.Stream
 import javax.inject.Inject
 
@@ -101,7 +101,7 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 		this.mutexInstance
 	}
 
-	protected final def registerToSpace(entity : InformedEventListener) : Address {
+	protected final def registerToSpace(entity : EventListener) : Address {
 		assert entity !== null
 		var id = entity.ID
 		var address = new Address(this.spaceID, id)
@@ -164,7 +164,7 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 				^event.emitLocally(scope)
 			}
 		} catch (e : Throwable) {
-			this.logger.kernelLogger.severe(MessageFormat::format(Messages::AbstractEventSpace_0, ^event, scope, e))
+			this.logger.kernelLogger.log(Level::SEVERE, MessageFormat::format(Messages::AbstractEventSpace_0, ^event, scope, e), e)
 		}
 	}
 

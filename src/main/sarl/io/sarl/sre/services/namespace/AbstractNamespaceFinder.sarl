@@ -30,6 +30,7 @@ import io.sarl.sre.services.context.ContextService
 import io.sarl.sre.spaces.SpaceWithParticipants
 import java.util.UUID
 import org.eclipse.xtend.lib.annotations.Accessors
+import io.sarl.sre.capacities.InformedEventListener
 
 /** 
  * Abstract implementation of a finder into the namespaces.
@@ -86,7 +87,9 @@ abstract class AbstractNamespaceFinder<N extends SarlName, O> implements INamesp
 				var participant = participantMap.get(agentId)
 				if (participant !== null) {
 					var listener = participant.participant
-					return listener.ownerInstance
+					if (listener instanceof InformedEventListener) {
+						return listener.ownerInstance
+					}
 				}
 			}
 		}

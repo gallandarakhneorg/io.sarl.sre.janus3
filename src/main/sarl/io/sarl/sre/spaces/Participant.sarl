@@ -23,8 +23,8 @@ package io.sarl.sre.spaces
 
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Address
+import io.sarl.lang.core.EventListener
 import io.sarl.lang.core.SREutils
-import io.sarl.sre.capacities.InformedEventListener
 
 /** 
  * Description of a participant.
@@ -39,7 +39,7 @@ class Participant {
 		
 	val participantAddress : Address
 
-	val participant : InformedEventListener
+	val participant : EventListener
 
 	/** Create a participant.
 	 * 
@@ -48,7 +48,7 @@ class Participant {
 	 */
 	@SuppressWarnings("use_reserved_sarl_annotation")
 	@PrivateAPI(isCallerOnly = true)
-	package static def createAndInit(address : Address, eventListener : InformedEventListener) : Participant {
+	package static def createAndInit(address : Address, eventListener : EventListener) : Participant {
 		var participant = new Participant(address, eventListener)
 		var links = new AddressLazyLinks
 		links.participant = participant
@@ -61,7 +61,7 @@ class Participant {
 	 * @param address the address of the participant.
 	 * @param eventListener the participant.
 	 */
-	private new (address : Address, eventListener : InformedEventListener) {
+	private new (address : Address, eventListener : EventListener) {
 		this.participantAddress = address
 		this.participant = eventListener
 	}
@@ -72,7 +72,7 @@ class Participant {
 	}
 
 	/** Replies the participant. */
-	def getParticipant : InformedEventListener {
+	def getParticipant : EventListener {
 		this.participant
 	}
 

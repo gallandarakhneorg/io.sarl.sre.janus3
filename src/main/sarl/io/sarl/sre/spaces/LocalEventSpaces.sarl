@@ -53,7 +53,7 @@ class OpenLocalEventSpace extends AbstractEventSpace implements OpenEventSpace {
 	}
 
 	def register(entity : EventListener) : Address {
-		(entity as InformedEventListener).registerToSpace
+		entity.registerToSpace
 	}
 
 	def unregister(entity : EventListener) : Address {
