@@ -146,14 +146,14 @@ class Context implements AgentContext {
 				this.repositoryInstance = instance
 				addListener = true
 			}
+			// Create the repository
+			var ds = this.defaultSpaceInstance
+			if (ds === null) {
+				var spaceID = new SpaceID(ID, this.defaultSpaceID, typeof(OpenEventSpaceSpecification))
+				ds = instance.createDefaultSpace(spaceID)
+				this.defaultSpaceInstance = ds
+			}
 		}
-		// Create the repository
-		var ds = this.defaultSpaceInstance
-		if (ds === null) {
-			var spaceID = new SpaceID(ID, this.defaultSpaceID, typeof(OpenEventSpaceSpecification))
-			ds = instance.getOrCreateSpaceWithID(spaceID, typeof(OpenEventSpaceSpecification))
-		}
-		this.defaultSpaceInstance = ds
 		if (addListener) {
 			instance.addSpaceRepositoryListener(getPlatformEventEmitter)
 		}

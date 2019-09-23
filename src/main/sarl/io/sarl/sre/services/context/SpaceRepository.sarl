@@ -44,6 +44,12 @@ import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import javax.inject.Inject
 import org.arakhne.afc.util.ListenerCollection
+import com.google.inject.AbstractModule
+import io.sarl.util.OpenEventSpace
+import com.google.inject.name.Names
+import io.sarl.util.DefaultSpace
+import java.lang.ref.WeakReference
+import io.sarl.util.OpenEventSpaceSpecification
 
 /** 
  * A repository of spaces specific to a given context.
@@ -66,20 +72,32 @@ abstract class SpaceRepository implements SpaceListener {
 
 	val destroyDelay : int
 
-	val mutexInstance = new Object
+	val mutexInstance : Object
 
 	val listeners = new ListenerCollection<SpaceRepositoryListener>
 
-	val spacesBySpec = <Class<? extends SpaceSpecification<?>>, Set<SpaceDescription>>newTreeMap(Comparators::classComparator)
+	val spacesBySpec = <Class<? extends SpaceSpecification<?>>, Set<SpaceDescription>>newTreeMap(
+		Comparators::classComparator)
+
+	/** Reference to the default space of the owning context.
+	 * @since 0.10
+	 */
+	var defaultSpace : WeakReference<OpenEventSpace>
 
 	/** Constructor.
 	 *
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
 	 * @param config the configuration.
+	 * @param mutex the mutex object that must be used to synchronize this repository.
 	 */
 	@Inject
-	new (injector : Injector, executor : ExecutorService, config : SreConfig) {
+	new (injector : Injector, executor : ExecutorService, config : SreConfig, mutex : Object = null) {
+		if (mutex === null) {
+			this.mutexInstance = new Object
+		} else {
+			this.mutexInstance = mutex
+		}
 		this.injector = injector
 		this.executor = executor
 		this.destroyDelay = config.services.executors.keepAliveDuration
@@ -101,7 +119,7 @@ abstract class SpaceRepository implements SpaceListener {
 	}
 
 	/** Replies the mutex for changing the internal data structures, except for the destroyable spaces. */
-	protected def getMutex : Object {
+	def getMutex : Object {
 		this.mutexInstance
 	}
 
@@ -138,12 +156,51 @@ abstract class SpaceRepository implements SpaceListener {
 		return SREutils::getSreSpecificData(spaceId, typeof(SpaceDescription))
 	}
 
-	
+	/** 
+	 * Create an instance of the default space if it was not created before.
+	 * 
+	 * @param spaceID ID of the default space.
+	 * @return the new space.
+	 */
+	package final def createDefaultSpace(spaceID : SpaceID) : OpenEventSpace {
+		var defaultSpace = getOrCreateSpaceWithID(spaceID, typeof(OpenEventSpaceSpecification))
+		synchronized (mutex) {
+			if (defaultSpace === null) {
+				this.defaultSpace = null
+			} else {
+				this.defaultSpace = new WeakReference(defaultSpace)
+			}
+		}
+		return defaultSpace
+	}
+
 	private def createSpaceFirstInstance(spec : Class<? extends SpaceSpecification<S>>, spaceID : SpaceID,
 			creationParams : Object[]) : S with S extends Space {
-		assert spaceID.spaceSpecification === null || spaceID.spaceSpecification == spec, "The specification type is invalid"
-		val ^space = this.injector.getInstance(spec).create(spaceID, creationParams)
+		assert spaceID.spaceSpecification === null ||
+				spaceID.spaceSpecification == spec, "The specification type is invalid"
+
+		var defaultSpace : OpenEventSpace
+		synchronized (mutex) {
+			defaultSpace = this.defaultSpace?.get
+		}
+		var defaultSpaceInjector : Injector
+		if (defaultSpace === null) {
+			defaultSpaceInjector = this.injector
+		} else {
+			val defaultSpaceInjectionModule = new JustInTimeDefaultSpaceInjectionModule(defaultSpace)
+			defaultSpaceInjector = this.injector.createChildInjector(defaultSpaceInjectionModule)
+		}
+		val spaceSpecificationInstance = defaultSpaceInjector.getInstance(spec)
+		
+		// Split the call to create() to let the JVM to create the "empty" array for creation parameters.
+		var ^space : S
+		if (creationParams !== null && creationParams.length > 0) {
+			^space = spaceSpecificationInstance.create(spaceID, creationParams)
+		} else {
+			^space = spaceSpecificationInstance.create(spaceID)
+		}
 		assert ^space !== null
+
 		val id = ^space.spaceID
 		assert id !== null
 		val description = createSpaceDescription(id, ^space)
@@ -480,6 +537,33 @@ abstract class SpaceRepository implements SpaceListener {
 
 	}
 
+	/** 
+	 * An injection module that is able to inject the default space instance into another space implementation.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 0.10
+	 */
+	private static class JustInTimeDefaultSpaceInjectionModule extends AbstractModule {
+
+		static val NAME = "defaultSpace"
+
+		val defaultSpace : OpenEventSpace
+
+		package new (defaultSpace : OpenEventSpace) {
+			assert defaultSpace !== null
+			this.defaultSpace = defaultSpace
+		}
+
+		override configure {
+			typeof(OpenEventSpace).bind.annotatedWith(Names::named(NAME)).toInstance(this.defaultSpace)
+			typeof(OpenEventSpace).bind.annotatedWith(typeof(DefaultSpace)).toInstance(this.defaultSpace)
+		}
+
+	}
+	
 }
 
 /** 

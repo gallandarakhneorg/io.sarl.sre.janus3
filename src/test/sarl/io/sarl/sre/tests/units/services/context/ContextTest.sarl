@@ -75,6 +75,7 @@ class ContextTest extends AbstractSreTest {
 		this.root = Math::random <= 0.5
 		this.context = new Context(this.contextId, this.spaceId, this.root)
 		this.repository = typeof(SpaceRepository).mock
+		when(this.repository.mutex).thenReturn(typeof(Object).mock)
 		var provider : Provider<SpaceRepository> = [ this.repository ]
 		this.context.repositoryProvider = provider
 		this.context.loggingService = this.logging
