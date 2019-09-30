@@ -28,10 +28,15 @@ import com.google.inject.Provides
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
 import io.sarl.sre.boot.configs.SreConfig
+import io.sarl.sre.internal.SmartListenerCollection
+import io.sarl.sre.naming.NameParser
+import io.sarl.sre.services.executor.ExecutorService
+import io.sarl.sre.services.namespace.NamespaceService
 import io.sarl.sre.services.probing.AsynchronousProbeService
 import io.sarl.sre.services.probing.ProbeService
 import io.sarl.sre.services.probing.SynchronousProbeService
 import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
 import javax.inject.Singleton
 
 import static extension com.google.inject.multibindings.Multibinder.*
@@ -54,17 +59,23 @@ class ProbeServiceModule extends AbstractModule {
 	 *
 	 * @param sreConfig the SRE configuration.
 	 * @param injector the injector to use for initializing the new instance.
+	 * @param listenerCollectionProvider the provider of listener collections. 
 	 * @param lockProvider the provider of synchronization locks.
 	 * @return the created service.
 	 */
 	@Singleton
 	@Provides
-	def providesProbeService(sreConfig : SreConfig, injector : Injector) : ProbeService {
+	def providesProbeService(sreConfig : SreConfig, injector : Injector, service : ExecutorService,
+		namespaceService : NamespaceService, nameParser : NameParser,
+		listenerCollectionProvider : Provider<SmartListenerCollection<?>>,
+		lockProvider : Provider<ReadWriteLock>) : ProbeService {
 		var ps : ProbeService
 		if (sreConfig.services.asynchronousProbeUpdate) {
-			ps = new AsynchronousProbeService
+			ps = new AsynchronousProbeService(service, namespaceService, nameParser, listenerCollectionProvider, lockProvider)
+			
+			
 		} else {
-			ps = new SynchronousProbeService
+			ps = new SynchronousProbeService(namespaceService, nameParser, listenerCollectionProvider, lockProvider)
 		}
 		injector.injectMembers(ps)
 		return ps

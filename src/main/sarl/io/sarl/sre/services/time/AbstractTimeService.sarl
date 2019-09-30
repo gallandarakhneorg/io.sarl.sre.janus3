@@ -34,7 +34,7 @@ import io.sarl.sre.services.AbstractSreService
  */
 abstract class AbstractTimeService extends AbstractSreService implements TimeService {
 
-	var listeners : ListenerCollection<TimeListener> = null
+	val listeners : SmartListenerCollection<TimeListener>
 
 	/** Constructor.
 	 *
@@ -68,15 +68,9 @@ abstract class AbstractTimeService extends AbstractSreService implements TimeSer
 	/** Notifies about time changes.
 	 */
 	protected def fireTimeChanged {
-		var list : ListenerCollection<TimeListener>
-		synchronized(this) {
-			list = this.listeners
-		}
-		if (list !== null) {
-			for (listener : list.getListeners(typeof(TimeListener))) {
-				listener.timeChanged(this)
-			}
-		}
+		this.listeners.notifyListeners(typeof(TimeListener)) [
+			it.timeChanged(this)
+		]
 	}
 	
 	def addTimeListener(listener : TimeListener) {

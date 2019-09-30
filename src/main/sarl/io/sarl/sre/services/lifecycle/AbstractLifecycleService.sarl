@@ -21,8 +21,9 @@
 package io.sarl.sre.services.lifecycle
 
 import io.sarl.lang.core.Agent
+import io.sarl.lang.core.DynamicSkillProvider
 import io.sarl.sarlspecification.SarlSpecificationChecker
-import io.sarl.sre.KernelScope
+import io.sarl.sre.internal.SmartListenerCollection
 import io.sarl.sre.services.AbstractSreService
 import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.context.ExternalContextMemberListener
@@ -55,7 +56,7 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	 */
 	static val CREATION_POOL_SIZE = 128
 
-	val globalListeners : ListenerCollection<?> = new ListenerCollection
+	val globalListeners : SmartListenerCollection<?>
 
 	val sarlSpecificationChecker : SarlSpecificationChecker
 
@@ -150,9 +151,9 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	 */
 	protected def fireAgentDestroy(^agent : Agent, outerContexts : Iterable<ContextReference>) {
 		// Notify the listeners on the spawn events (not restricted to a single agent)
-		for (listener : this.globalListeners.getListeners(typeof(LifecycleServiceListener))) {
-			listener.agentDestroyed(^agent, outerContexts)
-		}
+		this.globalListeners.notifyListeners(typeof(LifecycleServiceListener)) [
+			agentDestroyed(^agent, outerContexts)
+		]
 	}
 	
 	/** Notify the listeners outside the parent context.
@@ -164,19 +165,19 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	 * @param initializationParameters the initialization parameters.
 	 */
 	protected def fireAgentSpawned(spawningAgent : UUID, context : Context,
-		agentClazz : Class<? extends Agent>, agents : List<Agent>, initializationParameters : Object*) {
-		for (listener : this.globalListeners.getListeners(typeof(LifecycleServiceListener))) {
-			listener.agentSpawned(spawningAgent, context, agentClazz, agents, initializationParameters)
-		}
+			agentClazz : Class<? extends Agent>, agents : List<Agent>, initializationParameters : Object*) {
+		this.globalListeners.notifyListeners(typeof(LifecycleServiceListener)) [
+			agentSpawned(spawningAgent, context, agentClazz, agents, initializationParameters)
+		]
 	}
 
 	/**
 	 * Notifies the listeners about the kernel agent destruction.
 	 */
 	protected def fireKernelAgentDestroy {
-		for (listener : this.globalListeners.getListeners(typeof(KernelAgentLifecycleListener))) {
-			listener.kernelAgentDestroyed
-		}
+		this.globalListeners.notifyListeners(typeof(KernelAgentLifecycleListener)) [
+			kernelAgentDestroyed
+		]
 	}
 
 	def isKillableAgent(^agent : Agent) : boolean {
