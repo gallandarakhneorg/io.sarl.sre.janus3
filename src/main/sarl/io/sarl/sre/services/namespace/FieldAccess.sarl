@@ -20,6 +20,7 @@
  */
 package io.sarl.sre.services.namespace
 
+import io.sarl.sre.naming.SarlName
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -36,6 +37,9 @@ import org.eclipse.xtend.lib.annotations.Accessors
 class FieldAccess {
 
 	@Accessors(PUBLIC_GETTER)
+	val name : SarlName
+
+	@Accessors(PUBLIC_GETTER)
 	val field : Field
 
 	@Accessors(PUBLIC_GETTER)
@@ -43,11 +47,13 @@ class FieldAccess {
 
 	/** Constructor.
 	 *
+	 * @param name the name of the field.
 	 * @param field the field declaration.
 	 * @param instance the object to have access to.
 	 */
-	new (field : Field, instance : Object) {
+	new (name : SarlName, field : Field, instance : Object) {
 		assert !Modifier::isStatic(field.modifiers)
+		this.name = name
 		this.field = field
 		this.instance = instance
 		this.field.accessible = true

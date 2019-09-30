@@ -52,7 +52,7 @@ abstract class AbstractNamespaceService extends AbstractSreService implements Na
 			var obj = findObjectWithoutFragment(name)
 			if (name.hasFragment) {
 				// Treat the fragment
-				var field = obj.getDeclaredField(name.fragment)
+				var field = obj.getDeclaredField(name)
 				if (field !== null) {
 					associatedObject = field
 				}
@@ -68,13 +68,13 @@ abstract class AbstractNamespaceService extends AbstractSreService implements Na
 		return associatedObject
 	}
 
-	private static def getDeclaredField(obj : Object, fragment : String) : FieldAccess {
+	private static def getDeclaredField(obj : Object, name : SarlName) : FieldAccess {
 		var type = obj.class
 		while (type !== null && typeof(Object) != type) {
 			try {
-				var field = type.getDeclaredField(fragment)
+				var field = type.getDeclaredField(name.fragment)
 				if (field !== null) {
-					return new FieldAccess(field, obj)
+					return new FieldAccess(name, field, obj)
 				} 
 			} catch (ex : Throwable) {
 				//
