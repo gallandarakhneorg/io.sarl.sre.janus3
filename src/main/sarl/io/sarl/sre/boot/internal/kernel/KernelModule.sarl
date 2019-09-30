@@ -68,7 +68,7 @@ class KernelModule extends AbstractModule {
 	def provideKernelContext(injector : Injector, factory : ContextFactory,
 		@Named(BootConfig::ROOT_CONTEXT_ID_NAME) rootContextID : UUID,
 		@Named(BootConfig::ROOT_DEFAULT_SPACE_ID_NAME) rootDefaultSpaceId : UUID) : Context {
-		var context = factory.newInstance(rootContextID, rootDefaultSpaceId, true)
+		var context = factory.newInstance(rootContextID, rootDefaultSpaceId, null)
 		injector.injectMembers(context)
 		return context
 	}

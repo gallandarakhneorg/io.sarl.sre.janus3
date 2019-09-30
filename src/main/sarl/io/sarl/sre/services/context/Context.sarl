@@ -21,7 +21,9 @@
 package io.sarl.sre.services.context
 
 import com.google.inject.ImplementedBy
+import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
+import io.sarl.lang.core.AgentTrait
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
 import io.sarl.lang.core.SpaceSpecification
@@ -48,7 +50,7 @@ import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-class Context implements AgentContext {
+class Context extends AgentTrait implements AgentContext {
 
 	val id : UUID
 
@@ -328,9 +330,9 @@ interface ContextFactory {
 	 *
 	 * @param contextID the identifier of the context.
 	 * @param defaultSpaceID the identifier of the defualt space into the context.
-	 * @param rootContext indicates if the context should be marked as the root context, or not.
+	 * @param owner is the owner of the context. If {@code null}, the context is the root context.
 	 */
-	def newInstance(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : Context
+	def newInstance(contextID : UUID, defaultSpaceID : UUID, owner : Agent) : Context
 	
 }
 

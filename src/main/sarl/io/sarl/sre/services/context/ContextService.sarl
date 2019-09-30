@@ -57,19 +57,20 @@ interface ContextService extends Service {
 	 * 
 	 * @param contextID the id of the context to create.
 	 * @param defaultSpaceID the id of the default space of the context to create.
-	 * @param rootContext indicates if the created context is a root context.
+	 * @param owner is the owner of  the context. If {@code null}, the context is the root context.
 	 * @return the context.
 	 */
-	def createContextWithoutRegistration(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : Context
+	def createContextWithoutRegistration(contextID : UUID, defaultSpaceID : UUID, owner : Agent) : Context
 
 	/**
 	 * Create a new context instance and register it into the internal repository.
 	 *
 	 * @param contextID the id of the context to create.
 	 * @param defaultSpaceID the id of the default space of the context to create.
+	 * @param owner is the owner of  the context. If {@code null}, the context is the root context.
 	 * @return the context.
 	 */
-	def createContext(contextID : UUID, defaultSpaceID : UUID) : Context
+	def createContext(contextID : UUID, defaultSpaceID : UUID, owner : Agent) : Context
 
 	/** 
 	 * Replies an existing context instance.

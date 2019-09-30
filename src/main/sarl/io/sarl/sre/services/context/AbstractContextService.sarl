@@ -26,6 +26,7 @@ import java.util.UUID
 import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Singleton
 import org.eclipse.xtend.lib.annotations.Accessors
+import io.sarl.lang.core.Agent
 
 /** 
  * A service managing the root context and enabling the creation of contexts.
@@ -77,13 +78,13 @@ abstract class AbstractContextService extends AbstractSreService implements Cont
 	 */
 	protected abstract def getContextInternalStructure : Map<UUID, Context>
 
-	final def createContextWithoutRegistration(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : Context {
+	final def createContextWithoutRegistration(contextID : UUID, defaultSpaceID : UUID, owner : Agent) : Context {
 		assert contextID !== null, "The contextID cannot be null"
 		assert defaultSpaceID !== null, "The defaultSpaceUUID cannot be null"
-		return contextID.newContextInstance(defaultSpaceID, rootContext)
+		return contextID.newContextInstance(defaultSpaceID, owner)
 	}
 	
-	final def createContext(contextID : UUID, defaultSpaceID : UUID) : Context {
+	final def createContext(contextID : UUID, defaultSpaceID : UUID, owner : Agent) : Context {
 		assert contextID !== null, "The contextID cannot be null"
 		assert this.rootContext !== null, "No root context yet"
 		if (contextID == this.rootContext.ID) {
@@ -156,9 +157,9 @@ abstract class AbstractContextService extends AbstractSreService implements Cont
 	 * 
 	 * @param contextID the identifier of the context.
 	 * @param defaultSpaceId the identifier of the default space in the context.
-	 * @param rootContext indicates if the new context is a root context.
+	 * @param owner is the owner of the context. If {@code null}, the context is the root context
 	 */
 	protected abstract def newContextInstance(contextID : UUID, defaultSpaceID : UUID,
-		rootContext : boolean) : Context
+		owner : Agent) : Context
 
 }
