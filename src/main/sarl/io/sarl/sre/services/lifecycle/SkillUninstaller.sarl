@@ -20,6 +20,7 @@
  */
 package io.sarl.sre.services.lifecycle
 
+import com.google.common.collect.Collections2
 import com.google.inject.ImplementedBy
 import io.sarl.core.Destroy
 import io.sarl.lang.annotation.PrivateAPI
@@ -27,11 +28,7 @@ import io.sarl.lang.core.Agent
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Skill
 import io.sarl.lang.core.Skill.UninstallationStage
-import io.sarl.sre.skills.BuiltinSkill
-import io.sarl.util.Comparators
-import java.util.Comparator
-import org.arakhne.afc.util.ListUtil
-import org.arakhne.afc.util.MultiCollection
+import java.util.ArrayList
 
 /** 
  * Install and uninstall the skills. 
@@ -74,10 +71,6 @@ interface SkillUninstaller {
 @PrivateAPI(isCallerOnly = true)
 class BasicSkillUninstaller implements SkillUninstaller {
 
-	static val ORDER_COMPARATOR = new OrderComparator
-
-	static val REVERSE_ORDER_COMPARATOR = new ReverseOrderComparator
-
 	/** Retrieve the skills that are installed into the given agent.
 	 *
 	 * <p>This function ensures that a skill is not added two times into the replied skills.
@@ -85,40 +78,17 @@ class BasicSkillUninstaller implements SkillUninstaller {
 	 * 
 	 * @return the skills.
 	 */
-	private static def getAllSkills(^agent : Agent, inReverseOrder : boolean) : Iterable<? extends Skill>  {
-
+	private static def getAllSkills(^agent : Agent) : Iterable<? extends Skill>  {
 		// Get the registered skills
 		val skills = SREutils.getSkillRepository(^agent)
 		if (skills !== null) {
-			val builtinSkills = <BuiltinSkill>newArrayList
-			val otherSkills = <Skill>newTreeSet(Comparators::objectComparator)
-			var comparator = if (inReverseOrder) REVERSE_ORDER_COMPARATOR else ORDER_COMPARATOR
-			for (skillReference : skills.values) {
-				val ^skill = skillReference.get
-				if (^skill instanceof BuiltinSkill) {
-					ListUtil::add(builtinSkills, comparator, ^skill, false, false)
-				} else if (^skill !== null) {
-					otherSkills += ^skill
-				}
-			}
-			if (otherSkills.empty) {
-				return builtinSkills
-			}
-			val allSkills = new MultiCollection
-			if (inReverseOrder) {
-				allSkills.addCollection(otherSkills)
-				allSkills.addCollection(builtinSkills)
-			} else {
-				allSkills.addCollection(builtinSkills)
-				allSkills.addCollection(otherSkills)
-			}
-			return allSkills
+			return new ArrayList(Collections2.transform(skills.values) [it.get])
 		}
 		return emptyList
 	}
 
 	def uninstallSkillsBeforeDestroy(^agent : Agent) : Iterable<? extends Skill> {
-		val skills = getAllSkills(^agent, true)
+		val skills = ^agent.getAllSkills
 		skills.uninstallSkillsPreStage
 		return skills
 	}
@@ -151,45 +121,6 @@ class BasicSkillUninstaller implements SkillUninstaller {
 		for (^skill : skills) {
 			SREutils::doSkillUninstallation(^skill, UninstallationStage::POST_DESTROY_EVENT)
 		}
-	}
-
-	/** 
-	 * Comparator for sorting the skills in order of installation.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $FullVersion$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 */
-	private static class OrderComparator implements Comparator<BuiltinSkill> {
-
-		override compare(outsideElement : BuiltinSkill, insideElement : BuiltinSkill) : int {
-			// insideElement is always the data already in the list, according to the documentation of ListUtil#add()
-			var cmp = Integer::compare(outsideElement.installationOrder, insideElement.installationOrder)
-			if (cmp !== 0) {
-				return cmp
-			}
-			var id1 = System::identityHashCode(outsideElement)
-			var id2 = System::identityHashCode(insideElement)
-			return Integer::compare(id1, id2)
-		}
-
-	}
-
-	/** 
-	 * Comparator for sorting the skills in reverse order of installation.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $FullVersion$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 */
-	private static class ReverseOrderComparator extends OrderComparator {
-
-		override compare(outsideElement : BuiltinSkill, insideElement : BuiltinSkill) : int {
-			-super.compare(outsideElement, insideElement)
-		}
-
 	}
 
 }

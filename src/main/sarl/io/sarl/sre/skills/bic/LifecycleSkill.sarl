@@ -28,7 +28,6 @@ import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.lifecycle.AgentState
 import io.sarl.sre.services.lifecycle.LifecycleService
-import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import java.util.UUID
 import java.util.concurrent.locks.ReadWriteLock
@@ -36,7 +35,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
-import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 
 /** 
  * Skill that permits to manage the life cycle of the agents.
@@ -52,19 +50,6 @@ import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 	skill LifecycleSkill extends BuiltinSkill implements Lifecycle {
 
 	uses Logging
-
-	private static class BinFlags {
-		static var installationOrder = -1
-	}
-	
-	def getInstallationOrder : int {
-		synchronized (BinFlags) {
-			if (BinFlags::installationOrder < 0) {
-				BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
-			}
-			BinFlags::installationOrder
-		}
-	}
 
 	val lifecycle : LifecycleService
 

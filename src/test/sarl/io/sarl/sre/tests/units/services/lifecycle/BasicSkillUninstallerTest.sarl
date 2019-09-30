@@ -21,6 +21,9 @@
 
 package io.sarl.sre.tests.units.services.lifecycle
 
+import com.google.common.collect.Collections2
+import io.sarl.lang.annotation.PrivateAPI
+import io.sarl.lang.core.SREutils
 import io.sarl.sre.services.lifecycle.BasicSkillUninstaller
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.sre.tests.units.services.lifecycle.mocks.InnerSkill
@@ -28,7 +31,7 @@ import io.sarl.sre.tests.units.services.lifecycle.mocks.LifeSkill
 import io.sarl.sre.tests.units.services.lifecycle.mocks.MyAgent2
 import io.sarl.sre.tests.units.services.lifecycle.mocks.MySkill0
 import io.sarl.tests.api.Nullable
-import java.util.Arrays
+import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Before
 import org.junit.Test
@@ -39,6 +42,7 @@ import org.junit.Test
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@SuppressWarnings("use_reserved_sarl_annotation")
 class BasicSkillUninstallerTest extends AbstractSreTest {
 
 	@Nullable
@@ -49,7 +53,17 @@ class BasicSkillUninstallerTest extends AbstractSreTest {
 		this.installer = new BasicSkillUninstaller
 	}
 
+	private static def getOrder(a : Object, b : Object[]) : int {
+		for (var i = 0; i < b.length; i++) {
+			if (a === b.get(i)) {
+				return i
+			}
+		}
+		return -1
+	}
+
 	@Test
+	@PrivateAPI(isCallerOnly = true)
 	def uninstallSkillsBeforeDestroy {
 		var order = new AtomicInteger
 		var s1 = new LifeSkill(order)
@@ -59,22 +73,24 @@ class BasicSkillUninstallerTest extends AbstractSreTest {
 		assertEquals(0, s1.installOrder)
 		assertEquals(2, s2.installOrder)
 		assertEquals(1, s3.installOrder)
+		var od = new ArrayList(Collections2.transform(SREutils::getSkillRepository(^agent).values, [it.get]))
 		order.set(0)
 		var skills = this.installer.uninstallSkillsBeforeDestroy(^agent)
-		assertEquals(2, s1.uninstallOrderPre)
-		assertEquals(0, s2.uninstallOrderPre)
-		assertEquals(1, s3.uninstallOrderPre)
+		assertEquals(s1.getOrder(od), s1.uninstallOrderPre)
+		assertEquals(s2.getOrder(od), s2.uninstallOrderPre)
+		assertEquals(s3.getOrder(od), s3.uninstallOrderPre)
 		assertNull(s1.uninstallOrderPost)
 		assertNull(s2.uninstallOrderPost)
 		assertNull(s3.uninstallOrderPost)
 		var iterator = skills.iterator
-		assertSame(s2, iterator.next)
-		assertSame(s3, iterator.next)
-		assertSame(s1, iterator.next)
+		assertSame(od.get(0), iterator.next)
+		assertSame(od.get(1), iterator.next)
+		assertSame(od.get(2), iterator.next)
 		assertFalse(iterator.hasNext)
 	}
 
 	@Test
+	@PrivateAPI(isCallerOnly = true)
 	def uninstallSkillsAfterDestroy {
 		var order = new AtomicInteger
 		var s1 = new LifeSkill(order)
@@ -84,15 +100,15 @@ class BasicSkillUninstallerTest extends AbstractSreTest {
 		assertEquals(0, s1.installOrder)
 		assertEquals(2, s2.installOrder)
 		assertEquals(1, s3.installOrder)
+		var od = new ArrayList(Collections2.transform(SREutils::getSkillRepository(^agent).values, [it.get]))
 		order.set(0)
-		var skills = Arrays::asList(s2, s3, s1)
-		this.installer.uninstallSkillsAfterDestroy(^agent, skills)
+		this.installer.uninstallSkillsAfterDestroy(^agent, od)
 		assertNull(s1.uninstallOrderPre)
 		assertNull(s2.uninstallOrderPre)
 		assertNull(s3.uninstallOrderPre)
-		assertEquals(2, s1.uninstallOrderPost)
-		assertEquals(0, s2.uninstallOrderPost)
-		assertEquals(1, s3.uninstallOrderPost)
+		assertEquals(s1.getOrder(od), s1.uninstallOrderPost)
+		assertEquals(s2.getOrder(od), s2.uninstallOrderPost)
+		assertEquals(s3.getOrder(od), s3.uninstallOrderPost)
 	}
 
 }

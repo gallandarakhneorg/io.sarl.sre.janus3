@@ -36,16 +36,14 @@ import io.sarl.sre.services.context.ExternalContextMemberListener
 import io.sarl.sre.services.context.InternalContextMembershipListener
 import io.sarl.sre.services.context.InternalContextMembershipListenerFactory
 import io.sarl.sre.services.lifecycle.ContextReference
-import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import io.sarl.util.concurrent.Collections3
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
 import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
-import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
-import java.util.concurrent.locks.ReadWriteLock
 
 /** 
  * Skill that permits to access to the context in which the agent is located.
@@ -61,19 +59,6 @@ import java.util.concurrent.locks.ReadWriteLock
 skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContextAccess {
 
 	uses InternalEventBusCapacity
-
-	private static class BinFlags {
-		static var installationOrder = -1
-	}
-
-	def getInstallationOrder : int {
-		synchronized (BinFlags) {
-			if (BinFlags::installationOrder < 0) {
-				BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
-			}
-			BinFlags::installationOrder
-		}
-	}
 
 	val contextService : ContextService
 

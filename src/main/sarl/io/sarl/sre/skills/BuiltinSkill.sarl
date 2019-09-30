@@ -43,10 +43,4 @@ abstract class BuiltinSkill extends Skill {
 		this.lockProvider = provider
 	}
 
-	/** Replies the installation order of the builtin skill.
-	 * 
-	 * @return the order.
-	 */
-	abstract def getInstallationOrder : int
-
 }

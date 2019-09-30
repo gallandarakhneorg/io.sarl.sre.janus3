@@ -23,14 +23,11 @@ package io.sarl.sre.skills.internal
 import com.google.common.util.concurrent.Service
 import io.sarl.sre.Kernel
 import io.sarl.sre.capacities.MicroKernelCapacity
-import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import java.lang.ref.WeakReference
 import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
 import javax.inject.Provider
-
-import static io.sarl.sre.skills.internal.MicroKernelSkill.BinFlags.*
 
 /**
  * Capacity that provides an access to the micro kernel.
@@ -41,20 +38,7 @@ import static io.sarl.sre.skills.internal.MicroKernelSkill.BinFlags.*
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("potential_field_synchronization_problem")
-	skill MicroKernelSkill extends BuiltinSkill implements MicroKernelCapacity {
-
-	private static class BinFlags {
-		static var installationOrder = -1
-	}
-
-	override getInstallationOrder : int {
-		synchronized (BinFlags) {
-			if (BinFlags::installationOrder < 0) {
-				BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
-			}
-			BinFlags::installationOrder
-		}
-	}
+skill MicroKernelSkill extends BuiltinSkill implements MicroKernelCapacity {
 
 	var kernel : WeakReference<Kernel>
 

@@ -22,14 +22,11 @@ package io.sarl.sre.skills.bic
 
 import io.sarl.core.Time
 import io.sarl.sre.services.time.TimeService
-import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
 import javax.inject.Provider
-
-import static io.sarl.sre.skills.bic.TimeSkill.BinFlags.*
 
 /** 
  * SRE implementation of SARL's {@link Time} built-in capacity.
@@ -41,19 +38,6 @@ import static io.sarl.sre.skills.bic.TimeSkill.BinFlags.*
  */
 @SuppressWarnings("potential_field_synchronization_problem")
 skill TimeSkill extends BuiltinSkill implements Time {
-
-	private static class BinFlags {
-		static var installationOrder = -1
-	}
-
-	override getInstallationOrder : int {
-		synchronized (BinFlags) {
-			if (BinFlags::installationOrder < 0) {
-				BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
-			}
-			BinFlags::installationOrder
-		}
-	}
 
 	val timeService : TimeService
 

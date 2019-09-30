@@ -30,6 +30,7 @@ import io.sarl.sre.skills.BuiltinSkill
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import io.sarl.util.concurrent.NoReadWriteLock
+import io.sarl.lang.core.Capacity
 
 /** 
  * @author $Author: sgalland$
@@ -44,10 +45,12 @@ skill InnerSkill extends BuiltinSkill implements InnerContextAccess {
 	public var installOrder : Integer
 	public var uninstallOrderPre : Integer
 	public var uninstallOrderPost : Integer
+	public val capacityType : Class<? extends Capacity>
 		
 	new (s : AtomicInteger) {
 		super [NoReadWriteLock::SINGLETON]
 		this.orderSource = s
+		this.capacityType = typeof(InnerContextAccess)
 	}
 
 	protected def install {

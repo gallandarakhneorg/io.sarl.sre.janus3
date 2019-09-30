@@ -26,7 +26,6 @@ import io.sarl.lang.core.Event
 import io.sarl.lang.util.SynchronizedIterable
 import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.capacities.InternalEventBusCapacity
-import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import io.sarl.util.concurrent.Collections3
 import java.lang.ref.WeakReference
@@ -38,7 +37,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
-import static io.sarl.sre.skills.internal.InternalEventBusSkill.BinFlags.*
 
 /** 
  * SRE implementation of an internal skill that provides an event dispatcher to notify the different components/behaviors of an
@@ -55,19 +53,6 @@ import static io.sarl.sre.skills.internal.InternalEventBusSkill.BinFlags.*
 skill InternalEventBusSkill extends BuiltinSkill implements InternalEventBusCapacity {
 
 	uses Logging
-
-	private static class BinFlags {
-		static var installationOrder = -1
-	}
-
-	override getInstallationOrder : int {
-		synchronized (BinFlags) {
-			if (BinFlags::installationOrder < 0) {
-				BinFlags::installationOrder = BuiltinCapacitiesOrder::computeInstallationOrder(this)
-			}
-			BinFlags::installationOrder
-		}
-	}
 
 	val eventBus : EventBus
 	
