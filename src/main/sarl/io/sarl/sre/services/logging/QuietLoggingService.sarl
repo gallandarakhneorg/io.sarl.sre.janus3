@@ -21,9 +21,10 @@
 package io.sarl.sre.services.logging
 
 import io.sarl.sre.services.AbstractSreService
+import java.util.logging.Handler
 import java.util.logging.Level
+import java.util.logging.LogRecord
 import java.util.logging.Logger
-import javax.inject.Inject
 import javax.inject.Singleton
 
 /** 
@@ -43,39 +44,51 @@ class QuietLoggingService extends AbstractSreService implements LoggingService {
 
 	var kernelLoggerInstance : Logger
 
-	var loggerCreator : JulLoggerCreator
-
-	/** Change the creator of logger used by this service.
-	 *
-	 * @param loggerCreator the creator.
-	 * @since 0.7.0
-	 */
-	@Inject
-	def setLoggerCreator(loggerCreator : JulLoggerCreator) {
-		this.loggerCreator = loggerCreator
-	}
-
 	override getPlatformLogger : Logger {
 		if (this.platformLoggerInstance === null) {
-			this.platformLoggerInstance = this.loggerCreator.createPlatformLogger
-			this.platformLoggerInstance.level = Level.OFF
+			this.platformLoggerInstance = new QuietLogger
 		}
 		this.platformLoggerInstance
 	}
 
 	override getKernelLogger : Logger {
 		if (this.kernelLoggerInstance === null) {
-			this.kernelLoggerInstance = this.loggerCreator.createModuleLogger(null, getPlatformLogger)
+			this.kernelLoggerInstance = new QuietLogger
 		}
 		this.kernelLoggerInstance
 	}
 
 	def createAgentLogger(name : String, initialLevel : Level = null) : Logger {
-		val logger = this.loggerCreator.createModuleLogger(name, getPlatformLogger)
-		if (initialLevel !== null) {
-			logger.level = initialLevel
-		}
-		return logger
+		return new QuietLogger
 	}
+
+	/** Quiet logger.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $FullVersion$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 0.10
+	 */
+	private static class QuietLogger extends Logger {
+		
+		new {
+			super ("", null)
+			this.level = Level::OFF
+		}
+
+		override log(record : LogRecord) {
+			// Do nothing
+		}
+
+		override addHandler(h : Handler) {
+            // Do nothing
+		}
+
+		override removeHandler(h : Handler) {
+            // Do nothing
+        }
+
+    }
 
 }
