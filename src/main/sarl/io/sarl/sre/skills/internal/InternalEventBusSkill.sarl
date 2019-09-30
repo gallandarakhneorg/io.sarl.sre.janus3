@@ -21,6 +21,7 @@
 package io.sarl.sre.skills.internal
 
 import io.sarl.core.Logging
+import io.sarl.lang.core.Agent
 import io.sarl.lang.core.Event
 import io.sarl.lang.util.SynchronizedIterable
 import io.sarl.sre.capacities.InformedEventListener
@@ -38,8 +39,6 @@ import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
 import static io.sarl.sre.skills.internal.InternalEventBusSkill.BinFlags.*
-
-import io.sarl.lang.core.Agent
 
 /** 
  * SRE implementation of an internal skill that provides an event dispatcher to notify the different components/behaviors of an
@@ -70,7 +69,7 @@ skill InternalEventBusSkill extends BuiltinSkill implements InternalEventBusCapa
 		}
 	}
 
-	var eventBus : EventBus
+	val eventBus : EventBus
 	
 	var eventListener : InformedEventListener
 
@@ -80,13 +79,12 @@ skill InternalEventBusSkill extends BuiltinSkill implements InternalEventBusCapa
 
 	var eventBuffer : List<Event> = null
 
-	/** Set the backend event bus.
-	 *
-	 * @param bus the new event bus.
-	 */
 	@Inject
-	override setEventBus(bus : EventBus) {
+	new (bus : EventBus, provider : Provider<ReadWriteLock>) {
+		super(provider)
 		this.eventBus = bus
+		this.lock = provider.get
+	}
 
 	/** Replies the lock object.
 	 */

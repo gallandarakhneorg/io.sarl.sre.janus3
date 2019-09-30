@@ -31,11 +31,12 @@ import io.sarl.sre.services.lifecycle.LifecycleService
 import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
+import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
 import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
-
 
 /** 
  * Skill that permits to manage the life cycle of the agents.
@@ -65,24 +66,25 @@ import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 		}
 	}
 
-	var lifecycle : LifecycleService
+	val lifecycle : LifecycleService
 
-	/** Set the backend lifecycle service.
+	/** Constructor.
 	 */
 	@Inject
-	def setLifecycleService(service : LifecycleService) {
+	new (service : LifecycleService, provider : Provider<ReadWriteLock>) {
+		super(provider)
 		this.lifecycle = service
 	}
 
 	@SuppressWarnings("discouraged_reference")
 	def killMe {
 		var postTreatment : Runnable = null
-		var state = owner.life.state
+		var state = getLife(owner, this.lockProvider).state
 		// The agent should be killed by a specific asynchronous event.
 		// This event is supported by the internal event bus implementation.
 		if (state == AgentState::INITIALIZING) {
 			// Indicate to the starting function into AgentLife that the initialization has failed.
-			postTreatment = [owner.life.state = AgentState::DYING]
+			postTreatment = [getLife(owner, this.lockProvider).state = AgentState::DYING]
 		} else if (state == AgentState::ALIVE) {
 			// Synchronous killing
 			postTreatment = [this.lifecycle.killAgent(this.owner)]
@@ -93,7 +95,7 @@ import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 	}
 	
 	def spawn(agentType : Class<? extends Agent>, params : Object*) : UUID {
-		val life = owner.life
+		val life = getLife(owner, this.lockProvider)
 		if (life.state.alive) {
 			var o = this.owner
 			val result = this.lifecycle.spawnAgent(1, o.ID, life.defaultContext.context, null, agentType, params)
@@ -113,7 +115,7 @@ import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 	}
 	
 	def spawn(nbAgents : int, agentType : Class<? extends Agent>, params : Object*) : Iterable<UUID> {
-		val life = owner.life
+		val life = getLife(owner, this.lockProvider)
 		if (life.state.alive) {
 			var o = this.owner
 			var result = this.lifecycle.spawnAgent(nbAgents, o.ID, life.defaultContext.context, null, agentType, params)
@@ -129,7 +131,7 @@ import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 	}
 	
 	def spawnInContext(agentClass : Class<? extends Agent>, context : AgentContext, params : Object*) : UUID {
-		if (owner.life.state.alive) {
+		if (getLife(owner, this.lockProvider).state.alive) {
 			var o = this.owner
 			val result = this.lifecycle.spawnAgent(1, o.ID, context as Context, null, agentClass, params)
 			if (result.agentSpawned) {
@@ -149,7 +151,7 @@ import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 	
 	def spawnInContext(nbAgents : int, agentClass : Class<? extends Agent>, context : AgentContext,
 		params : Object*) : Iterable<UUID> {
-		if (owner.life.state.alive) {
+		if (getLife(owner, this.lockProvider).state.alive) {
 			var o = this.owner
 			var result = this.lifecycle.spawnAgent(nbAgents, o.ID, context as Context, null, agentClass, params)
 			if (result.failing) {
@@ -165,7 +167,7 @@ import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 	
 	def spawnInContextWithID(agentClass : Class<? extends Agent>, agentID : UUID, context : AgentContext,
 		params : Object*) : UUID {
-		if (owner.life.state.alive) {
+		if (getLife(owner, this.lockProvider).state.alive) {
 			var o = this.owner
 			val result = this.lifecycle.spawnAgent(1, o.ID, context as Context, agentID, agentClass, params)
 			if (result.agentSpawned) {

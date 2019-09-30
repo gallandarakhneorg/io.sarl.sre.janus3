@@ -21,7 +21,6 @@
 package io.sarl.sre.skills.bic
 
 import io.sarl.core.InnerContextAccess
-import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
 import io.sarl.lang.core.Event
 import io.sarl.lang.core.Space
@@ -34,11 +33,12 @@ import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import io.sarl.util.concurrent.Collections3
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
+import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
 import static io.sarl.sre.skills.bic.InnerContextAccessSkill.BinFlags.*
-
 
 /** 
  * SRE implementation of SARL's {@link InnerContextAccess} built-in capacity.
@@ -53,7 +53,7 @@ import static io.sarl.sre.skills.bic.InnerContextAccessSkill.BinFlags.*
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("potential_field_synchronization_problem")
-	skill InnerContextAccessSkill extends BuiltinSkill implements InnerContextAccess {
+skill InnerContextAccessSkill extends BuiltinSkill implements InnerContextAccess {
 
 	uses InternalEventBusCapacity
 
@@ -70,16 +70,12 @@ import static io.sarl.sre.skills.bic.InnerContextAccessSkill.BinFlags.*
 		}
 	}
 
-	var contextService : ContextService
-	
-	new (^owner : Agent) {
-		super(^owner)
-	}
+	val contextService : ContextService
 
-	/** Set the backend context service.
-	 */
-	@Inject
-	def setContextService(service : ContextService) {
+	/** Constructor. */
+	@Inject	
+	new (service : ContextService, lockProvider : Provider<ReadWriteLock>) {
+		super(lockProvider)
 		this.contextService = service
 	}
 
@@ -88,7 +84,7 @@ import static io.sarl.sre.skills.bic.InnerContextAccessSkill.BinFlags.*
 	 * <p>This function is thread-safe.
 	 */
 	private def detroyInnerContext {
-		var context = owner.life.setInnerContext(null)
+		var context = getLife(owner, this.lockProvider).setInnerContext(null)
 		if (context !== null) {
 			var ^space = context.defaultSpace
 			// Unregister the agent from the default space
@@ -106,18 +102,23 @@ import static io.sarl.sre.skills.bic.InnerContextAccessSkill.BinFlags.*
 	}
 
 	def getInnerContext : AgentContext {
+		val myself = owner
 		var newContext = false
-		var life = owner.life
+		var life = getLife(myself, this.lockProvider)
 		var context = life.innerContext
 		if (context === null) {
-			synchronized (this) {
+			var lck = life.getLock
+			lck.writeLock.lock
+			try {
 				context = life.innerContext
 				if (context === null) {
 					var spaceId = life.addressInInnerDefaultSpace.spaceID
-					context = this.contextService.createContext(spaceId.contextID, spaceId.ID)
+					context = this.contextService.createContext(spaceId.contextID, spaceId.ID, myself)
 					life.innerContext = context
 					newContext = true
 				}
+			} finally {
+				lck.writeLock.unlock
 			}
 		}
 		if (newContext) {
@@ -145,25 +146,29 @@ import static io.sarl.sre.skills.bic.InnerContextAccessSkill.BinFlags.*
 	}
 
 	def isInnerDefaultSpace(spaceID : SpaceID) : boolean {
-		val context = owner.life.innerContext
+		val context = getLife(owner, this.lockProvider).innerContext
 		context !== null && spaceID == context.defaultSpace.spaceID
 	}
 
 	def isInnerDefaultSpace(spaceID : UUID) : boolean {
-		val context = owner.life.innerContext
+		val context = getLife(owner, this.lockProvider).innerContext
 		context !== null && spaceID == context.defaultSpace.spaceID.ID
 	}
 	
 	def getMemberAgentCount : int {
-		val context = owner.life.innerContext
+		val context = getLife(owner, this.lockProvider).innerContext
 		if (context !== null) {
 			val participants = context.defaultSpace.participants
 			assert participants !== null
 			var count : int 
-			synchronized (participants.mutex) {
+			val lck = participants.lock
+			lck.readLock.lock
+			try {
 				assert !context.rootContext, "An inner context cannot be a root context"
 				assert participants.contains(owner.ID), "The agent must be a participant of its inner conntext's default space"
 				count = participants.size - 1
+			} finally {
+				lck.readLock.unlock
 			}
 			return count
 		}
@@ -171,24 +176,28 @@ import static io.sarl.sre.skills.bic.InnerContextAccessSkill.BinFlags.*
 	}
 	
 	def getMemberAgents : SynchronizedIterable<UUID> {
-		val context = owner.life.innerContext
+		val context = getLife(owner, this.lockProvider).innerContext
 		if (context !== null) {
 			val participants = context.defaultSpace.participants
 			assert participants !== null
 			var filtered = participants.filter [it != this.owner.ID]
-			return Collections3::unmodifiableSynchronizedIterable(filtered, participants.mutex)
+			return Collections3::unmodifiableSynchronizedIterable(filtered, participants.lock)
 		}
 		return Collections3::emptySynchronizedSet
 	}
 	
 	def hasMemberAgent : boolean {
-		val context = owner.life.innerContext
+		val context = getLife(owner, this.lockProvider).innerContext
 		if (context !== null) {
 			val participants = context.defaultSpace.participants
 			assert participants !== null
-			synchronized (participants.mutex) {
+			val lck = participants.lock
+			lck.readLock.lock
+			try {
 				return (participants.size > 1) ||
 					((participants.size == 1) && (!participants.contains(this.owner.ID)))
+			} finally {
+				lck.readLock.unlock
 			}
 		}
 		return false;

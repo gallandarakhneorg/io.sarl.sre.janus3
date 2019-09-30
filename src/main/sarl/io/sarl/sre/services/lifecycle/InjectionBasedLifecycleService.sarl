@@ -30,8 +30,13 @@ import java.lang.reflect.Constructor
 import java.util.UUID
 import javax.inject.Provider
 import io.sarl.sarlspecification.SarlSpecificationChecker
+import io.sarl.sre.internal.SmartListenerCollection
 import java.util.concurrent.locks.ReadWriteLock
+import io.sarl.sre.services.executor.ExecutorService
+import io.sarl.sre.services.context.ExternalContextMemberListener
+import io.sarl.sre.services.logging.LoggingService
 import javax.inject.Inject
+import io.sarl.sre.KernelScope
 
 /** 
  * Implementation of a spawning service that is based on the other services of the SRE platform.
@@ -52,26 +57,50 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 	 * @param sarlSpecificationChecker the tool for checking the validity of the SARL specification supported by
 	 * the agents to launch.
 	 * @param skillProvider the provider of skills that should be used to init the agents.
+	 * @param globalListeners is the collection of global listeners to use.
 	 * @param lockProvider the provider of locks.
+	 * @param lifecycleListener the listener at the platform scale on life cycle events.
+	 * @param externalContextListener the listener at the platform scale on context membership events.
+	 * @param skillUninstaller the object this is able to uninstall the skills.
+	 * @param executor the executor service.
+	 * @param logger the logging service.
 	 */
 	@Inject
 	new (injector : Injector, sarlSpecificationChecker : SarlSpecificationChecker,
-		skillProvider : DynamicSkillProvider) {
-		this(sarlSpecificationChecker, skillProvider, new CreatorFactory(injector, skillProvider))
+		skillProvider : DynamicSkillProvider,
+		globalListeners : SmartListenerCollection<?>,
 		lockProvider : Provider<ReadWriteLock>,
+		@KernelScope lifecycleListener : Provider<LifecycleServiceListener>,
+		@KernelScope externalContextListener : Provider<ExternalContextMemberListener>,
+		skillUninstaller : SkillUninstaller,
+		executor : ExecutorService,
+		logger : LoggingService) {
+		this(sarlSpecificationChecker, new CreatorFactory(injector, skillProvider),
+			globalListeners, lockProvider, lifecycleListener, externalContextListener,
+			skillUninstaller, executor, logger)
 	}
 
 	/** 
-	 * Constructs the service with the given (injected) injector.
+	 * Constructs the service.
 	 * 
 	 * @param sarlSpecificationChecker the tool for checking the validity of the SARL specification supported by
 	 * the agents to launch.
-	 * @param skillProvider the provider of skills that should be used to init the agents.
-	 * @param agentFactoryProvider the provider of agent factory. 
+	 * @param creator the provider of agent creators that is used when spawning agents.
+	 * @param globalListeners is the collection of global listeners to use.
+	 * @param lockProvider the provider of locks.
+	 * @param lifecycleListener the listener at the platform scale on life cycle events.
+	 * @param externalContextListener the listener at the platform scale on context membership events.
+	 * @param skillUninstaller the object this is able to uninstall the skills.
+	 * @param executor the executor service.
+	 * @param logger the logging service.
 	 */
-	new (sarlSpecificationChecker : SarlSpecificationChecker,
-		skillProvider : DynamicSkillProvider, agentFactoryProvider : AgentCreatorProvider) {
-		super(sarlSpecificationChecker, agentFactoryProvider)
+	new (sarlSpecificationChecker : SarlSpecificationChecker, creator : AgentCreatorProvider,
+		globalListeners : SmartListenerCollection<?>, lockProvider : Provider<ReadWriteLock>,
+		lifecycleListener : Provider<LifecycleServiceListener>,
+		externalContextListener : Provider<ExternalContextMemberListener>,
+		skillUninstaller : SkillUninstaller, executor : ExecutorService, logger : LoggingService) {
+		super(sarlSpecificationChecker, creator, globalListeners, lockProvider, lifecycleListener,
+			externalContextListener, skillUninstaller, executor, logger)
 	}
 
 	/** 

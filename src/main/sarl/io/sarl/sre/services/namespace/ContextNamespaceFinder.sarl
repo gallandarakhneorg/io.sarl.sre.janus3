@@ -23,6 +23,9 @@ package io.sarl.sre.services.namespace
 import io.sarl.sre.naming.ContextName
 import io.sarl.sre.naming.NameScheme
 import io.sarl.sre.services.context.Context
+import io.sarl.sre.services.context.ContextService
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** 
  * Implementation of a finder of context into the namespaces.
@@ -33,8 +36,19 @@ import io.sarl.sre.services.context.Context
  * @mavenartifactid $ArtifactId$
  * @since 0.10
  */
+@Singleton
 class ContextNamespaceFinder extends AbstractNamespaceFinder<ContextName, Context> {
 
+	/** Constructor.
+	 * 
+	 * @param service the service that is managing the contexts and the spaces.
+	 */
+	@Inject
+	new (service : ContextService) {
+		super(service)
+	}
+
+	
 	override getScheme : NameScheme {
 		NameScheme::CONTEXT
 	}

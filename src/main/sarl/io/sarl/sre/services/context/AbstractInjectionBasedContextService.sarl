@@ -21,10 +21,9 @@
 package io.sarl.sre.services.context
 
 import com.google.inject.Injector
-import io.sarl.sre.KernelScope
 import java.util.UUID
-import javax.inject.Inject
 import java.util.concurrent.locks.ReadWriteLock
+import io.sarl.lang.core.Agent
 
 /** 
  * A service managing the root context and enabling the creation of contexts by injection.
@@ -40,49 +39,25 @@ import java.util.concurrent.locks.ReadWriteLock
  */
 abstract class AbstractInjectionBasedContextService extends AbstractContextService {
 
-	var injector : Injector
+	val injector : Injector
 
-	var rootContextInstance : Context
+	val contextFactory : ContextFactory
 
-	var contextFactory : ContextFactory
-
-	/** Set the backend injector to use for creating spaces.
+	/** Constructor.
+	 *
+	 * @param rootContext the root context.
+	 * @param injector is the injector.
+	 * @param factory is the factory of contexts.
+	 * @param lock is the lock that must be used by this service.
 	 */
-	@Inject
-	def setInjector(injector : Injector) {
-		assert injector !== null
+	protected new(rootContext : Context, injector : Injector, factory : ContextFactory, lock : ReadWriteLock) {
+		super(rootContext, lock)
 		this.injector = injector
-	}
-
-	/** Set the factory of contexts.
-	 */
-	@Inject
-	def setContextFactory(factory : ContextFactory) {
-		assert factory !== null
 		this.contextFactory = factory
 	}
 
-	@Inject
-	def setRootContext(@KernelScope rootContext : Context) {
-		this.rootContextInstance = rootContext
-	}
-		
-	def onStart {
-		this.rootContextInstance.initialize
-	}
-
-	def onStop {
-		this.rootContextInstance.destroy
-	}
-	
-	def getRootContext : Context {
-		this.rootContextInstance
-	}
-
-	protected def newContextInstance(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : Context {
-		assert this.contextFactory !== null
-		assert this.injector !== null
-		var context = this.contextFactory.newInstance(contextID, defaultSpaceID, rootContext)
+	protected def newContextInstance(contextID : UUID, defaultSpaceID : UUID, owner : Agent) : Context {
+		var context = this.contextFactory.newInstance(contextID, defaultSpaceID, owner)
 		this.injector.injectMembers(context)
 		return context
 	}

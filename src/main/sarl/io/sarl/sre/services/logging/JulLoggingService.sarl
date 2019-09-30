@@ -58,15 +58,14 @@ class JulLoggingService extends AbstractSreService implements LoggingService {
 
 	var kernelLoggerInstance : Logger
 
-	var loggerCreator : JulLoggerCreator
+	val loggerCreator : JulLoggerCreator
 
-	/** Change the creator of logger used by this service.
+	/** Constructor.
 	 * 
 	 * @param loggerCreator the creator.
-	 * @since 0.7.0
 	 */
 	@Inject
-	def setLoggerCreator(loggerCreator : JulLoggerCreator) {
+	new (loggerCreator : JulLoggerCreator) {
 		this.loggerCreator = loggerCreator
 	}
 

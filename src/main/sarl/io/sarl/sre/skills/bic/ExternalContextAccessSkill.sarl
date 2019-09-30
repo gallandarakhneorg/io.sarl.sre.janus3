@@ -45,6 +45,7 @@ import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
 import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
+import java.util.concurrent.locks.ReadWriteLock
 
 /** 
  * Skill that permits to access to the context in which the agent is located.
@@ -57,7 +58,7 @@ import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("potential_field_synchronization_problem")
-	skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContextAccess {
+skill ExternalContextAccessSkill extends BuiltinSkill implements ExternalContextAccess {
 
 	uses InternalEventBusCapacity
 
@@ -74,9 +75,11 @@ import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
 		}
 	}
 
-	var contextService : ContextService
+	val contextService : ContextService
 
-	var externalEventEmitter : ExternalContextMemberListener
+	val externalEventEmitter : ExternalContextMemberListener
+
+	val innerContextProvider : InternalContextMembershipListenerFactory
 
 	var internalEventEmitter : InternalContextMembershipListener
 

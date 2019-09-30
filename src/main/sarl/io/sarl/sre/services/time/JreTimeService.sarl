@@ -22,6 +22,8 @@ package io.sarl.sre.services.time
 
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import javax.inject.Inject
+import io.sarl.sre.internal.SmartListenerCollection
 
 /**
  * Time service based on the JRE standard time.
@@ -35,6 +37,15 @@ import javax.inject.Singleton
 @Singleton
 class JreTimeService extends AbstractTimeService {
 
+	/** Constructor.
+	 * 
+	 * @param listeners the empty collection of listeners that must be used by this service. 
+	 */
+	@Inject
+	new (listeners : SmartListenerCollection<TimeListener>) {
+		super(listeners)
+	}
+	
 	def getOSCurrentTime : long {
 		System::currentTimeMillis	
 	}

@@ -27,6 +27,7 @@ import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import java.lang.ref.WeakReference
 import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Inject
 import javax.inject.Provider
 
 import static io.sarl.sre.skills.internal.MicroKernelSkill.BinFlags.*
@@ -57,6 +58,7 @@ import static io.sarl.sre.skills.internal.MicroKernelSkill.BinFlags.*
 
 	var kernel : WeakReference<Kernel>
 
+	@Inject
 	new (kernel : Kernel, provider : Provider<ReadWriteLock>) {
 		super(provider)
 		this.kernel = new WeakReference(kernel)

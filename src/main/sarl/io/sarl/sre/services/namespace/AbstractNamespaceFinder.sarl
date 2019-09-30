@@ -20,7 +20,6 @@
  */
 package io.sarl.sre.services.namespace
 
-import com.google.inject.Inject
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.Space
@@ -46,12 +45,13 @@ import org.eclipse.xtend.lib.annotations.Accessors
 abstract class AbstractNamespaceFinder<N extends SarlName, O> implements INamespaceFinder<N, O> {
 
 	@Accessors(PROTECTED_GETTER)
-	var contextService : ContextService
+	val contextService : ContextService
 
-	/** Change the context service.
+	/** Constructor.
+	 * 
+	 * @param service the service that is managing the contexts and the spaces.
 	 */
-	@Inject
-	def setContextService(service : ContextService) {
+	new (service : ContextService) {
 		this.contextService = service
 	}
 

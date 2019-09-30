@@ -28,6 +28,7 @@ import io.sarl.lang.core.EventListener
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Scope
+import io.sarl.lang.core.SpaceID
 import io.sarl.lang.util.SynchronizedSet
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.AddressScope
@@ -40,6 +41,7 @@ import java.util.logging.Level
 import java.util.stream.Stream
 import javax.inject.Inject
 import javax.inject.Provider
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
  * Abstract implementation of an event space.
@@ -63,13 +65,26 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 	/** 
 	 * Logging service.
 	 */
-	protected var logger : LoggingService
+	@Accessors(PUBLIC_GETTER)
+	val logger : LoggingService
 
 	/** Router of the events.
 	 * @since 0.8
 	 */
-	var router : EventTransportService = DEFAULT_ROUTER
+	@Accessors(PUBLIC_GETTER)
+	var eventTransportService : EventTransportService
 
+	/** Constructor.
+	 * 
+	 * @param id identifier of the space.
+	 * @param lockProvider the provider of synchronization locks.
+	 * @param logger the logger service.
+	 */
+	new (spaceId : SpaceID, lockProvider : Provider<ReadWriteLock>, logger : LoggingService) {
+		super(spaceId)
+		this.lock = lockProvider.get
+		this.logger = logger
+	}
 	/** Set the event router.
 	 * 
 	 * @param router the router.
@@ -77,27 +92,9 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 	 */
 	@Inject
 	def setEventTransportService(router : EventTransportService) {
-		assert router !== null
-		this.router = router
-	}
-
-	/** Replies the event router.
-	 * 
-	 * @param router the router.
-	 * @since 0.9
-	 */
-	def getEventTransportService : EventTransportService {
-		this.router
+		this.eventTransportService = router
 	}
 	
-	/** Set the logging service to use.
-	 * 
-	 * @param logger the logger.
-	 */
-	@Inject
-	def setLoggingService(logger : LoggingService) {
-		this.logger = logger
-	}
 	protected final def registerToSpace(entity : EventListener) : Address {
 		assert entity !== null
 		var id = entity.ID

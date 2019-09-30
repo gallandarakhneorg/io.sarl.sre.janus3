@@ -24,6 +24,9 @@ import io.sarl.lang.core.Space
 import io.sarl.sre.naming.NameScheme
 import io.sarl.sre.naming.SpaceName
 import io.sarl.sre.services.context.Context
+import io.sarl.sre.services.context.ContextService
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** 
  * Implementation of a finder of space into the namespaces.
@@ -34,8 +37,18 @@ import io.sarl.sre.services.context.Context
  * @mavenartifactid $ArtifactId$
  * @since 0.10
  */
+@Singleton
 class SpaceNamespaceFinder extends AbstractNamespaceFinder<SpaceName, Space> {
 
+	/** Constructor.
+	 * 
+	 * @param service the service that is managing the contexts and the spaces.
+	 */
+	@Inject
+	new (service : ContextService) {
+		super(service)
+	}
+	
 	override getScheme : NameScheme {
 		NameScheme::SPACE
 	}

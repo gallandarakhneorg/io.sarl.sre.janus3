@@ -27,6 +27,7 @@ import java.util.Map
 import java.util.UUID
 import javax.inject.Inject
 import java.util.concurrent.locks.ReadWriteLock
+import io.sarl.sre.internal.SmartListenerCollection
 import javax.inject.Provider
 
 /** 
@@ -49,21 +50,31 @@ class LocalSpaceRepository extends SpaceRepository {
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
 	 * @param configFactory accessor to the configuration.
+	 * @param listenerCollection the instance of the listener collection.
 	 * @param lockProvider the provider of the locking objects that must be used to synchronize this repository.
 	 */
 	@Inject
-	new (injector : Injector, executor : ExecutorService, config : SreConfig) {
-		this(injector, executor, config, null)
+	new (
+		injector : Injector,
+		executor : ExecutorService,
+		config : SreConfig,
+		listenerCollection : SmartListenerCollection<?>,
+		lockProvider : Provider<ReadWriteLock>) {
+		this(injector, executor, config, null, listenerCollection, lockProvider)
 	}
+
 	/** Constructor.
 	 * 
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
 	 * @param config the configuration.
+	 * @param listenerCollection the instance of the listener collection.
+	 * @param lockProvider the provider of the locking objects that must be used to synchronize this repository.
 	 */
 	new (injector : Injector, executor : ExecutorService, config : SreConfig,
-		internalStructure : Map<UUID, SpaceDescription>) {
-		super(injector, executor, config)
+		internalStructure : Map<UUID, SpaceDescription>, listenerCollection : SmartListenerCollection<?>,
+		lockProvider : Provider<ReadWriteLock>) {
+		super(injector, executor, config, listenerCollection, lockProvider)
 		if (internalStructure !== null) {
 			this.spaces = internalStructure
 		} else {

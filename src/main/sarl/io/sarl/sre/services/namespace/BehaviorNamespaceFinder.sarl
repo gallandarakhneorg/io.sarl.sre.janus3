@@ -26,6 +26,9 @@ import io.sarl.lang.core.Behavior
 import io.sarl.lang.core.SREutils
 import io.sarl.sre.naming.BehaviorName
 import io.sarl.sre.naming.NameScheme
+import io.sarl.sre.services.context.ContextService
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** 
  * Implementation of a finder of behavior into the namespaces.
@@ -36,7 +39,17 @@ import io.sarl.sre.naming.NameScheme
  * @mavenartifactid $ArtifactId$
  * @since 0.10
  */
+@Singleton
 class BehaviorNamespaceFinder extends AbstractNamespaceFinder<BehaviorName, Behavior> {
+
+	/** Constructor.
+	 * 
+	 * @param service the service that is managing the contexts and the spaces.
+	 */
+	@Inject
+	new (service : ContextService) {
+		super(service)
+	}
 
 	override getScheme : NameScheme {
 		NameScheme::BEHAVIOR

@@ -49,6 +49,18 @@ class MemoryBasedContextService extends AbstractInjectionBasedContextService {
 
 	var contextRepository : Map<UUID, Context>
 
+	/** Constructor.
+	 * 
+	 * @param rootContext the root context.
+	 * @param injector is the injector.
+	 * @param factory is the factory of contexts.
+	 * @param lock is the lock that must be used by this service.
+	 */
+	@Inject
+	new(@KernelScope rootContext : Context, injector : Injector, factory : ContextFactory, lock : ReadWriteLock) {
+		super(rootContext, injector, factory, lock)
+	}
+
 	protected def getContextInternalStructure : Map<UUID, Context> {
 		var repository : Map<UUID, Context>
 		var lck = getLock

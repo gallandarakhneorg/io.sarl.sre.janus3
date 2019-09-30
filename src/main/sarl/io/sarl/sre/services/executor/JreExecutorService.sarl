@@ -49,7 +49,9 @@ import static extension io.sarl.sre.services.executor.Runnables.*
 @Singleton
 class JreExecutorService extends AbstractExecutorService implements PreReleasableService {
 
-	var jreSchedules : ScheduledExecutorService
+	static val DEFAULT_DELAY = 1
+
+	val jreSchedules : ScheduledExecutorService
 
 	var uncaughtExceptionHandler : UncaughtExceptionHandler
 
@@ -58,13 +60,15 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 	var configuration : ExecutorsConfig
 
 	/** 
-	 * Change the JRE service for scheduled tasks.
+	 * Constructor.
 	 * 
-	 * @param service the JRE service.
+	 * @param standardService the JRE service for executing not scheduled tasks.
+	 * @param scheduledService the JRE service for executing scheduled tasks.
 	 */
 	@Inject
-	def setScheduledExecutorService(service : ScheduledExecutorService) {
-		this.jreSchedules = service
+	new (standardService : java.util.concurrent.ExecutorService, scheduledService : ScheduledExecutorService) {
+		super(standardService)
+		this.jreSchedules = scheduledService
 	}
 
 	/**
@@ -100,8 +104,12 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 	 * @param config the configuration.
 	 */
 	@Inject
-	def setConfiguration(config : SreConfig) {
-		this.configuration = config.services.executors
+	final def setConfiguration(config : SreConfig) {
+		var ecfg : ExecutorsConfig = null
+		if (config !== null) {
+			ecfg = config.services.executors
+		}
+		setConfiguration(ecfg)
 	}
 
 	/** 
@@ -110,7 +118,6 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 	 * @param config the configuration.
 	 */
 	def setConfiguration(config : ExecutorsConfig) {
-		assert config !== null
 		this.configuration = config
 	}
 
@@ -135,7 +142,8 @@ class JreExecutorService extends AbstractExecutorService implements PreReleasabl
 		var es = executorService
 		var ses = scheduledExecutorService
 		if (es instanceof ThreadPoolExecutor || ses instanceof ThreadPoolExecutor) {
-			val delay = configuration.timeout * 2
+			var cfg = getConfiguration
+			val delay = if (cfg !== null) cfg.timeout * 2 else DEFAULT_DELAY
 			this.purgeTask = scheduledExecutorService.scheduleWithFixedDelay(new Purger(this),
 				delay, delay, TimeUnit::SECONDS)
 		}

@@ -25,13 +25,16 @@ import com.google.inject.Injector
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.lang.core.SpaceID
+import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.RestrictedAccessEventSpace
 import io.sarl.util.RestrictedAccessEventSpaceSpecification
 import java.security.acl.Acl
 import java.security.acl.Permission
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
+import javax.inject.Provider
 
 /** 
  * Specification for standard event spaces into the SRE. 
@@ -44,18 +47,26 @@ import javax.inject.Inject
 class SreEventSpaceSpecification implements EventSpaceSpecification {
 
 	val injector : Injector
+
+	val lockProvider : Provider<ReadWriteLock>
+
+	val logger : LoggingService
 	
 	/** Constructor.
 	 * 
-	 * @param injector the injector to use for creating the space..
+	 * @param injector the injector to use for creating the space.
+	 * @param lockProvider the provider of synchronization locks.
+	 * @param logger the logging service. 
 	 */
 	@Inject
-	new (injector : Injector) {
+	new (injector : Injector, lockProvider : Provider<ReadWriteLock>, logger : LoggingService) {
 		this.injector = injector;
+		this.lockProvider = lockProvider
+		this.logger = logger
 	}
 
 	def ^create(id : SpaceID, params : Object*) : EventSpace {
-		val ^space = new OpenLocalEventSpace(id)
+		val ^space = new OpenLocalEventSpace(id, this.lockProvider, this.logger)
 		this.injector.injectMembers(^space)
 		return ^space
 	}
@@ -74,17 +85,25 @@ class SreOpenEventSpaceSpecification implements OpenEventSpaceSpecification {
 
 	var injector : Injector
 
+	val lockProvider : Provider<ReadWriteLock>
+
+	val logger : LoggingService
+
 	/** Constructor.
 	 * 
 	 * @param injector the injector to use for creating the space..
+	 * @param lockProvider the provider of synchronization locks.
+	 * @param logger the logging service. 
 	 */
 	@Inject
-	new (injector : Injector) {
+	new (injector : Injector, lockProvider : Provider<ReadWriteLock>, logger : LoggingService) {
 		this.injector = injector;
+		this.lockProvider = lockProvider
+		this.logger = logger
 	}
 	
 	def ^create(id : SpaceID, params : Object*) : OpenEventSpace {
-		val ^space = new OpenLocalEventSpace(id)
+		val ^space = new OpenLocalEventSpace(id, this.lockProvider, this.logger)
 		this.injector.injectMembers(^space)
 		return ^space
 	}
@@ -107,13 +126,21 @@ class SreRestrictedAccessEventSpaceSpecification implements RestrictedAccessEven
 
 	var injector : Injector
 
+	val lockProvider : Provider<ReadWriteLock>
+
+	val logger : LoggingService
+
 	/** Constructor.
 	 * 
 	 * @param injector the injector to use for creating the space..
+	 * @param lockProvider the provider of synchronization locks.
+	 * @param logger the logging service. 
 	 */
 	@Inject
-	new (injector : Injector) {
+	new (injector : Injector, lockProvider : Provider<ReadWriteLock>, logger : LoggingService) {
 		this.injector = injector;
+		this.lockProvider = lockProvider
+		this.logger = logger
 	}
 
 	def ^create(id : SpaceID, params : Object*) : RestrictedAccessEventSpace {
@@ -130,7 +157,7 @@ class SreRestrictedAccessEventSpaceSpecification implements RestrictedAccessEven
 			if (permission === null) {
 				permission = new RegistrationPermission
 			}
-			val ^space = new RestrictedAccessLocalEventSpace(id, acl, permission)
+			val ^space = new RestrictedAccessLocalEventSpace(id, acl, permission, this.lockProvider, this.logger)
 			this.injector.injectMembers(^space)
 			return ^space
 		}

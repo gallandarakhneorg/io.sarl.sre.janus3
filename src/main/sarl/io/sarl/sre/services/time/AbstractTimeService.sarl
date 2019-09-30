@@ -36,6 +36,15 @@ abstract class AbstractTimeService extends AbstractSreService implements TimeSer
 
 	var listeners : ListenerCollection<TimeListener> = null
 
+	/** Constructor.
+	 *
+	 * @param listeners the empty collection of listeners that must be used by this service. 
+	 */
+	new (listeners : SmartListenerCollection<TimeListener>) {
+		assert listeners !== null
+		this.listeners = listeners
+	}
+	
 	def getOSCurrentTime : long {
 		System::currentTimeMillis	
 	}

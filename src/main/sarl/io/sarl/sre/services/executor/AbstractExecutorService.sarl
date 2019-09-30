@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Consumer
 import java.util.logging.Logger
 import java.util.stream.StreamSupport
-import javax.inject.Inject
 
 import static extension io.sarl.sre.services.executor.Runnables.*
 
@@ -44,15 +43,14 @@ import static extension io.sarl.sre.services.executor.Runnables.*
  */
 abstract class AbstractExecutorService extends AbstractSreService implements ExecutorService {
 
-	var jreExecutor : java.util.concurrent.ExecutorService
+	val jreExecutor : java.util.concurrent.ExecutorService
 
 	/** 
-	 * Change the JRE service for scheduled tasks.
+	 * Constructor.
 	 * 
 	 * @param service the JRE service.
 	 */
-	@Inject
-	def setExecutorService(service : java.util.concurrent.ExecutorService) {
+	new (service : java.util.concurrent.ExecutorService) {
 		this.jreExecutor = service
 	}
 

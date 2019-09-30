@@ -40,4 +40,10 @@ capacity InternalSchedules extends Schedules {
 	 */
 	def unregisterTasksForBehavior(^behavior : Behavior)
 
+	/** Release any resource that is dedicated to the behavior itself.
+	 * 
+	 * @param behavior the behavior.
+	 */
+	def releaseInternalResources(^behavior : Behavior)
+
 }

@@ -26,6 +26,9 @@ import io.sarl.lang.core.Skill
 import io.sarl.lang.core.UnimplementedCapacityException
 import io.sarl.sre.naming.NameScheme
 import io.sarl.sre.naming.SkillName
+import io.sarl.sre.services.context.ContextService
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /** 
  * Implementation of a finder of skill into the namespaces.
@@ -36,8 +39,18 @@ import io.sarl.sre.naming.SkillName
  * @mavenartifactid $ArtifactId$
  * @since 0.10
  */
+@Singleton
 class SkillNamespaceFinder extends AbstractNamespaceFinder<SkillName, Skill> {
 
+	/** Constructor.
+	 * 
+	 * @param service the service that is managing the contexts and the spaces.
+	 */
+	@Inject
+	new (service : ContextService) {
+		super(service)
+	}
+	
 	override getScheme : NameScheme {
 		NameScheme::SKILL
 	}

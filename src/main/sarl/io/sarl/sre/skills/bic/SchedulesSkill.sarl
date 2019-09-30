@@ -22,6 +22,7 @@ package io.sarl.sre.skills.bic
 
 import io.sarl.core.AgentTask
 import io.sarl.core.Logging
+import io.sarl.core.Time
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.Behavior
@@ -39,19 +40,19 @@ import java.lang.ref.WeakReference
 import java.text.MessageFormat
 import java.util.Map
 import java.util.UUID
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReadWriteLock
 import java.util.logging.Logger
 import javax.inject.Inject
+import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
 import static io.sarl.sre.services.lifecycle.BehaviorLife.*
 import static io.sarl.sre.skills.bic.SchedulesSkill.BinFlags.*
-
-import io.sarl.core.Time
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeoutException
 
 /** 
  * Skill that permits to execute tasks with an executor service.
@@ -81,35 +82,39 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 		}
 	}
 
-	var executorService : ExecutorService
+	val executorService : ExecutorService
 
 	var activeTaskRepository : Map<String, TaskDescription> = null
 
-	val mutexInstance = new Object;
+	val lock : ReadWriteLock
 
-	/** Set the back-end executor service.
-	 */
+	/** Constructor. */
 	@Inject
-	def setExecutorService(service : ExecutorService) {
+	new (service : ExecutorService, lockProvider : Provider<ReadWriteLock>) {
+		super(lockProvider)
 		this.executorService = service
+		this.lock = lockProvider.get
 	}
-	/** Replies the synchronization mutex.
+
+	/** Replies the synchronization lock object.
 	 */
-	protected def getMutex : Object {
-		mutexInstance
+	protected def getLock : ReadWriteLock {
+		this.lock
 	}
 
 	protected override uninstall(stage : UninstallationStage) {
-		if (stage == UninstallationStage.PRE_DESTROY_EVENT) {
-			// Cancel the tasks as soon as possible in the uninstallation process
-			synchronized (mutex) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
+			if (stage == UninstallationStage.PRE_DESTROY_EVENT) {
+				// Cancel the tasks as soon as possible in the uninstallation process
 				cancelAllRunningTasks
-			}
-		} else {
-			synchronized (mutex) {
+			} else {
 				// Cancel the tasks that were creating during the destruction stage (in the Destroy event handler)
 				cancelAllRunningTasks
 			}
+		} finally {
+			lck.writeLock.unlock
 		}
 	}
 
@@ -160,14 +165,18 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 	 */
 	private def createTaskIfNecessary(name : String = null, updateTaskList : boolean,
 		updateBehaviorReference : boolean) : TaskDescription {
+		var lck = getLock
 		var description : TaskDescription = null
 		var realName : String
 		if (name.isNullOrEmpty) {
 			realName = "task-" + UUID::randomUUID.toString
 		} else {
 			realName = name
-			synchronized (mutex) {
+			lck.readLock.lock
+			try {
 				description = this.activeTaskRepository?.get(realName)
+			} finally {
+				lck.readLock.unlock
 			}
 		}
 		
@@ -179,7 +188,8 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			description = new TaskDescription(task)
 			SREutils.setSreSpecificData(task, description)
 			if (updateTaskList || updateBehaviorReference) {
-				synchronized (mutex) {
+				lck.writeLock.lock
+				try {
 					if (updateBehaviorReference) {
 						getRepository.put(realName, description)
 					}
@@ -187,6 +197,8 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 						// Register the task to the behavior in order to cancel the task when the behavior is unregistered.
 						task.bindToBehavior(caller)
 					}
+				} finally {
+					lck.writeLock.unlock
 				}
 			}
 		}
@@ -197,14 +209,14 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 	private def unbindToBehavior(task : AgentTask) {
 		var caller = task.initiator
 		if (caller instanceof Behavior) {
-			caller.life.removeTaskReference(task)
+			getLife(caller, this.lockProvider).removeTaskReference(task)
 		}
 	}
 
 	private def bindToBehavior(task : AgentTask, caller : Object = null) {
 		var initiator = caller ?: (task.initiator ?: (Capacities::getCaller ?: this.owner))
 		if (initiator instanceof Behavior) {
-			initiator.life.addTaskReference(task)
+			getLife(initiator, this.lockProvider).addTaskReference(task)
 		}
 	}
 
@@ -291,7 +303,7 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 	 * <p>This function creates the AgentTask and the task description if they are not created yet.
 	 * This function put the task into the list of active tasks.
 	 * 
-	 * <p>This function is not thread-safe.
+	 * <p>This function is thread-safe.
 	 */
 	private def preRunTask(task : AgentTask, procedure : (Agent)=>void) : TaskDescription {
 		var description : TaskDescription
@@ -300,7 +312,17 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			description = createTaskIfNecessary(true, true)
 			taskInstance = description.task
 		} else {
-			description = if (task.name.nullOrEmpty) null else this.activeTaskRepository?.get(task.name)
+			if (task.name.nullOrEmpty) {
+				description = null
+			} else {
+				var lck = getLock
+				lck.readLock.lock
+				try {
+					description = this.activeTaskRepository?.get(task.name)
+				} finally {
+					lck.readLock.unlock
+				}
+			}
 			var registered = description !== null
 			if (description === null) {
 				description = SREutils::getSreSpecificData(task, typeof(TaskDescription))
@@ -315,7 +337,13 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			}
 			task.resetTask(description)
 			if (!registered) {
-				getRepository.put(task.name, description)
+				var lck = getLock
+				lck.writeLock.lock
+				try {
+					getRepository.put(task.name, description)
+				} finally {
+					lck.writeLock.unlock
+				}
 			}
 			taskInstance = task
 		}
@@ -325,7 +353,7 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 
 	/** Finalize the task initialization.
 	 * 
-	 * <p>This function is not thread-safe.
+	 * <p>This function is thread-safe.
 	 */
 	private def postRunTask(description : TaskDescription, task : AgentTask, future : Future<?>) : TaskDescription {
 		assert description !== null
@@ -335,7 +363,7 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 
 	/** Called by a behavior when it is destroyed. */
 	def unregisterTasksForBehavior(^behavior : Behavior) {
-		var tasksToCancel = ^behavior.life.removeAllTaskReferences
+		var tasksToCancel = getLife(^behavior, this.lockProvider).removeAllTaskReferences
 		if (tasksToCancel !== null) {
 			for (taskToCancel : tasksToCancel.map[it.get]) {
 				if (taskToCancel !== null) {
@@ -345,90 +373,94 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 		}
 	}
 
+	/** Called by a behavior when it is destroyed.
+	 */
+	def releaseInternalResources(^behavior : Behavior) {
+		SREutils::setSreSpecificData(^behavior, null)
+	}
+
 	def task(name : String) : AgentTask {
-		if (owner.life.state.alive) {
+		if (getLife(owner, this.lockProvider).state.alive) {
 			return createTaskIfNecessary(name, false, false).task
 		}
 		return null
 	}
 
 	def setName(task : AgentTask, name : String) {
-		if (owner.life.state.alive) {
+		if (getLife(owner, this.lockProvider).state.alive) {
 			val realName = if (name.isNullOrEmpty) "task-" + UUID::randomUUID.toString else name 
 			val prefix = realName + "-"
 			var i = 0
 			var nm = realName
-			synchronized(mutex) {
-				if (this.activeTaskRepository !== null) {
-					var desc = this.activeTaskRepository.remove(task.name)
-					if (desc !== null) {
-						while (this.activeTaskRepository.containsKey(nm)) {
-							i++
-							nm = prefix + i
+			var atr : Map<String, TaskDescription>
+			var lck = getLock
+			lck.readLock.lock
+			try {
+				atr = this.activeTaskRepository
+			} finally {
+				lck.readLock.unlock
+			}
+			if (atr !== null) {
+				lck.writeLock.lock
+				try {
+					atr = this.activeTaskRepository
+					if (atr !== null) {
+						var desc = atr.remove(task.name)
+						if (desc !== null) {
+							while (atr.containsKey(nm)) {
+								i++
+								nm = prefix + i
+							}
+							task.taskName = nm
+							atr.put(nm, desc)
 						}
+					} else {
 						task.taskName = nm
-						this.activeTaskRepository.put(nm, desc)
 					}
-				} else {
-					task.taskName = nm
+				} finally {
+					lck.writeLock.unlock
 				}
+			} else {
+				task.taskName = nm
 			}
 		}		
 	}
 
 	def execute(task : AgentTask = null, procedure : (Agent)=>void) : AgentTask {
-		var description : TaskDescription
-		synchronized (mutex) {
-			description = preRunTask(task, procedure)
-		}
+		var description = preRunTask(task, procedure)
 		var logger = getLogger
 		val future = this.executorService.executeAsap(logger, new SingleRunner(this, this.owner, description, logger))
-		synchronized (mutex) {
-			description = postRunTask(description, task, future)
-		}
+		description = postRunTask(description, task, future)
 		return description.task
 	}
 
 	def in(task : AgentTask = null, delay : long, procedure : (Agent)=>void) : AgentTask {
-		if (owner.life.state.alive) {
-			var description : TaskDescription
-			synchronized (mutex) {
-				description = preRunTask(task, procedure)
-			}
+		if (getLife(owner, this.lockProvider).state.alive) {
+			var description = preRunTask(task, procedure)
 			val logger = getLogger
 			val sf = this.executorService.schedule(logger, delay, TimeUnit::MILLISECONDS,
 				new SingleRunner(this, this.owner, description, logger))
-			synchronized (mutex) {
-				description = postRunTask(description, task, sf)
-			}
+			description = postRunTask(description, task, sf)
 			return description.task
 		}
 		return task
 	}
 
 	def every(task : AgentTask = null, period : long, procedure : (Agent)=>void) : AgentTask {
-		if (owner.life.state.alive) {
-			var description : TaskDescription
-			synchronized (mutex) {
-				description = preRunTask(task, procedure)
-			}
+		if (getLife(owner, this.lockProvider).state.alive) {
+			var description = preRunTask(task, procedure)
 			val logger = getLogger
 			val sf = this.executorService.scheduleAtFixedRate(logger, 0, period, TimeUnit::MILLISECONDS,
 					new PeriodicRunner(this, this.owner, description, logger))
-			synchronized (mutex) {
-				description = postRunTask(description, task, sf)
-			}
+			description = postRunTask(description, task, sf)
 			return description.task
 		}
 		return task
 	}
 
 	def atFixedDelay(task : AgentTask = null, delay : long, procedure : (Agent)=>void) : AgentTask {
-		if (owner.life.state.alive) {
-			var description : TaskDescription
-			synchronized (mutex) {
-				description = preRunTask(task, procedure)
-			}
+		if (getLife(owner, this.lockProvider).state.alive) {
+			var description = preRunTask(task, procedure)
 			var future : Future<?>
 			if (delay <= 0) {
 				future = this.executorService.executeAsap(new InfiniteRunner(this, this.owner, description, getLogger))
@@ -437,20 +469,16 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 				future = this.executorService.scheduleWithFixedDelay(logger, 0, delay, TimeUnit::MILLISECONDS,
 						new PeriodicRunner(this, this.owner, description, logger))
 			}
-			synchronized (mutex) {
-				description = postRunTask(description, task, future)
-			}
+			description = postRunTask(description, task, future)
 			return description.task
 		}
 		return task
 	}
 
 	def at(task : AgentTask = null, time : long, procedure : (Agent)=>void) : AgentTask {
-		if (owner.life.state.alive) {
-			val delay = Math::round(time - getTime)
-			if (delay > 0.0) {
-				return in(task, delay, procedure)
-			}
+		val delay = Math::round(time - getTime)
+		if (delay > 0.0) {
+			return in(task, delay, procedure)
 		}
 		return task
 	}
@@ -483,13 +511,15 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 	}
 
 	def getActiveTasks : SynchronizedSet<String> {
-		synchronized (mutex) {
-			var list = this.activeTaskRepository
-			if (list !== null) {
-				Collections3::unmodifiableSynchronizedSet(list.keySet, mutex)
-			} else {
-				Collections3::emptySynchronizedSet
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			if (this.activeTaskRepository !== null) {
+				return Collections3::unmodifiableSynchronizedSet(this.activeTaskRepository.keySet, lck)
 			}
+			return Collections3::emptySynchronizedSet
+		} finally {
+			lck.readLock.unlock
 		}
 	}
 	
@@ -519,23 +549,23 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 			}
 		}
 
-		synchronized def toString : String {
+		def toString : String {
 			this.taskReference?.toString
 		}
 
-		synchronized def getTask : AgentTask {
+		def getTask : AgentTask {
 			this.taskReference
 		}
 
-		synchronized def setTask(task : AgentTask) {
+		package def setTask(task : AgentTask) {
 			this.taskReference = task
 		}
 
-		synchronized def getFuture : Future<?> {
+		def getFuture : Future<?> {
 			this.futureResult
 		}
 
-		synchronized def setFuture(future : Future<?>) {
+		package def setFuture(future : Future<?>) {
 			var receiver : FutureReceiver
 			if (this.futureResult instanceof FutureReceiver) {
 				receiver = this.futureResult
@@ -690,8 +720,12 @@ skill SchedulesSkill extends BuiltinSkill implements InternalSchedules {
 				} finally {
 					val finishTask = postRun(mustBeFinished)
 					if (finishTask) {
-						synchronized (^skill.mutex) {
+						var lck = ^skill.getLock
+						lck.writeLock.lock
+						try {
 							^skill.finishTask(task, false, true, true);
+						} finally {
+							lck.writeLock.unlock
 						}
 					}
 				}

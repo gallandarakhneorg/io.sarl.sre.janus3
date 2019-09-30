@@ -28,7 +28,6 @@ import java.util.concurrent.RejectedExecutionHandler
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.logging.Level
 import java.util.logging.LogRecord
-import javax.inject.Inject
 import javax.inject.Singleton
 
 /** 
@@ -92,7 +91,6 @@ abstract class AbstractLoggingThreadExecutorPolicy extends AbstractThreadExecuto
 	/** 
 	 * @param logger the logging service that must be used for output the errors.
 	 */
-	@Inject
 	new (logger : LoggingService) {
 		assert logger !== null
 		this.logger = logger

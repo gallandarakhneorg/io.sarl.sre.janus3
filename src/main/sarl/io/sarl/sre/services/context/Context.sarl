@@ -31,8 +31,10 @@ import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
 import javax.inject.Provider
+import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
 
 /** 
  * Implementation of an agent context in the SRE platform.
@@ -52,31 +54,42 @@ class Context implements AgentContext {
 
 	val defaultSpaceID : UUID
 
-	val isRoot : boolean
+	var repositoryInstance : SpaceRepository
 
-	volatile var repositoryInstance : SpaceRepository
+	var defaultSpaceInstance : OpenEventSpace
 
-	volatile var defaultSpaceInstance : OpenEventSpace
+	val repositoryProvider : Provider<SpaceRepository>
 
-	var repositoryProvider : Provider<SpaceRepository>
-
-	var logger : LoggingService
+	val logger : LoggingService
 
 	/** Emitter of the platform events: SpaceCreated, SpaceDestroy */
 	var platformEventEmitter : SpaceRepositoryListener
 
-	var spaceEventEmitterFactory : SpaceRepositoryListenerFactory
+	val spaceEventEmitterFactory : SpaceRepositoryListenerFactory
+
+	val lock : ReadWriteLock
 
 	/** 
 	 * Constructs a {@code Context}.
 	 *
 	 * @param id identifier of the context.
 	 * @param defaultSpaceID identifier of the default space in the context.
+	 * @param owner is the owner of the context. If {@code null}, it is the root context.
+	 * @param lock the synchronization lock to use.
+	 * @param spaceRepositoryProvider the provider of space repository
+	 * @param logger the logging service.
+	 * @param listenerFactory the factory of space listeners.
 	 */
-	new (id : UUID, defaultSpaceID : UUID, rootContext : boolean) {
+	new (id : UUID, defaultSpaceID : UUID, owner : Agent, lock : ReadWriteLock,
+		spaceRepositoryProvider : Provider<SpaceRepository>, logger : LoggingService,
+		listenerFactory : SpaceRepositoryListenerFactory) {
+		super(owner)
 		this.id = id
 		this.defaultSpaceID = defaultSpaceID
-		this.isRoot = rootContext
+		this.lock = lock
+		this.repositoryProvider = spaceRepositoryProvider
+		this.logger = logger
+		this.spaceEventEmitterFactory = listenerFactory
 	}
 
 	/** Replies if the context is a root context.
@@ -87,35 +100,7 @@ class Context implements AgentContext {
 	 * @return {@code true} if the context is a root context.
 	 */
 	def isRootContext : boolean {
-		this.isRoot
-	}
-
-	/** Change the repository provider.
-	 *
-	 * @param provider the provider.
-	 */
-	@Inject
-	def setRepositoryProvider(provider : Provider<SpaceRepository>) {
-		this.repositoryProvider = provider
-	}
-
-	/** Change the repository provider.
-	 * 
-	 * @param provider the provider.
-	 */
-	@Inject
-	def setLoggingService(logger : LoggingService) {
-		this.logger = logger
-	}
-
-	/** Change the provider of the spave event emitter.
-	 *
-	 * @param provider the provider.
-	 */
-	@Inject
-	def setSpaceRepositiroyListenerFactory(@KernelScope factory  : SpaceRepositoryListenerFactory) {
-		assert factory !== null
-		this.spaceEventEmitterFactory = factory
+		this.owner === null
 	}
 
 	def getID : UUID {
@@ -360,8 +345,33 @@ interface ContextFactory {
  */
 class DefaultContextFactory implements ContextFactory {
 
-	override newInstance(contextID : UUID, defaultSpaceID : UUID, rootContext : boolean) : Context {
-		new Context(contextID, defaultSpaceID, rootContext)
+	val lock : Provider<ReadWriteLock>
+	val spaceRepositoryProvider : Provider<SpaceRepository>
+	val logger : LoggingService
+	val listenerFactory : Provider<SpaceRepositoryListenerFactory>
+
+	/** Constructor with injected parameters.
+	 *
+	 * @param id identifier of the context.
+	 * @param defaultSpaceID identifier of the default space in the context.
+	 * @param lock the synchronization lock to use.
+	 * @param spaceRepositoryProvider the provider of space repository
+	 * @param logger the logging service.
+	 * @param listenerFactory the factory of space listeners.
+	 */
+	@Inject
+	new (lock : Provider<ReadWriteLock>,
+		spaceRepositoryProvider : Provider<SpaceRepository>, logger : LoggingService,
+		@KernelScope listenerFactory : Provider<SpaceRepositoryListenerFactory>) {
+		this.lock = lock
+		this.spaceRepositoryProvider = spaceRepositoryProvider
+		this.logger = logger
+		this.listenerFactory = listenerFactory
+	}
+
+	override newInstance(contextID : UUID, defaultSpaceID : UUID, owner : Agent) : Context {
+		new Context(contextID, defaultSpaceID, owner,
+			this.lock.get, this.spaceRepositoryProvider, this.logger, this.listenerFactory.get)
 	}
 	
 }

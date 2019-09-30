@@ -39,12 +39,14 @@ import javax.inject.Inject
 class ServiceNamespaceFinder implements INamespaceFinder<ServiceName, Service> {
 
 	@Accessors(PROTECTED_GETTER)
-	var injector : Injector
+	val injector : Injector
 
-	/** Change the injector.
+	/** Constructor.
+	 *
+	 * @param injector the injector to be used by this finder for obtaining the service instances.
 	 */
 	@Inject
-	def setInjector(injector : Injector) {
+	new (injector : Injector) {
 		this.injector = injector
 	}
 

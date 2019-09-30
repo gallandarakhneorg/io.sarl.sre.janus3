@@ -25,7 +25,9 @@ import io.sarl.sre.services.time.TimeService
 import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
+import javax.inject.Provider
 
 import static io.sarl.sre.skills.bic.TimeSkill.BinFlags.*
 
@@ -53,12 +55,12 @@ skill TimeSkill extends BuiltinSkill implements Time {
 		}
 	}
 
-	var timeService : TimeService
+	val timeService : TimeService
 
-	/** Set the backend time service.
-	 */
+	/** Constructor. */
 	@Inject
-	def setTimeService(service : TimeService) {
+	new (service : TimeService, provider : Provider<ReadWriteLock>) {
+		super(provider)
 		this.timeService = service
 	}
 

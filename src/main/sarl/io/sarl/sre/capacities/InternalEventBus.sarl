@@ -139,12 +139,6 @@ capacity InternalEventBusCapacity {
 	 */
 	def getRegisteredEventBusListeners(type : Class<T>) : SynchronizedIterable<T> with T
 
-	/** Set the backend event bus.
-	 * 
-	 * @param bus the new event bus.
-	 */
-	def setEventBus(bus : EventBus)
-
 	/** Replies the backend event bus.
 	 * 
 	 * @return the event bus instance.
