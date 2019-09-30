@@ -57,8 +57,6 @@ import org.eclipse.xtend.lib.annotations.Accessors
 @PrivateAPI(isCallerOnly = true)
 abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, SpaceWithParticipants {
 
-	static val DEFAULT_ROUTER = new LocalEventTransportService
-
 	@Accessors(PUBLIC_GETTER)
 	val lock : ReadWriteLock
 
@@ -85,6 +83,7 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 		this.lock = lockProvider.get
 		this.logger = logger
 	}
+
 	/** Set the event router.
 	 * 
 	 * @param router the router.
@@ -169,7 +168,8 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 		ensureEventSource(eventSource, ^event)
 		assert this.spaceID == ^event.source.spaceID, "The source address must belong to this space"
 		try {
-			if (eventTransportService.routeEvent(^event, this, scope)) {
+			var mts = getEventTransportService
+			if (mts === null || mts.routeEvent(^event, this, scope)) {
 				^event.emitLocally(scope)
 			}
 		} catch (e : Throwable) {
