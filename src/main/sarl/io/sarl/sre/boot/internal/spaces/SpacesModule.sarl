@@ -21,16 +21,16 @@
 package io.sarl.sre.boot.internal.spaces
 
 import com.google.inject.AbstractModule
+import com.google.inject.Module
+import io.bootique.BQModule
+import io.bootique.BQModuleProvider
+import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.sre.spaces.SreEventSpaceSpecification
 import io.sarl.sre.spaces.SreOpenEventSpaceSpecification
 import io.sarl.sre.spaces.SreRestrictedAccessEventSpaceSpecification
-import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.RestrictedAccessEventSpaceSpecification
 import javax.inject.Singleton
-import io.bootique.BQModuleProvider
-import com.google.inject.Module
-import io.bootique.BQModule
 
 /** 
  * Module for configuring the SARL spaces.

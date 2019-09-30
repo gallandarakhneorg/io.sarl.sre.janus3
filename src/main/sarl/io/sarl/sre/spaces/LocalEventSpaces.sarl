@@ -21,18 +21,18 @@
 
 package io.sarl.sre.spaces
 
+import io.sarl.lang.core.Address
+import io.sarl.lang.core.EventListener
+import io.sarl.lang.core.SpaceID
+import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.util.OpenEventSpace
-import java.util.Map
-import java.util.UUID
+import io.sarl.util.RestrictedAccessEventSpace
+import java.security.AccessControlException
+import java.security.Principal
 import java.security.acl.Acl
 import java.security.acl.Permission
-import io.sarl.util.RestrictedAccessEventSpace
-import io.sarl.lang.core.SpaceID
-import io.sarl.lang.core.EventListener
-import java.security.Principal
-import io.sarl.lang.core.Address
-import java.security.AccessControlException
-import io.sarl.sre.capacities.InformedEventListener
+import java.util.Map
+import java.util.UUID
 
 /** 
  * Default implementation of an event space which has a local repository.

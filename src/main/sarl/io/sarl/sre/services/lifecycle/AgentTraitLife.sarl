@@ -22,8 +22,8 @@ package io.sarl.sre.services.lifecycle
 
 import io.sarl.core.AgentTask
 import java.lang.ref.WeakReference
-import java.util.Set
 import java.util.Comparator
+import java.util.Set
 
 /** 
  * Describes any information that is required by SRE for supporting the agent trait's life. 

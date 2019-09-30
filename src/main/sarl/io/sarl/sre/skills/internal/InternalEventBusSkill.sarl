@@ -27,7 +27,7 @@ import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.capacities.InternalEventBusCapacity
 import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
-import io.sarl.util.Collections3
+import io.sarl.util.concurrent.Collections3
 import java.lang.ref.WeakReference
 import java.util.LinkedList
 import java.util.List

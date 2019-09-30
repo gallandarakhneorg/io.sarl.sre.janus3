@@ -21,11 +21,11 @@
 
 package io.sarl.sre.spaces
 
+import io.sarl.lang.core.SRESpecificDataContainer
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
-import java.util.EventListener
 import java.lang.ref.WeakReference
-import io.sarl.lang.core.SRESpecificDataContainer
+import java.util.EventListener
 
 /** 
  * Abstract implementation of a space.

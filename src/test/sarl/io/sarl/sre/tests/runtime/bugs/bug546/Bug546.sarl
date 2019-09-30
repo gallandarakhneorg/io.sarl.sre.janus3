@@ -21,6 +21,8 @@
 
 package io.sarl.sre.tests.runtime.bugs.bug546
 
+import io.sarl.sre.tests.runtime.bugs.bug546.mocks.InitAndWaitAgent0
+import io.sarl.sre.tests.runtime.bugs.bug546.mocks.InitAndWaitAgent1
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Ignore
 import org.junit.Test

@@ -20,8 +20,8 @@
  */
 package io.sarl.sre.services.lifecycle
 
-import java.text.MessageFormat
 import io.sarl.lang.core.Agent
+import java.text.MessageFormat
 
 /** 
  * This exception is thrown when an agent cannot be spawned.

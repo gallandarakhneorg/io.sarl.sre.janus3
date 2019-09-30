@@ -20,7 +20,9 @@
  */
 package io.sarl.sre.services.context
 
+import com.google.inject.AbstractModule
 import com.google.inject.Injector
+import com.google.inject.name.Names
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
@@ -29,27 +31,26 @@ import io.sarl.lang.core.SpaceID
 import io.sarl.lang.core.SpaceSpecification
 import io.sarl.lang.util.SynchronizedIterable
 import io.sarl.sre.boot.configs.SreConfig
+import io.sarl.sre.internal.SmartListenerCollection
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.spaces.AbstractSpace
 import io.sarl.sre.spaces.SpaceListener
-import io.sarl.util.Collections3
 import io.sarl.util.Comparators
+import io.sarl.util.DefaultSpace
+import io.sarl.util.OpenEventSpace
+import io.sarl.util.OpenEventSpaceSpecification
+import io.sarl.util.concurrent.Collections3
 import java.io.Serializable
-import java.util.Collections
+import java.lang.ref.WeakReference
 import java.util.EventListener
 import java.util.Map
 import java.util.Set
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReadWriteLock
 import java.util.logging.Logger
 import javax.inject.Inject
-import org.arakhne.afc.util.ListenerCollection
-import com.google.inject.AbstractModule
-import io.sarl.util.OpenEventSpace
-import com.google.inject.name.Names
-import io.sarl.util.DefaultSpace
-import java.lang.ref.WeakReference
-import io.sarl.util.OpenEventSpaceSpecification
+import javax.inject.Provider
 
 /** 
  * A repository of spaces specific to a given context.

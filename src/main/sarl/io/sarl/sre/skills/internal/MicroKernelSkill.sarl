@@ -23,12 +23,10 @@ package io.sarl.sre.skills.internal
 import com.google.common.util.concurrent.Service
 import io.sarl.sre.Kernel
 import io.sarl.sre.capacities.MicroKernelCapacity
-import io.sarl.lang.core.Agent
-import java.lang.ref.WeakReference
-
-import static io.sarl.sre.skills.internal.MicroKernelSkill.BinFlags.*
 import io.sarl.sre.skills.BuiltinCapacitiesOrder
 import io.sarl.sre.skills.BuiltinSkill
+
+import static io.sarl.sre.skills.internal.MicroKernelSkill.BinFlags.*
 
 /**
  * Capacity that provides an access to the micro kernel.

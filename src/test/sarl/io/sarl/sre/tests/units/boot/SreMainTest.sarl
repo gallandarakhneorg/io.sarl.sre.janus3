@@ -112,6 +112,9 @@ class SreMainTest extends AbstractSreTest {
 	@Nullable
 	var injector : Injector
 
+	@Nullable
+	var loggingService : LoggingService
+
 	private def createConfiguration(bootAgent : Class<?>, sreConfig : SreConfig = null) {
 		this.bootConfig = new BootConfig
 		this.bootConfig.bootAgent = bootAgent.name
@@ -125,6 +128,7 @@ class SreMainTest extends AbstractSreTest {
 	}
 	
 	private def createBootiqueMock(instances : (Class<?>) => Object = null) {
+		this.loggingService = typeof(LoggingService).mock
 		this.id0 = UUID::randomUUID
 		this.configurationFactory = typeof(ConfigurationFactory).mock
 		this.rootContext = typeof(AgentContext).mock
@@ -181,6 +185,9 @@ class SreMainTest extends AbstractSreTest {
 			}
 			if (typeof(Injector) == type) {
 				return this.injector
+			}
+			if (typeof(LoggingService) == type) {
+				return this.loggingService
 			}
 			throw new IllegalStateException(type.name)
 		]
@@ -245,7 +252,7 @@ class SreMainTest extends AbstractSreTest {
 
 	@Test
 	def isActive_start0 {
-		assertFalse(this.bootstrap.active)
+		assertTrue(this.bootstrap.active)
 	}
 
 	@Test

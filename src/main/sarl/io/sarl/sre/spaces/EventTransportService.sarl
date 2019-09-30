@@ -21,11 +21,11 @@
 package io.sarl.sre.spaces
 
 import com.google.inject.ImplementedBy
-import com.google.inject.Singleton
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Event
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.Scope
+import javax.inject.Singleton
 
 /** 
  * This service enables to route events

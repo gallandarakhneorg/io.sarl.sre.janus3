@@ -31,6 +31,8 @@ import java.net.URI
 import java.util.UUID
 import org.junit.Before
 import org.junit.Test
+import io.sarl.sre.tests.units.naming.mocks.CapacityMock
+import io.sarl.sre.tests.units.naming.mocks.BehaviorMock
 
 /**
  * @author $Author: sgalland$

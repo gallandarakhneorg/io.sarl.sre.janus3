@@ -20,8 +20,8 @@
  */
 package io.sarl.sre.services.time
 
+import io.sarl.sre.internal.SmartListenerCollection
 import io.sarl.sre.services.AbstractSreService
-import org.arakhne.afc.util.ListenerCollection
 
 /**
  * Time service based on the JRE standard time.

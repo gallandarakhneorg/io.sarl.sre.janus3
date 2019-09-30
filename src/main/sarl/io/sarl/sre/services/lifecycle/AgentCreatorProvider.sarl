@@ -21,9 +21,9 @@
 package io.sarl.sre.services.lifecycle
 
 import io.sarl.lang.core.Agent
+import io.sarl.lang.core.DynamicSkillProvider
 import java.util.UUID
 import javax.inject.Provider
-import io.sarl.lang.core.DynamicSkillProvider
 
 /** 
  * Provider of agent instance creator.

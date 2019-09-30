@@ -21,6 +21,7 @@
 
 package io.sarl.sre.tests.runtime.bugs.bug458
 
+import io.sarl.sre.tests.runtime.bugs.bug458.mocks.KillMeInBehaviorAgent
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 

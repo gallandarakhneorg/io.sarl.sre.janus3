@@ -262,7 +262,7 @@ abstract class AbstractSreRunTest extends AbstractSreTest {
 		if (this.results !== null) {
 			try {
 				var res : List<Object>
-				synchronized(this.results) {
+				synchronized (this.results) {
 					res = this.results.get(agentId ?: bootAgent)
 				}
 				if (res !== null) {

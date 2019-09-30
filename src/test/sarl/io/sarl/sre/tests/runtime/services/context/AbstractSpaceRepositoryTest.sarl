@@ -21,6 +21,12 @@
 
 package io.sarl.sre.tests.runtime.services.context
 
+import io.sarl.sre.tests.runtime.services.context.mocks.CreateSpaceTestAgent
+import io.sarl.sre.tests.runtime.services.context.mocks.GetOrCreateSpaceWithIDTestAgent
+import io.sarl.sre.tests.runtime.services.context.mocks.GetOrCreateSpaceWithSpecTestAgent
+import io.sarl.sre.tests.runtime.services.context.mocks.GetSpaceTestAgent
+import io.sarl.sre.tests.runtime.services.context.mocks.GetSpacesClassTestAgent
+import io.sarl.sre.tests.runtime.services.context.mocks.GetSpacesTestAgent
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 

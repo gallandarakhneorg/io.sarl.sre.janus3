@@ -28,9 +28,9 @@ import io.sarl.core.MemberLeft
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
 import io.sarl.lang.core.SpaceID
+import io.sarl.lang.util.SynchronizedIterable
 import java.util.EventListener
 import java.util.UUID
-import io.sarl.lang.util.SynchronizedIterable
 
 /** 
  * This service enables to store the contexts and to manage the spaces in the SRE platform.

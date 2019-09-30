@@ -20,8 +20,8 @@
  */
 package io.sarl.sre.services.namespace
 
-import io.sarl.sre.naming.SarlName
 import io.sarl.sre.naming.NameScheme
+import io.sarl.sre.naming.SarlName
 
 /** 
  * An object that is able to find a specific type of obtain from a name.

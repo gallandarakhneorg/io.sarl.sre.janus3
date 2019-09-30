@@ -34,6 +34,7 @@ import io.sarl.sre.skills.bic.TimeSkill
 import io.sarl.sre.skills.internal.InternalEventBusSkill
 import io.sarl.sre.skills.internal.MicroKernelSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.skills.mocks.MySkill
 import org.arakhne.afc.util.IntegerList
 import org.junit.Before
 import org.junit.Test

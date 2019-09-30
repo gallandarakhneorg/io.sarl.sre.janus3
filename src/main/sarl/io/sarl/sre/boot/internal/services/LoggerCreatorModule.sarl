@@ -24,7 +24,6 @@ import com.google.inject.AbstractModule
 import com.google.inject.Injector
 import com.google.inject.Module
 import com.google.inject.Provides
-import com.google.inject.Singleton
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
 import io.sarl.sre.boot.configs.subconfigs.BootConfig
@@ -32,6 +31,7 @@ import io.sarl.sre.services.logging.JulLoggerCreator
 import java.util.logging.Logger
 import javax.inject.Provider
 import org.arakhne.afc.bootique.log4j.configs.Log4jIntegrationConfig
+import javax.inject.Singleton
 
 /** 
  * Module for the creator of loggers.

@@ -22,16 +22,16 @@
 package io.sarl.sre.spaces
 
 import com.google.inject.Injector
+import io.sarl.lang.core.EventSpace
+import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.lang.core.SpaceID
 import io.sarl.util.OpenEventSpace
-import javax.inject.Inject
 import io.sarl.util.OpenEventSpaceSpecification
-import io.sarl.lang.core.EventSpaceSpecification
-import io.sarl.lang.core.EventSpace
-import io.sarl.util.RestrictedAccessEventSpaceSpecification
 import io.sarl.util.RestrictedAccessEventSpace
+import io.sarl.util.RestrictedAccessEventSpaceSpecification
 import java.security.acl.Acl
 import java.security.acl.Permission
+import javax.inject.Inject
 
 /** 
  * Specification for standard event spaces into the SRE. 

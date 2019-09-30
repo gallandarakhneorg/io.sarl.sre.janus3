@@ -23,6 +23,8 @@ package io.sarl.sre.tests.runtime.services.context
 
 import io.sarl.lang.core.AgentContext
 import io.sarl.sre.boot.configs.subconfigs.BootConfig
+import io.sarl.sre.tests.runtime.services.context.mocks.GetContextTestAgent
+import io.sarl.sre.tests.runtime.services.context.mocks.GetRootContextTestAgent
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import java.util.UUID
 import org.junit.Test

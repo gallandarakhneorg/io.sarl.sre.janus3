@@ -21,6 +21,15 @@
 
 package io.sarl.sre.tests.runtime.services.lifecycle
 
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.DestroyKillTestAgent
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.EventHanlderKillTestAgent
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.InitializeKillTestAgent
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.InitializeSpawnKillTestAgent
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.NoChildInnerContextIsKillableTestAgent
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.NoChildNoInnerContextIsKillableTestAgent
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.OneAgentSpawnTestAgent
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.TaskKillTestAgent
+import io.sarl.sre.tests.runtime.services.lifecycle.mocks.ThreeAgentsSpawnTestAgent
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 

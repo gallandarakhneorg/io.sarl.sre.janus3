@@ -27,6 +27,16 @@ import io.sarl.sre.boot.configs.subconfigs.ServicesConfig
 import io.sarl.sre.services.AbstractServiceManager
 import io.sarl.sre.services.logging.JulLoggerCreator
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.services.mocks.SreServ1
+import io.sarl.sre.tests.units.services.mocks.SreServ1Impl
+import io.sarl.sre.tests.units.services.mocks.SreServ2
+import io.sarl.sre.tests.units.services.mocks.SreServ2Impl
+import io.sarl.sre.tests.units.services.mocks.SreServ3
+import io.sarl.sre.tests.units.services.mocks.SreServ3Impl
+import io.sarl.sre.tests.units.services.mocks.SreServ4
+import io.sarl.sre.tests.units.services.mocks.SreServ4Impl
+import io.sarl.sre.tests.units.services.mocks.SreServ5
+import io.sarl.sre.tests.units.services.mocks.SreServ5Impl
 import io.sarl.tests.api.Nullable
 import java.io.PrintStream
 import java.util.List

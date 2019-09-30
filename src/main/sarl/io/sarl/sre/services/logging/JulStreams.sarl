@@ -21,12 +21,12 @@
 package io.sarl.sre.services.logging
 
 import java.io.PrintStream
+import java.util.logging.Formatter
 import java.util.logging.Level
 import java.util.logging.LogRecord
 import java.util.logging.SimpleFormatter
 import java.util.logging.StreamHandler
 import org.arakhne.afc.inputoutput.stream.WriterOutputStream
-import java.util.logging.Formatter
 
 /** A console handler that supports to be link to the standard output or the standard error output.
  * 

@@ -30,6 +30,7 @@ import io.bootique.BQModuleProvider
 import io.sarl.sre.KernelScope
 import io.sarl.sre.boot.configs.SreConfig
 import io.sarl.sre.boot.configs.subconfigs.BootConfig
+import io.sarl.sre.boot.internal.services.SreServices
 import io.sarl.sre.services.GoogleServiceManager
 import io.sarl.sre.services.IServiceManager
 import io.sarl.sre.services.context.Context
@@ -39,7 +40,6 @@ import java.util.UUID
 import javax.inject.Named
 import javax.inject.Provider
 import javax.inject.Singleton
-import io.sarl.sre.boot.internal.services.SreServices
 
 /** 
  * Module for configuring the kernel specific components.

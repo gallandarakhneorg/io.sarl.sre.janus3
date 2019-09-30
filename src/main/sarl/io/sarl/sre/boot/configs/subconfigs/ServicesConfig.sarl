@@ -20,8 +20,6 @@
  */
 package io.sarl.sre.boot.configs.subconfigs
 
-import com.google.inject.AbstractModule
-import com.google.inject.Module
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
 import io.bootique.annotation.BQConfig
@@ -38,6 +36,8 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import static io.sarl.sre.boot.configs.subconfigs.ServicesConfig.*
 
 import static extension io.bootique.BQCoreModule.extend
+import com.google.inject.AbstractModule
+import com.google.inject.Module
 
 /**
  * Configuration of the SRE services.

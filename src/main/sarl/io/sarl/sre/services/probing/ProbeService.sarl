@@ -21,8 +21,8 @@
 package io.sarl.sre.services.probing
 
 import com.google.common.util.concurrent.Service
-import io.sarl.sre.naming.SarlName
 import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.sre.naming.SarlName
 import java.net.URI
 
 /** 

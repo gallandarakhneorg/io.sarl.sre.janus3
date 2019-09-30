@@ -20,6 +20,7 @@
  */
 package io.sarl.sre.tests.runtime.bugs.bug848
 
+import io.sarl.sre.tests.runtime.bugs.bug848.mocks.TAgent1a
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import java.util.Collection
 import java.util.UUID

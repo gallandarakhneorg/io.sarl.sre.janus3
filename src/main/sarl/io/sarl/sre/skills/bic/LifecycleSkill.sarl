@@ -33,9 +33,9 @@ import io.sarl.sre.skills.BuiltinSkill
 import java.util.UUID
 import javax.inject.Inject
 
+import static io.sarl.sre.services.lifecycle.AgentLife.*
 import static io.sarl.sre.skills.bic.LifecycleSkill.BinFlags.*
 
-import static extension io.sarl.sre.services.lifecycle.AgentLife.*
 
 /** 
  * Skill that permits to manage the life cycle of the agents.

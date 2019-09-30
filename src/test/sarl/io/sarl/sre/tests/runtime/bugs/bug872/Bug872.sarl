@@ -20,6 +20,7 @@
  */
 package io.sarl.sre.tests.runtime.bugs.bug872
 
+import io.sarl.sre.tests.runtime.bugs.bug872.mocks.TopAgent
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 

@@ -31,8 +31,8 @@ import io.sarl.lang.core.Scope
 import io.sarl.lang.util.SynchronizedSet
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.AddressScope
-import io.sarl.util.Collections3
 import io.sarl.util.Scopes
+import io.sarl.util.concurrent.Collections3
 import java.text.MessageFormat
 import java.util.UUID
 import java.util.logging.Level

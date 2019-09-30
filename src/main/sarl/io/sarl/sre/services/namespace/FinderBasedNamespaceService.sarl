@@ -20,11 +20,11 @@
  */
 package io.sarl.sre.services.namespace
 
+import io.sarl.sre.boot.internal.services.NamespaceFinders
 import io.sarl.sre.naming.NameScheme
 import io.sarl.sre.naming.SarlName
-import com.google.inject.Inject
-import io.sarl.sre.boot.internal.services.NamespaceFinders
 import java.util.Set
+import javax.inject.Inject
 
 /** 
  * Implementation of a namespace service that uses the namespace finders.

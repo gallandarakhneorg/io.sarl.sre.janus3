@@ -21,8 +21,8 @@
 package io.sarl.sre.naming
 
 import java.io.Serializable
-import java.net.URI
 import java.lang.ref.WeakReference
+import java.net.URI
 
 /** 
  * This class represents a component name. Each component in a name is an atomic name.

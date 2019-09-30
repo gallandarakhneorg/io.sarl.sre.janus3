@@ -23,6 +23,10 @@ package io.sarl.sre.tests.units.services.lifecycle
 
 import io.sarl.sre.services.lifecycle.BasicSkillUninstaller
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.services.lifecycle.mocks.InnerSkill
+import io.sarl.sre.tests.units.services.lifecycle.mocks.LifeSkill
+import io.sarl.sre.tests.units.services.lifecycle.mocks.MyAgent2
+import io.sarl.sre.tests.units.services.lifecycle.mocks.MySkill0
 import io.sarl.tests.api.Nullable
 import java.util.Arrays
 import java.util.concurrent.atomic.AtomicInteger

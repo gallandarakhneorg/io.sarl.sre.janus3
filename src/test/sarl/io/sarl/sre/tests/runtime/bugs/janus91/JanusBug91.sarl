@@ -21,9 +21,11 @@
 
 package io.sarl.sre.tests.runtime.bugs.janus91;
 
+import io.sarl.sre.services.lifecycle.CannotSpawnException
+import io.sarl.sre.tests.runtime.bugs.janus91.mocks.ExceptionInInitAgent
+import io.sarl.sre.tests.runtime.bugs.janus91.mocks.TestException
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
-import io.sarl.sre.services.lifecycle.CannotSpawnException
 
 /**
  * Unit test for the issue #91: Stop agent on initialization failure?

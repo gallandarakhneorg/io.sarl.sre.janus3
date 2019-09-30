@@ -21,10 +21,6 @@
 
 package io.sarl.sre.boot.configs
 
-import com.google.inject.AbstractModule
-import com.google.inject.Injector
-import com.google.inject.Module
-import com.google.inject.Provides
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
 import io.bootique.annotation.BQConfig
@@ -34,7 +30,6 @@ import io.bootique.meta.application.OptionMetadata
 import io.sarl.sre.boot.configs.subconfigs.BootConfig
 import io.sarl.sre.boot.configs.subconfigs.ServicesConfig
 import java.text.MessageFormat
-import javax.inject.Singleton
 import org.arakhne.afc.bootique.variables.VariableDecls
 import org.arakhne.afc.bootique.variables.VariableNames
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -44,6 +39,11 @@ import static io.sarl.sre.boot.configs.SreConfig.*
 import java.util.Map
 import java.lang.reflect.Type
 import java.util.Collections
+import com.google.inject.AbstractModule
+import javax.inject.Singleton
+import com.google.inject.Provides
+import com.google.inject.Injector
+import com.google.inject.Module
 
 /** 
  * Configuration for the SARL run-time environment. 

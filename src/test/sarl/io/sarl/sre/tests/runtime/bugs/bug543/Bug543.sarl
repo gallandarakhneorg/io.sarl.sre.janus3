@@ -22,9 +22,13 @@
 package io.sarl.sre.tests.runtime.bugs.bug543
 
 import io.sarl.lang.core.UnimplementedCapacityException
+import io.sarl.sre.services.lifecycle.CannotSpawnException
+import io.sarl.sre.tests.runtime.bugs.bug543.mocks.C1
+import io.sarl.sre.tests.runtime.bugs.bug543.mocks.TAgent1
+import io.sarl.sre.tests.runtime.bugs.bug543.mocks.TAgent2
+import io.sarl.sre.tests.runtime.bugs.bug543.mocks.TAgent3
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
-import io.sarl.sre.services.lifecycle.CannotSpawnException
 
 /**
  * Unit test for the issue #543: Incomplete reset of the hidden buffers to skills.

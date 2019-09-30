@@ -21,8 +21,8 @@
 package io.sarl.sre.services.namespace
 
 import java.lang.reflect.Field
-import org.eclipse.xtend.lib.annotations.Accessors
 import java.lang.reflect.Modifier
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
  * Accessor to a field.

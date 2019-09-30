@@ -20,10 +20,10 @@
  */
 package io.sarl.sre.services.probing
 
-import com.google.inject.Inject
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.executor.Runnables
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 

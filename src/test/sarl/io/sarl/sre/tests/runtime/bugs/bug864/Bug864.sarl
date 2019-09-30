@@ -23,6 +23,7 @@ package io.sarl.sre.tests.runtime.bugs.bug864
 import com.google.inject.Inject
 import io.sarl.lang.SARLVersion
 import io.sarl.lang.sarl.SarlPackage
+import io.sarl.sre.tests.runtime.bugs.bug864.mocks.BootAgent
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.eclipse.xtext.xbase.testing.CompilationTestHelper
 import org.junit.Test

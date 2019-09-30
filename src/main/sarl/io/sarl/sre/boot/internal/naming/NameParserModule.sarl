@@ -22,11 +22,11 @@ package io.sarl.sre.boot.internal.naming
 
 import com.google.inject.AbstractModule
 import com.google.inject.Module
-import com.google.inject.Singleton
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
 import io.sarl.sre.naming.INameParser
 import io.sarl.sre.naming.NameParser
+import javax.inject.Singleton
 
 /** 
  * Module for the base name parser.

@@ -20,9 +20,12 @@
 
 package io.sarl.sre.tests.runtime.bugs.bug66
 
+import io.sarl.lang.core.EventSpace
+import io.sarl.sre.tests.runtime.bugs.bug66.mocks.MySpace
+import io.sarl.sre.tests.runtime.bugs.bug66.mocks.SpaceCreatorWithDefaultSpaceAnnotationAgent
+import io.sarl.sre.tests.runtime.bugs.bug66.mocks.SpaceCreatorWithNamedAnnotationAgent
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
-import io.sarl.lang.core.EventSpace
 
 /**
  * Unit test for the issue #66: Injection of the default space in a Space implementation.

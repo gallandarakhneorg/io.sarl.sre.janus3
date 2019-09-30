@@ -23,6 +23,8 @@ package io.sarl.sre.tests.units.naming
 
 import io.sarl.lang.core.Capacity
 import io.sarl.sre.naming.SkillName
+import io.sarl.sre.tests.units.naming.mocks.CapacityMock
+import io.sarl.sre.tests.units.naming.mocks.SkillMock
 import io.sarl.tests.api.AbstractSarlTest
 import java.net.URI
 import java.util.UUID

@@ -22,15 +22,15 @@ package io.sarl.sre.services.lifecycle
 
 import com.google.inject.AbstractModule
 import com.google.inject.Injector
+import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.DynamicSkillProvider
 import io.sarl.lang.core.SREutils
-import io.sarl.sarlspecification.SarlSpecificationChecker
 import java.lang.reflect.Constructor
 import java.util.UUID
-import javax.inject.Inject
 import javax.inject.Provider
-import io.sarl.lang.annotation.PrivateAPI
+import io.sarl.sarlspecification.SarlSpecificationChecker
+import javax.inject.Inject
 
 /** 
  * Implementation of a spawning service that is based on the other services of the SRE platform.

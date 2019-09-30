@@ -21,6 +21,17 @@
 
 package io.sarl.sre.tests.runtime.bugs.bug794
 
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent1
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent10
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent2
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent200
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent3
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent4
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent5
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent6
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent7
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent8
+import io.sarl.sre.tests.runtime.bugs.bug794.mocks.SpawnerAgent9
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 

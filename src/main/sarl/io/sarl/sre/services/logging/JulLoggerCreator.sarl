@@ -76,7 +76,7 @@ class JulLoggerCreator {
 	 * @param formatter the log formatter, or {@code null} to use the default.
 	 */
 	synchronized def setFormatter(formatter : Formatter) {
-		return this.formatter
+		this.formatter = formatter
 	}
 
 	/** Create a formatter.

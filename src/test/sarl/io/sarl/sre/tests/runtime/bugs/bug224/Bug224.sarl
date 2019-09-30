@@ -21,6 +21,13 @@
 
 package io.sarl.sre.tests.runtime.bugs.bug224
 
+import io.sarl.sre.tests.runtime.bugs.bug224.mocks.MyBehavior
+import io.sarl.sre.tests.runtime.bugs.bug224.mocks.RegisteredInDestroyAgent
+import io.sarl.sre.tests.runtime.bugs.bug224.mocks.RegisteredInHandlerAgent
+import io.sarl.sre.tests.runtime.bugs.bug224.mocks.RegisteredInInitializeAgent
+import io.sarl.sre.tests.runtime.bugs.bug224.mocks.UnregisteredInDestroyAgent
+import io.sarl.sre.tests.runtime.bugs.bug224.mocks.UnregisteredInHandlerAgent
+import io.sarl.sre.tests.runtime.bugs.bug224.mocks.UnregisteredInInitializeAgent
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import org.junit.Test
 

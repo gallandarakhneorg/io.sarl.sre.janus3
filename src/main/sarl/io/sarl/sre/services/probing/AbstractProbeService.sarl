@@ -20,18 +20,20 @@
  */
 package io.sarl.sre.services.probing
 
+import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.sre.internal.SmartListenerCollection
+import io.sarl.sre.naming.NameParser
 import io.sarl.sre.naming.SarlName
 import io.sarl.sre.services.AbstractSreService
-import java.net.URI
-import io.sarl.sre.services.namespace.NamespaceService
-import com.google.inject.Inject
-import java.util.UUID
 import io.sarl.sre.services.namespace.FieldAccess
+import io.sarl.sre.services.namespace.NamespaceService
+import io.sarl.util.concurrent.Collections3
+import java.net.URI
 import java.util.ArrayList
 import java.util.Collection
-import io.sarl.lang.util.SynchronizedIterable
-import io.sarl.util.Collections3
-import io.sarl.sre.naming.NameParser
+import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
 
 /** 
  * This class is the standard implementation of a probe service.

@@ -25,7 +25,7 @@ import io.sarl.lang.util.SynchronizedIterable
 import io.sarl.revision.BehaviorGuardEvaluator
 import io.sarl.revision.BehaviorGuardEvaluatorRegistry
 import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.util.Collections3
+import io.sarl.util.concurrent.Collections3
 import java.util.Collection
 import java.util.logging.Logger
 import javax.inject.Inject

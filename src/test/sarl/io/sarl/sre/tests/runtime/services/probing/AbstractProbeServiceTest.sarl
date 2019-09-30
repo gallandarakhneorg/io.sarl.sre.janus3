@@ -23,6 +23,9 @@ package io.sarl.sre.tests.runtime.services.probing
 
 import io.sarl.sre.services.probing.Probe
 import io.sarl.sre.services.probing.ProbeService
+import io.sarl.sre.tests.runtime.services.probing.mocks.ChangeField
+import io.sarl.sre.tests.runtime.services.probing.mocks.ProbedAgent
+import io.sarl.sre.tests.runtime.services.probing.mocks.StopTest
 import io.sarl.sre.tests.testutils.AbstractSreRunTest
 import java.util.List
 import java.util.UUID
