@@ -434,6 +434,7 @@ class BehaviorGuardEvaluatorRegistry {
 	 * @since 0.5.0
 	 */
 	def register(listener : Object, filter : (Event) => Boolean = null, callback : (Object) => void = null) {
+		assert listener !== null
 		if (this.active) {
 			var firstInit = false
 			val listenerMethods = new EvaluatorIterator(listener)
