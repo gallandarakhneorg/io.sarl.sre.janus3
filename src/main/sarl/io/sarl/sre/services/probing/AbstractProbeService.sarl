@@ -46,25 +46,38 @@ import javax.inject.Provider
  */
 abstract class AbstractProbeService extends AbstractSreService implements ProbeService, IProbeReleaseListener {
 
-	var namespace : NamespaceService
+	val namespace : NamespaceService
 
-	var nameParser : NameParser
+	val nameParser : NameParser
 
 	val probes = <URI, Probe<?>>newTreeMap(null)
 	
-	/** Change the name space service that is used by this probe service */
-	@Inject
-	def setNameSpaceService(service : NamespaceService) {
-		assert service !== null
-		this.namespace = service
+	val listenerCollectionProvider : Provider<SmartListenerCollection<?>>
+	
+	val lockProvider : Provider<ReadWriteLock>
+	
+	val lock : ReadWriteLock
+	
+	/** Constructor.
+	 *
+	 * @param namespaceService the service that is giving access to the namespaces.
+	 * @param nameParser the object that is able to parse resource names.
+	 * @param listenerCollectionProvider the provider of listener collections. 
+	 * @param lockProvider the provider of synchronization locks.
+	 */
+	protected new (namespaceService : NamespaceService, nameParser : NameParser, listenerCollectionProvider : Provider<SmartListenerCollection<?>>,
+		lockProvider : Provider<ReadWriteLock>) {
+		this.namespace = namespaceService
+		this.nameParser = nameParser
+		this.listenerCollectionProvider = listenerCollectionProvider
+		this.lockProvider = lockProvider
+		this.lock = lockProvider.get
 	}
 
-	/** Change the name parser that is used by this probe service
-	 */
-	@Inject
-	def setNameParser(parser : NameParser) {
-		assert parser !== null
-		this.nameParser = parser
+	/** Replies the synchronization lock. */
+	@Pure
+	def getLock : ReadWriteLock {
+		this.lock
 	}
 	
 	protected override onStop {
@@ -90,22 +103,36 @@ abstract class AbstractProbeService extends AbstractSreService implements ProbeS
 		if (valueName === null) {
 			return null
 		}
-		synchronized (this.probes) {
-			var probe : Probe<T> = this.probes.get(uri) as Probe<T>
-			if (probe === null) {
-				val probedValue = this.namespace.findObject(valueName)
-				val name = if(probeName.isNullOrEmpty) UUID::randomUUID.toString else probeName
-				probe = probedValue.newProbe(valueType, uri, name)
-				if (probe !== null) {
-					val isFirst = this.probes.empty
-					this.probes.put(uri, probe)
-					if (isFirst) {
-						onFirstProbe
+		var probe : Probe<T>
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			probe = this.probes.get(uri) as Probe<T>
+		} finally {
+			lck.readLock.unlock
+		}
+		if (probe === null) {
+			var isFirst = false
+			lck.writeLock.lock
+			try {
+				probe = this.probes.get(uri) as Probe<T>
+				if (probe === null) {
+					val probedValue = this.namespace.findObject(valueName)
+					val name = if(probeName.isNullOrEmpty) UUID::randomUUID.toString else probeName
+					probe = probedValue.newProbe(valueType, uri, name)
+					if (probe !== null) {
+						isFirst = this.probes.empty
+						this.probes.put(uri, probe)
 					}
 				}
+			} finally {
+				lck.writeLock.unlock
 			}
-			return probe
-		} 
+			if (isFirst) {
+				onFirstProbe
+			}
+		}
+		return probe
 	}
 
 	/** Invoked when the first probe is added into the service.
@@ -130,30 +157,32 @@ abstract class AbstractProbeService extends AbstractSreService implements ProbeS
 	 */
 	protected def newProbe(probedElement : Object, valueType : Class<T>, probeUri : URI, probeName : String) : Probe<T> with T {
 		if (probedElement instanceof FieldAccess) {
-			return new FieldProbe(this, probeName, probeUri, valueType, probedElement).injectMembers
+			return new FieldProbe(this, probeName, probeUri, valueType, probedElement, this.listenerCollectionProvider,
+				this.lockProvider)
 		}
 		return null
 	}
-	
-	/** Inject the given object. By default this function  does nothing and should be overridden by sub classes.
-	 *
-	 * @param obj the object to inject.
-	 * @return the {@code obj}.
-	 */
-	protected def injectMembers(obj : T) : T with T {
-		obj
-	}
 
 	override getProbes : SynchronizedIterable<Probe<?>> {
-		Collections3::unmodifiableSynchronizedIterable(this.probes.values, this.probes)
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			return Collections3::unmodifiableSynchronizedIterable(this.probes.values, lck)			
+		} finally {
+			lck.readLock.unlock
+		}
 	}
 
 	override releaseAllProbes {
 		var removable : Collection<Probe<?>>
-		synchronized (this.probes) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			// Copy of the probes into a separate array is mandatory
 			// for avoiding ConcurrentModificationException
 			removable = new ArrayList(this.probes.values)
+		} finally {
+			lck.readLock.unlock
 		}
 		removable.forEach [
 			it.release
@@ -161,19 +190,29 @@ abstract class AbstractProbeService extends AbstractSreService implements ProbeS
 	}
 
 	override sync {
-		synchronized (this.probes) {
-			this.probes.values.forEach [
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			this.probes.values.parallelStream.forEach [
 				it.sync
 			]
+		} finally {
+			lck.readLock.unlock
 		}
 	}
 	
 	override onProbeReleasedProbe(probe : Probe<?>) {
-		synchronized (this.probes) {
+		var isLast = false
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			this.probes.remove(probe.uri)
-			if (this.probes.empty) {
-				onLastProbe
-			}
+			isLast = this.probes.empty
+		} finally {
+			lck.writeLock.unlock
+		}
+		if (isLast) {
+			onLastProbe
 		}
 	}
 	

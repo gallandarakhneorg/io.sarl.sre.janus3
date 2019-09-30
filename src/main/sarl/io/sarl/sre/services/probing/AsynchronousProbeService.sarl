@@ -20,10 +20,15 @@
  */
 package io.sarl.sre.services.probing
 
+import io.sarl.sre.internal.SmartListenerCollection
+import io.sarl.sre.naming.NameParser
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.executor.Runnables
+import io.sarl.sre.services.namespace.NamespaceService
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
+import javax.inject.Provider
 import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
@@ -39,7 +44,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
  */
 class AsynchronousProbeService extends AbstractProbeService {
 
-	var executor : ExecutorService
+	val executor : ExecutorService
 
 	val synchronizationStarted = new AtomicBoolean(false)
 
@@ -48,13 +53,19 @@ class AsynchronousProbeService extends AbstractProbeService {
 	@Accessors
 	volatile var sleepingDurationBetweenSyncs : long = 500l
 
-	/** Change the executor service that is used by this probe service.
+	/** Constructor.
 	 *
 	 * @param service the executor service.
+	 * @param namespaceService the service that is giving access to the namespaces.
+	 * @param nameParser the object that is able to parse resource names.
+	 * @param listenerCollectionProvider the provider of listener collections. 
+	 * @param lockProvider the provider of synchronization locks.
 	 */
 	@Inject
-	def setExecutorService(service : ExecutorService) {
-		assert service !== null
+	new (service : ExecutorService, namespaceService : NamespaceService, nameParser : NameParser,
+		listenerCollectionProvider : Provider<SmartListenerCollection<?>>,
+		lockProvider : Provider<ReadWriteLock>) {
+		super(namespaceService, nameParser, listenerCollectionProvider, lockProvider)
 		this.executor = service
 	}
 

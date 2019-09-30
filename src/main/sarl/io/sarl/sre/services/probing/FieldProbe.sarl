@@ -20,8 +20,11 @@
  */
 package io.sarl.sre.services.probing
 
+import io.sarl.sre.internal.SmartListenerCollection
 import io.sarl.sre.services.namespace.FieldAccess
 import java.net.URI
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
 
 /** 
  * Probe implementation is linked to a field. A probe is thread-safe.
@@ -54,78 +57,143 @@ class FieldProbe<T> extends AbstractFieldProbe<T> {
 	 * @param uri the UI of the field.
 	 * @param type the expected type of the probed value.
 	 * @param field the accessor to the probed field.
+	 * @param listenerCollectionProvider the provider of listener collections. 
+	 * @param lockProvider the provider of synchronization locks.
 	 */
-	protected new (manager : IProbeReleaseListener, name : String, uri : URI, type : Class<T>, field : FieldAccess) {
-		super(manager, name, uri, type, field)
+	protected new (manager : IProbeReleaseListener, name : String, uri : URI, type : Class<T>, field : FieldAccess,
+		listenerCollectionProvider : Provider<SmartListenerCollection<?>>, lockProvider : Provider<ReadWriteLock>) {
+		super(manager, name, uri, type, field, listenerCollectionProvider, lockProvider)
 	}
 
 	@Pure
-	synchronized override isInvalid : boolean {
-		if (active) {
-			return this.in || this.out
+	override isInvalid : boolean {
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			if (active) {
+				return this.in || this.out
+			}
+		} finally {
+			lck.readLock.unlock
 		}
 		return false
 	}
 
+	override setValue(value : T) {
+		if (isActive) {
+			var lck = getLock
+			lck.writeLock.lock
+			try {
+				this.out = true
+				this.outbuffer = value
+			} finally {
+				lck.writeLock.unlock
+			}
+		}
+	}
+
 	@Pure
-	synchronized override getValue : T {
-		if (this.active && syncIn) {
+	override getValue : T {
+		if (isActive && syncIn) {
 			fireValueChanged
 		}
 		return this.inbuffer
 	}
 
-	synchronized override setValue(value : T) {
-		if (this.active) {
-			this.out = true
-			this.outbuffer = value
-		}
-	}
-
+	/** Do input synchronization.
+	 *
+	 * <p>This function is thread-safe.
+	 */
 	private def syncIn : boolean {
-		if (this.in || this.init) {
-			val enableChange = !this.init
-			this.in = false
-			this.init = false
-			var oldValue = this.inbuffer
-			var newValue = readField
-			this.inbuffer = newValue
-			return enableChange && newValue != oldValue
+		var continueSync : boolean
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			continueSync = this.in || this.init
+		} finally {
+			lck.readLock.unlock
+		}
+		if (continueSync) {
+			lck.writeLock.lock
+			try {
+				val enableChange = !this.init
+				this.in = false
+				this.init = false
+				var oldValue = this.inbuffer
+				var newValue = readField
+				this.inbuffer = newValue
+				return enableChange && newValue != oldValue
+			} finally {
+				lck.writeLock.unlock
+			}
 		}
 		return false
 	}
 
+	/** Do output synchronization.
+	 * 
+	 * <p>This function is thread-safe.
+	 */
 	private def syncOut : boolean {
-		if (this.out) {
-			this.out = false
-			var newValue = this.outbuffer
-			this.outbuffer = null
-			var oldValue = writeField(newValue)
-			return newValue != oldValue
+		var continueSync : boolean
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			continueSync = this.out
+		} finally {
+			lck.readLock.unlock
+		}
+		if (continueSync) {
+			lck.writeLock.lock
+			try {
+				this.out = false
+				var newValue = this.outbuffer
+				this.outbuffer = null
+				var oldValue = writeField(newValue)
+				return newValue != oldValue
+			} finally {
+				lck.writeLock.unlock
+			}
 		}
 		return false
 	}
 
 	/** Force the synchronization of the probed value.
 	 */
-	synchronized def sync(forcedReading : boolean) {
-		if (this.active) {
-			val changed0 = syncOut
-			this.in = forcedReading || this.in
-			val changed1 = syncIn
-			if (changed0 || changed1) {
-				fireValueChanged
+	def sync(forcedReading : boolean) {
+		if (isActive) {
+			if (isActiveObject) {
+				val changed0 = syncOut
+				var lck = getLock
+				lck.writeLock.lock
+				try {
+					this.in = forcedReading || this.in
+				} finally {
+					lck.writeLock.unlock
+				}
+				val changed1 = syncIn
+				if (changed0 || changed1) {
+					fireValueChanged
+				}
+			} else {
+				release
 			}
 		}
 	}
 
-	synchronized override release {
-		if (this.active) {
-			// Caution: Do not reset the inbuffer field in order to enable access to the value even if the probe is inactive
-			this.in = false
-			this.out = false
-			this.outbuffer = null
-			super.release
+	override release {
+		if (isActive) {
+			var lck = getLock
+			lck.writeLock.lock
+			try {
+				// Caution: Do not reset the inbuffer field in order to enable access to the value even if the probe is inactive
+				this.in = false
+				this.out = false
+				this.outbuffer = null
+				super.release
+			} finally {
+				lck.writeLock.unlock
+			}
 		}
 	}
 	

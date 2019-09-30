@@ -21,6 +21,7 @@
 package io.sarl.sre.services.probing
 
 import java.net.URI
+import java.util.concurrent.locks.ReadWriteLock
 
 /** 
  * Probe implementation.
@@ -32,6 +33,10 @@ import java.net.URI
  * @since 0.10
  */
 interface Probe<T> {
+
+	/** Replies the object that could be used to be synchronized with this probe. */
+	@Pure
+	def getLock : ReadWriteLock
 
 	/** Replies the name of the probe
 	 */

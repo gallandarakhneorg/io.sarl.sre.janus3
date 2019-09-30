@@ -20,9 +20,11 @@
  */
 package io.sarl.sre.services.probing
 
+import io.sarl.sre.internal.SmartListenerCollection
 import java.lang.ref.WeakReference
 import java.net.URI
-import org.arakhne.afc.util.ListenerCollection
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
 import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
@@ -38,7 +40,7 @@ abstract class AbstractProbe<T> implements Probe<T> {
 
 	var manager : WeakReference<IProbeReleaseListener>
 
-	var listeners : ListenerCollection<?>
+	var listeners : SmartListenerCollection<?>
 
 	@Accessors
 	val name : String
@@ -51,68 +53,152 @@ abstract class AbstractProbe<T> implements Probe<T> {
 
 	protected var active : boolean = true
 	
+	val lock : ReadWriteLock
+
+	val listenerLock : ReadWriteLock
+
+	val listenerCollectionProvider : Provider<SmartListenerCollection<?>>
+
+	
 	/** Constructor.
 	 * 
 	 * @param manager the creator of this probe, and its manager.
 	 * @param name the name of the probe
 	 * @param uri the UI of the field.
 	 * @param type the expected type of the probed value.
+	 * @param listenerCollectionProvider the provider of listener collections. 
+	 * @param lockProvider the provider of synchronization locks.
 	 */
-	protected new (manager : IProbeReleaseListener, name : String, uri : URI, type : Class<T>) {
+	protected new (
+		manager : IProbeReleaseListener,
+		name : String,
+		uri : URI,
+		type : Class<T>,
+		listenerCollectionProvider : Provider<SmartListenerCollection<?>>,
+		lockProvider : Provider<ReadWriteLock>) {
 		assert manager !== null
 		assert type !== null
+		assert listenerCollectionProvider !== null
+		assert lockProvider !== null
 		this.manager = new WeakReference(manager)
 		this.name = name
 		this.uri = uri
 		this.type = type
+		this.listenerCollectionProvider = listenerCollectionProvider
+		this.lock = lockProvider.get
+		this.listenerLock = lockProvider.get
+	}
+
+	override getLock : ReadWriteLock {
+		this.lock
+	}
+
+	/** Replies the lock object for listener list. */
+	protected def getListenerLock : ReadWriteLock {
+		this.listenerLock
 	}
 
 	@Pure
-	synchronized override isActive : boolean {
-		this.active
+	override isActive : boolean {
+		val lck = getLock
+		lck.readLock.lock
+		try {
+			return this.active
+		} finally {
+			lck.readLock.unlock
+		}
 	}
 
-	synchronized override release {
-		if (this.active) {
+	override release {
+		var act : boolean
+		val lck = getLock
+		lck.readLock.lock
+		try {
+			act = this.active
+		} finally {
+			lck.readLock.unlock
+		}
+		if (act) {
+			var m : IProbeReleaseListener = null
 			try {
-				this.active = false
-				var m = this.manager?.get
-				this.manager.clear
-				this.manager = null
-				if (m !== null) {
-					m.onProbeReleasedProbe(this)
-					fireRelease
-				}			
+				lck.writeLock.lock
+				try {
+					act = this.active
+					if (act) {
+						this.active = false
+						m = this.manager?.get
+						this.manager.clear
+						this.manager = null
+					}
+				} finally {
+					lck.writeLock.unlock
+				}
 			} finally {
-				this.listeners = null
+				fireRelease
+				var llck = getListenerLock
+				llck.writeLock.lock
+				try {
+					this.listeners = null
+				} finally {
+					llck.writeLock.unlock
+				}
+			}
+			if (m !== null) {
+				m.onProbeReleasedProbe(this)
 			}
 		}
 	}
 
 	/** Notify the listener that the probe's value has changed. */
 	protected def fireValueChanged {
-		if (this.listeners !== null) {
-			var list = this.listeners.getListeners(typeof(IProbeListener))
-			for (listener : list) {
-				listener.probeValueChanged(this)
-			}
-		} 
-	}
-	
-	synchronized override addProbeListener(listener : IProbeListener) {
-		assert listener !== null
-		if (this.listeners === null) {
-			this.listeners = new ListenerCollection
+		var list : SmartListenerCollection<?>
+		var lck = getListenerLock
+		lck.readLock.lock
+		try {
+			list = this.listeners
+		} finally {
+			lck.readLock.unlock
 		}
-		this.listeners.add(typeof(IProbeListener), listener)
+		if (list !== null) {
+			list.notifyListeners(typeof(IProbeListener)) [
+				probeValueChanged(this)
+			]
+		}
 	}
 	
-	synchronized override removeProbeListener(listener : IProbeListener) {
+	override addProbeListener(listener : IProbeListener) {
 		assert listener !== null
-		if (this.listeners !== null) {
-			this.listeners.remove(typeof(IProbeListener), listener)
-			if (this.listeners.isEmpty) {
-				this.listeners = null
+		val lck = getListenerLock
+		lck.writeLock.lock
+		try {
+			if (this.listeners === null) {
+				this.listeners = this.listenerCollectionProvider.get
+			}
+			this.listeners.add(typeof(IProbeListener), listener)
+		} finally {
+			lck.writeLock.unlock
+		}
+	}
+	
+	override removeProbeListener(listener : IProbeListener) {
+		assert listener !== null
+		var list : SmartListenerCollection<?>
+		val lck = getListenerLock
+		lck.readLock.lock
+		try {
+			list = this.listeners
+		} finally {
+			lck.readLock.unlock
+		}
+		if (list !== null) {
+			list.remove(typeof(IProbeListener), listener)
+			lck.writeLock.lock
+			try {
+				if (this.listeners !== null && this.listeners.isEmpty) {
+					this.listeners = null
+				}
+			} finally {
+				lck.writeLock.unlock
 			}
 		}
 	}
@@ -120,28 +206,54 @@ abstract class AbstractProbe<T> implements Probe<T> {
 	/** Notify the listener that the probe has been released.
 	 */
 	protected def fireRelease {
-		if (this.listeners !== null) {
-			var list = this.listeners.getListeners(typeof(IProbeReleaseListener))
-			for (listener : list) {
-				listener.onProbeReleasedProbe(this)
+		var list : SmartListenerCollection<?>
+		var lck = getListenerLock
+		lck.readLock.lock
+		try {
+			list = this.listeners
+		} finally {
+			lck.readLock.unlock
+		}
+		if (list !== null) {
+			list.notifyListeners(typeof(IProbeReleaseListener)) [
+				onProbeReleasedProbe(this)
+			]
+		}
+	}
+
+	override addProbeReleaseListener(listener : IProbeReleaseListener) {
+		assert listener !== null
+		val lck = getListenerLock
+		lck.writeLock.lock
+		try {
+			if (this.listeners === null) {
+				this.listeners = this.listenerCollectionProvider.get
 			}
+			this.listeners.add(typeof(IProbeReleaseListener), listener)
+		} finally {
+			lck.writeLock.unlock
 		}
 	}
 
-	synchronized override addProbeReleaseListener(listener : IProbeReleaseListener) {
+	override removeProbeReleaseListener(listener : IProbeReleaseListener) {
 		assert listener !== null
-		if (this.listeners === null) {
-			this.listeners = new ListenerCollection
+		var list : SmartListenerCollection<?>
+		val lck = getListenerLock
+			lck.readLock.lock
+		try {
+			list = this.listeners
+		} finally {
+			lck.readLock.unlock
 		}
-		this.listeners.add(typeof(IProbeReleaseListener), listener)
-	}
-
-	synchronized override removeProbeReleaseListener(listener : IProbeReleaseListener) {
-		assert listener !== null
-		if (this.listeners !== null) {
-			this.listeners.remove(typeof(IProbeReleaseListener), listener)
-			if (this.listeners.isEmpty) {
-				this.listeners = null
+		if (list !== null) {
+			list.remove(typeof(IProbeReleaseListener), listener)
+			lck.writeLock.lock
+			try {
+				if (this.listeners !== null && this.listeners.isEmpty) {
+					this.listeners = null
+				}
+			} finally {
+				lck.writeLock.unlock
 			}
 		}
 	}
