@@ -27,12 +27,14 @@ import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
 import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.services.executor.ExecutorService
+import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.spaces.OpenLocalEventSpace
 import io.sarl.sre.spaces.SpaceListener
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
 import io.sarl.util.OpenEventSpaceSpecification
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import org.junit.Before
 import org.junit.Test
@@ -84,7 +86,8 @@ class OpenLocalEventSpaceTest extends AbstractSreTest {
 
 		this.address = new Address(this.spaceId, this.agentId)
 
-		this.^space = new OpenLocalEventSpace(this.spaceId)
+		this.^space = new OpenLocalEventSpace(this.spaceId, [NoReadWriteLock::SINGLETON],
+			typeof(LoggingService).mock)
 
 		this.listener = typeof(InformedEventListener).mock
 		when(this.listener.ID).thenReturn(this.agentId)

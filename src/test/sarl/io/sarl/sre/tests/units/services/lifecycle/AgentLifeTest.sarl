@@ -35,6 +35,9 @@ import io.sarl.sre.services.lifecycle.AgentState
 import io.sarl.sre.services.lifecycle.SkillUninstaller
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.services.lifecycle.mocks.MyAgent1
+import io.sarl.sre.tests.units.services.lifecycle.mocks.MyLogging
+import io.sarl.sre.tests.units.services.lifecycle.mocks.MySkill
 import io.sarl.tests.api.Nullable
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
@@ -55,6 +58,7 @@ import static org.mockito.Mockito.when
 import static extension org.mockito.ArgumentMatchers.any
 import static extension org.mockito.Mockito.times
 import static extension org.mockito.Mockito.verify
+import io.sarl.util.concurrent.NoReadWriteLock
 
 /**
  * @author $Author: sgalland$
@@ -81,7 +85,7 @@ class AgentLifeTest extends AbstractSreTest {
 		this.eventBus = new MySkill().spy
 		this.logging = new MyLogging().spy
 		this.^agent = new MyAgent1(this.eventBus, this.logging).spy
-		this.life = AgentLife::getLife(^agent)
+		this.life = AgentLife::getLife(^agent)[NoReadWriteLock::SINGLETON]
 		// Remove the interaction
 		reset(this.eventBus)
 	}

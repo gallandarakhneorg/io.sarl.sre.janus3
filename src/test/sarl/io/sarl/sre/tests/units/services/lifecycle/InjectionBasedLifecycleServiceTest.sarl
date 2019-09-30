@@ -24,8 +24,17 @@ package io.sarl.sre.tests.units.services.lifecycle
 import com.google.inject.Injector
 import com.google.inject.Module
 import io.sarl.lang.core.DynamicSkillProvider
+import io.sarl.sre.internal.SequenceListenerNotifier
+import io.sarl.sre.internal.SmartListenerCollection
+import io.sarl.sre.services.context.ExternalContextMemberListener
+import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.lifecycle.InjectionBasedLifecycleService
+import io.sarl.sre.services.lifecycle.LifecycleServiceListener
+import io.sarl.sre.services.lifecycle.SkillUninstaller
+import io.sarl.sre.services.logging.LoggingService
 import io.sarl.tests.api.Nullable
+import io.sarl.util.concurrent.NoReadWriteLock
+import javax.inject.Provider
 
 import static org.mockito.Mockito.when
 
@@ -57,8 +66,18 @@ class InjectionBasedLifecycleServiceTest extends AbstractLifecycleServiceTest<In
 		when(this.childInjector.getInstance(typeof(Class).any)).thenReturn(this.agent2)
 	}
 	
-	override newService : InjectionBasedLifecycleService {
-		return new InjectionBasedLifecycleService(this.injector, this.checker, this.skillProvider)
+	override newService(executor : ExecutorService, logger : LoggingService, skillUninstaller : SkillUninstaller,
+		contextListenerProvider : Provider<ExternalContextMemberListener>,
+		lifecycleListenerProvider : Provider<LifecycleServiceListener>) : InjectionBasedLifecycleService {
+		var coll = new SmartListenerCollection(new SequenceListenerNotifier)
+		return new InjectionBasedLifecycleService(this.injector, this.checker, this.skillProvider,
+			coll,
+			[ NoReadWriteLock::SINGLETON ],
+			lifecycleListenerProvider,
+			contextListenerProvider,
+			skillUninstaller,
+			executor,
+			logger)
 	}
 
 }

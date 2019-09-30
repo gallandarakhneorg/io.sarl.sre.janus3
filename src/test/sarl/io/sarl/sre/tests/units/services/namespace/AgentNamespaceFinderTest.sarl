@@ -21,24 +21,25 @@
 
 package io.sarl.sre.tests.units.services.namespace
 
+import io.sarl.lang.annotation.PrivateAPI
+import io.sarl.lang.core.Agent
+import io.sarl.sre.capacities.InformedEventListener
+import io.sarl.sre.naming.AgentName
 import io.sarl.sre.naming.NameScheme
 import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.context.ContextService
 import io.sarl.sre.services.namespace.AgentNamespaceFinder
+import io.sarl.sre.spaces.Participant
 import io.sarl.sre.spaces.SpaceWithParticipants
 import io.sarl.tests.api.AbstractSarlTest
 import io.sarl.tests.api.Nullable
 import io.sarl.util.OpenEventSpace
+import java.util.UUID
 import org.junit.Before
 import org.junit.Test
 
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import io.sarl.lang.core.Agent
-import io.sarl.lang.annotation.PrivateAPI
-import io.sarl.sre.spaces.Participant
-import java.util.UUID
-import io.sarl.sre.capacities.InformedEventListener
-import io.sarl.sre.naming.AgentName
 
 /**
  * @author $Author: sgalland$
@@ -77,8 +78,7 @@ class AgentNamespaceServiceTest extends AbstractSarlTest {
 	@PrivateAPI(isCallerOnly = true)
 	def setUp : void {
 		this.contextService = typeof(ContextService).mock
-		this.finder = new AgentNamespaceFinder
-		this.finder.contextService = this.contextService
+		this.finder = new AgentNamespaceFinder(this.contextService)
 		
 		// Default space creation
 		this.aid0 = UUID::randomUUID

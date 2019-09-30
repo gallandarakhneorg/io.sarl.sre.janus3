@@ -42,12 +42,18 @@ import io.sarl.sre.services.lifecycle.SkillUninstaller
 import io.sarl.sre.services.lifecycle.SpawnDisabledException
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.services.lifecycle.mocks.InvalidMyAgent1
+import io.sarl.sre.tests.units.services.lifecycle.mocks.InvalidMyAgent2
+import io.sarl.sre.tests.units.services.lifecycle.mocks.MyAgent0
+import io.sarl.sre.tests.units.services.lifecycle.mocks.MyEventBus
 import io.sarl.tests.api.Nullable
-import io.sarl.util.Collections3
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
+import io.sarl.util.concurrent.Collections3
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.List
 import java.util.UUID
+import javax.inject.Provider
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
@@ -115,18 +121,23 @@ abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> 
 		this.agent2 = new MyAgent0(this.contextId, this.agentId, this.eventBus).spy
 		when(this.^agent.ID).thenReturn(this.agentId)
 		this.checker = typeof(SarlSpecificationChecker).mock
-		this.service = newService.spy
+
 		this.executor = typeof(ExecutorService).mock
-		this.service.executorService = this.executor
 		this.logger = typeof(LoggingService).mock
-		this.service.loggingService = this.logger
 		this.skillInstaller = typeof(SkillUninstaller).mock
-		this.service.skillUninstaller = this.skillInstaller
-		this.service.externalContextMemberListenerProvider = [ typeof(ExternalContextMemberListener).mock ]
-		this.service.lifecycleServiceListenerProvider = [ typeof(LifecycleServiceListener).mock ]
+
+		this.service = newService(
+			this.executor,
+			this.logger,
+			this.skillInstaller,
+			[typeof(ExternalContextMemberListener).mock],
+			[typeof(LifecycleServiceListener).mock]
+		).spy
 	}
 
-	protected abstract def newService : T
+	protected abstract def newService(executor : ExecutorService, logger : LoggingService,
+		skillUninstaller : SkillUninstaller, contextListenerProvider : Provider<ExternalContextMemberListener>,
+		lifecycleListenerProvider : Provider<LifecycleServiceListener>) : T
 
 	protected def startService {
 		startServiceManually(this.service)
@@ -134,13 +145,13 @@ abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> 
 	
 	private def createInnerContext(ids : UUID*) {
 		var innerContext = typeof(Context).mock
-		AgentLife::getLife(this.^agent).innerContext = innerContext
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).innerContext = innerContext
 		var ^space = typeof(OpenEventSpace).mock
 		when(innerContext.defaultSpace).thenReturn(^space)
 		var set = <UUID>newHashSet
 		set += this.agentId
 		set += ids
-		when(^space.participants).thenReturn(Collections3.unmodifiableSynchronizedSet(set, this))
+		when(^space.participants).thenReturn(Collections3.unmodifiableSynchronizedSet(set, NoReadWriteLock.SINGLETON))
 	}
 
 	private def createOuterContext(^agent : Agent) : Context {
@@ -153,7 +164,7 @@ abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> 
 		var set = <UUID>newHashSet
 		set += this.agentId
 		set += #[^agent.ID]
-		when(^space.participants).thenReturn(Collections3.unmodifiableSynchronizedSet(set, this))
+		when(^space.participants).thenReturn(Collections3.unmodifiableSynchronizedSet(set, NoReadWriteLock.SINGLETON))
 		return context
 	}
 
@@ -219,7 +230,7 @@ abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> 
 		assertContains(ids, newAgentId)
 	
 		// Agent State
-		assertSame(AgentState.ALIVE, AgentLife::getLife(this.agent2).state)
+		assertSame(AgentState.ALIVE, AgentLife::getLife(this.agent2, [NoReadWriteLock::SINGLETON]).state)
 		
 		// Agent Initialize
 		var capEvent = ArgumentCaptor::forClass(typeof(Event))
@@ -289,10 +300,10 @@ abstract class AbstractLifecycleServiceTest<T extends AbstractLifecycleService> 
 
 		startService
 		var defaultContext = createOuterContext(this.agent2)
-		AgentLife::getLife(this.agent2).setDefaultContext(defaultContext,
+		AgentLife::getLife(this.agent2, [NoReadWriteLock::SINGLETON]).setDefaultContext(defaultContext,
 				new Address(defaultContext.defaultSpace.spaceID, this.^agent.ID))
 		var outerContext = createOuterContext(this.agent2)
-		AgentLife::getLife(this.agent2).addExternalContext(outerContext,
+		AgentLife::getLife(this.agent2, [NoReadWriteLock::SINGLETON]).addExternalContext(outerContext,
 				new Address(outerContext.defaultSpace.spaceID, this.^agent.ID))
 
 		assertTrue(this.service.killAgent(this.agent2))

@@ -21,7 +21,6 @@
 
 package io.sarl.sre.tests.units.services.context
 
-import com.google.inject.Provider
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
@@ -34,13 +33,16 @@ import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.Nullable
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import java.util.logging.Logger
 import org.junit.Before
 import org.junit.Test
 
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.Mockito.when
+import static org.mockito.ArgumentMatchers.*
+import static org.mockito.Mockito.*
+import javax.inject.Provider
+import io.sarl.lang.core.Agent
 
 /**
  * @author $Author: sgalland$
@@ -50,7 +52,7 @@ import static org.mockito.Mockito.when
  */
 class ContextTest extends AbstractSreTest {
 
-	var root : boolean
+	var root : Agent
 
 	@Nullable
 	var contextId : UUID
@@ -72,18 +74,20 @@ class ContextTest extends AbstractSreTest {
 		this.logging = typeof(LoggingService).mock
 		this.contextId = UUID::randomUUID
 		this.spaceId = UUID::randomUUID
-		this.root = Math::random <= 0.5
-		this.context = new Context(this.contextId, this.spaceId, this.root)
+		this.root = if (Math::random <= 0.5) typeof(Agent).mock else null
+
 		this.repository = typeof(SpaceRepository).mock
-		when(this.repository.mutex).thenReturn(typeof(Object).mock)
-		var provider : Provider<SpaceRepository> = [ this.repository ]
-		this.context.repositoryProvider = provider
-		this.context.loggingService = this.logging
-		this.context.spaceRepositiroyListenerFactory = new SpaceRepositoryListenerFactory {
+		when(this.repository.getLock).thenReturn(NoReadWriteLock.SINGLETON)
+		var provider : Provider<SpaceRepository> = [this.repository]
+
+		var factory = new SpaceRepositoryListenerFactory {
 			def create(contextID : UUID, defaultSpace : EventSpace, logger : Logger) : SpaceRepositoryListener {
 				typeof(SpaceRepositoryListener).mock
 			}
 		}
+
+		this.context = new Context(this.contextId, this.spaceId, this.root,
+			NoReadWriteLock::SINGLETON, provider, this.logging, factory)
 	}
 
 	@Test
@@ -93,9 +97,14 @@ class ContextTest extends AbstractSreTest {
 
 	@Test
 	def isRootContext {
-		assertEquals(this.root, this.context.isRootContext)
+		assertEquals(this.root === null, this.context.isRootContext)
 	}
 
+	@Test
+	def getOwner {
+		assertSame(this.root, this.context.getOwner)
+	}
+	
 	@Test
 	def getDefaultSpace {
 		var ospace = typeof(OpenEventSpace).mock

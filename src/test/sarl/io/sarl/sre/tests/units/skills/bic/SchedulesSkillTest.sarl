@@ -29,7 +29,12 @@ import io.sarl.sre.services.lifecycle.AgentLife
 import io.sarl.sre.services.lifecycle.AgentState
 import io.sarl.sre.skills.bic.SchedulesSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.skills.bic.mocks.MyAgent1
+import io.sarl.sre.tests.units.skills.bic.mocks.MyBehavior
+import io.sarl.sre.tests.units.skills.bic.mocks.MyLoggingSkill
+import io.sarl.sre.tests.units.skills.bic.mocks.MyTimeSkill
 import io.sarl.tests.api.Nullable
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import java.util.concurrent.Future
 import java.util.concurrent.ScheduledFuture
@@ -41,7 +46,6 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
-import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.Mockito.atLeastOnce
 import static org.mockito.Mockito.only
@@ -95,13 +99,13 @@ class SchedulesSkillTest extends AbstractSreTest {
 		this.logger = new MyLoggingSkill(this.rawLogger).spy
 		this.time = new MyTimeSkill().spy
 		this.^agent = new MyAgent1(contextId, this.^agentId, this.logger, this.time).spy
-		this.^skill = new SchedulesSkill(this.^agent)
-		this.^skill.setExecutorService(this.executor)
+		this.^skill = new SchedulesSkill(this.executor) [NoReadWriteLock::SINGLETON]
+		this.reflect.invoke(this.^skill, "setOwner", this.^agent)
 	}
 
 	private def forceAlive {
 		// Force the agent being alive
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 	}
 
 	@Test

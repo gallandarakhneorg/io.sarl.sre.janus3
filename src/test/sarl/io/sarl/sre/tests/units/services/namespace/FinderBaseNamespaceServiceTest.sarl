@@ -27,13 +27,18 @@ import io.sarl.sre.naming.NameScheme
 import io.sarl.sre.naming.SpaceName
 import io.sarl.sre.services.context.Context
 import io.sarl.sre.services.context.ContextService
+import io.sarl.sre.services.context.SpaceRepository
+import io.sarl.sre.services.context.SpaceRepositoryListenerFactory
+import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.services.namespace.ContextNamespaceFinder
 import io.sarl.sre.services.namespace.FieldAccess
 import io.sarl.sre.services.namespace.FinderBasedNamespaceService
 import io.sarl.tests.api.AbstractSarlTest
 import io.sarl.tests.api.Nullable
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.Collections
 import java.util.UUID
+import javax.inject.Provider
 import org.junit.Before
 import org.junit.Test
 
@@ -74,18 +79,24 @@ class FinderBasedNamespaceServiceTest extends AbstractSarlTest {
 	@PrivateAPI(isCallerOnly = true)
 	def setUp : void {
 		this.contextService = typeof(ContextService).mock
-		this.finder = new ContextNamespaceFinder
-		this.finder.contextService = this.contextService
+		this.finder = new ContextNamespaceFinder(this.contextService)
 		this.service = new FinderBasedNamespaceService
 		this.service.namespaceFinders = Collections::singleton(this.finder)
 
+		var spaceRepository  = typeof(SpaceRepository).mock
+		
+		var logger = typeof(LoggingService).mock 
+		
+		var listenerFactory = typeof(SpaceRepositoryListenerFactory).mock
+			
+
 		// Default space creation
 		this.cid0 = UUID::randomUUID
-		this.ctx0 = new MyContext().spy
+		this.ctx0 = new MyContext([spaceRepository], logger, listenerFactory).spy
 
 		// Other space creation
 		this.cid1 = UUID::randomUUID
-		this.ctx1 = new MyContext().spy
+		this.ctx1 = new MyContext([spaceRepository], logger, listenerFactory).spy
 
 		when(this.contextService.rootContext).thenReturn(this.ctx0)
 		when(this.contextService.getContext(any(typeof(UUID)))).thenAnswer [
@@ -322,8 +333,9 @@ class FinderBasedNamespaceServiceTest extends AbstractSarlTest {
 		@SuppressWarnings("unused_private_member")
 		var myfield : int = 34
 		
-		new {
-			super(null, null, false)
+		new(spaceRepositoryProvider : Provider<SpaceRepository>, logger : LoggingService,
+			listenerFactory : SpaceRepositoryListenerFactory) {
+			super(null, null, null, NoReadWriteLock::SINGLETON, spaceRepositoryProvider, logger, listenerFactory)
 		}
 		
 	}

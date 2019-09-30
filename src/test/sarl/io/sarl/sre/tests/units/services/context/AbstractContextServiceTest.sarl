@@ -33,6 +33,7 @@ import org.junit.Before
 import org.junit.Test
 
 import static org.mockito.Mockito.when
+import io.sarl.lang.core.Agent
 
 /**
  * @author $Author: sgalland$
@@ -67,11 +68,10 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 		when(^space.spaceID).thenReturn(new SpaceID(this.rootContextId, this.rootSpaceId, typeof(OpenEventSpaceSpecification)))
 		when(this.rootContext.defaultSpace).thenReturn(^space)
 		this.context = typeof(Context).mock
-		this.service = newService
-		this.service.rootContext = this.rootContext
+		this.service = newService(this.rootContext)
 	}
 
-	protected abstract def newService : T
+	protected abstract def newService(rootContext : Context) : T
 
 	protected def startService {
 		this.service.startServiceManually
@@ -81,7 +81,7 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 	def createContextWithoutRegistration_root {
 		var contextId = UUID::randomUUID
 		var spaceId = UUID::randomUUID
-		var context = this.service.createContextWithoutRegistration(contextId, spaceId, true)
+		var context = this.service.createContextWithoutRegistration(contextId, spaceId, null)
 
 		assertSame(this.context, context)
 		assertEquals(contextId, context.ID)
@@ -95,7 +95,7 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 	def createContextWithoutRegistration_notRoot {
 		var contextId = UUID::randomUUID
 		var spaceId = UUID::randomUUID
-		var context = this.service.createContextWithoutRegistration(contextId, spaceId, false)
+		var context = this.service.createContextWithoutRegistration(contextId, spaceId, typeof(Agent).mock)
 
 		assertSame(this.context, context)
 		assertEquals(contextId, context.ID)
@@ -107,7 +107,7 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 
 	@Test
 	def createContext_root {
-		var context = this.service.createContext(this.rootContextId, this.rootSpaceId)
+		var context = this.service.createContext(this.rootContextId, this.rootSpaceId, typeof(Agent).mock)
 		assertSame(this.rootContext, context)
 	}
 
@@ -116,7 +116,7 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 		var contextId = UUID::randomUUID
 		var spaceId = UUID::randomUUID
 	
-		var context = this.service.createContext(contextId, spaceId)
+		var context = this.service.createContext(contextId, spaceId, typeof(Agent).mock)
 		
 		assertSame(this.context, context)
 		assertEquals(contextId, context.ID)
@@ -131,9 +131,9 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 		var contextId = UUID::randomUUID
 		var spaceId = UUID::randomUUID
 	
-		var originalContext = this.service.createContext(contextId, spaceId)
+		var originalContext = this.service.createContext(contextId, spaceId, typeof(Agent).mock)
 		
-		var context = this.service.createContext(contextId, spaceId)
+		var context = this.service.createContext(contextId, spaceId, typeof(Agent).mock)
 
 		assertSame(originalContext, context)
 		assertSame(this.context, context)
@@ -156,7 +156,7 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 		
 		this.service.getContext(contextId).assertNull
 		
-		var context = this.service.createContext(contextId, spaceId)
+		var context = this.service.createContext(contextId, spaceId, typeof(Agent).mock)
 		assertSame(context, this.service.getContext(contextId))
 	}
 
@@ -174,7 +174,7 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 	def removeContext_unknownContext {
 		var contextId = UUID::randomUUID
 		var spaceId = UUID::randomUUID
-		this.service.createContext(contextId, spaceId)
+		this.service.createContext(contextId, spaceId, typeof(Agent).mock)
 
 		this.service.removeContext(UUID::randomUUID).assertNull
 	}
@@ -183,7 +183,7 @@ abstract class AbstractContextServiceTest<T extends AbstractContextService> exte
 	def removeContext_knownContext {
 		var contextId = UUID::randomUUID
 		var spaceId = UUID::randomUUID
-		var context = this.service.createContext(contextId, spaceId)
+		var context = this.service.createContext(contextId, spaceId, typeof(Agent).mock)
 
 		assertSame(context, this.service.removeContext(contextId))
 	}

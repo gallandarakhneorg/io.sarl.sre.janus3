@@ -86,8 +86,7 @@ class SkillNamespaceFinderTest extends AbstractSarlTest {
 	@PrivateAPI(isCallerOnly = true)
 	def setUp : void {
 		this.contextService = typeof(ContextService).mock
-		this.finder = new SkillNamespaceFinder
-		this.finder.contextService = this.contextService
+		this.finder = new SkillNamespaceFinder(this.contextService)
 		
 		// Default space creation
 		this.aid0 = UUID::randomUUID

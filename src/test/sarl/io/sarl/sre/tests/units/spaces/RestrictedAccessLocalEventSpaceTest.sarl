@@ -50,6 +50,8 @@ import static org.mockito.Mockito.when
 import static extension org.mockito.ArgumentMatchers.any
 import static extension org.mockito.Mockito.verify
 import static extension org.mockito.MockitoAnnotations.initMocks
+import io.sarl.util.concurrent.NoReadWriteLock
+import io.sarl.sre.services.logging.LoggingService
 
 /**
  * @author $Author: sgalland$
@@ -95,7 +97,8 @@ class RestrictedAccessLocalEventSpaceTest extends AbstractSreTest {
 		this.acl = typeof(Acl).mock
 		this.permission = typeof(Permission).mock
 
-		this.^space = new RestrictedAccessLocalEventSpace(this.spaceId, this.acl, this.permission)
+		this.^space = new RestrictedAccessLocalEventSpace(this.spaceId, this.acl, this.permission,
+			[ NoReadWriteLock::SINGLETON], typeof(LoggingService).mock)
 
 		this.listener = typeof(InformedEventListener).mock
 		when(this.listener.ID).thenReturn(this.agentId)

@@ -52,6 +52,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions
 import static org.mockito.Mockito.when
 
 import static extension org.mockito.MockitoAnnotations.initMocks
+import io.sarl.util.concurrent.NoReadWriteLock
 
 /**
  * @author $Author: sgalland$
@@ -109,21 +110,21 @@ abstract class AbstractSpaceRepositoryTest<T extends SpaceRepository> extends Ab
 		var sid = new SpaceID(contextId, id1, typeof(OpenEventSpaceSpecification))
 		^space = typeof(OpenEventSpace).mock
 		when(^space.spaceID).thenReturn(sid)
-		var desc1 = new SpaceDescription(sid, ^space)
+		var desc1 = new SpaceDescription(sid, ^space, NoReadWriteLock.SINGLETON)
 		this.internalStructure.put(id1, desc1)
 
 		var id2 = UUID::randomUUID
 		sid = new SpaceID(contextId, id2, typeof(OpenEventSpaceSpecification))
 		^space = typeof(OpenEventSpace).mock
 		when(^space.spaceID).thenReturn(sid)
-		var desc2 = new SpaceDescription(sid, ^space)
+		var desc2 = new SpaceDescription(sid, ^space, NoReadWriteLock.SINGLETON)
 		this.internalStructure.put(id2, desc2)
 		
 		var id3 = UUID::randomUUID
 		sid = new SpaceID(contextId, id3, typeof(RestrictedAccessEventSpaceSpecification))
 		^space = typeof(RestrictedAccessEventSpace).mock
 		when(^space.spaceID).thenReturn(sid)
-		var desc3 = new SpaceDescription(sid, ^space)
+		var desc3 = new SpaceDescription(sid, ^space, NoReadWriteLock.SINGLETON)
 		this.internalStructure.put(id3, desc3)
 		
 		this.repository.refreshInternalStructures

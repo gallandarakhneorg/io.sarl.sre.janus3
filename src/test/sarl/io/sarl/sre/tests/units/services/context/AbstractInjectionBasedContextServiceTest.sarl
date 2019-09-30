@@ -27,7 +27,6 @@ import io.sarl.sre.services.context.ContextFactory
 import io.sarl.tests.api.Nullable
 
 import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.anyBoolean
 import static org.mockito.Mockito.when
 
 /**
@@ -39,25 +38,23 @@ import static org.mockito.Mockito.when
 abstract class AbstractInjectionBasedContextServiceTest<T extends AbstractInjectionBasedContextService> extends AbstractContextServiceTest<T> {
 
 	@Nullable
-	var injector : Injector
+	protected var injector : Injector
 
 	@Nullable
-	var contextFactory : ContextFactory
+	protected var contextFactory : ContextFactory
 	
 	@Override
 	def setUp : void {
 		this.injector = typeof(Injector).mock
 		this.contextFactory = typeof(ContextFactory).mock
-		when(this.contextFactory.newInstance(any, any, anyBoolean)).thenAnswer [
+		when(this.contextFactory.newInstance(any, any, any)).thenAnswer [
 			when(this.context.ID).thenReturn(getArgument(0))
-			when(this.context.isRootContext).thenReturn(getArgument(2))
+			when(this.context.getOwner).thenReturn(getArgument(2))
+			when(this.context.isRootContext).thenReturn(getArgument(2) === null)
 			return this.context
 		]
 		
 		super.setUp
-
-		this.service.injector = this.injector
-		this.service.contextFactory = this.contextFactory
 	}
 
 }

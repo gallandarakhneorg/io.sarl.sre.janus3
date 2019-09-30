@@ -27,13 +27,13 @@ import io.sarl.sre.services.executor.SreRunnable
 import io.sarl.tests.api.Nullable
 import java.lang.Thread.UncaughtExceptionHandler
 import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
 
@@ -60,17 +60,12 @@ class JreExecutorServiceTest extends AbstractExecutorServiceTest<JreExecutorServ
 	@Nullable
 	var scheduledExecutor : ScheduledExecutorService
 
-	override newService : JreExecutorService {
-		new JreExecutorService
-	}
-
-	@Before
-	def setUp : void {
-		super.setUp()
-		this.handler = typeof(UncaughtExceptionHandler).mock
-		this.service.uncaughtExceptionHandler = this.handler
+	override newService(executor : ExecutorService) : JreExecutorService {
 		this.scheduledExecutor = typeof(ScheduledExecutorService).mock
-		this.service.scheduledExecutorService = scheduledExecutor
+		var serv = new JreExecutorService(executor, this.scheduledExecutor)
+		this.handler = typeof(UncaughtExceptionHandler).mock
+		serv.uncaughtExceptionHandler = this.handler
+		return serv
 	}
 
 	@Test

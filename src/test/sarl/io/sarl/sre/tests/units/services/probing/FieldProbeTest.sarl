@@ -21,20 +21,29 @@
 
 package io.sarl.sre.tests.units.services.probing
 
+import io.sarl.sre.internal.SequenceListenerNotifier
+import io.sarl.sre.internal.SmartListenerCollection
 import io.sarl.sre.services.namespace.FieldAccess
 import io.sarl.sre.services.probing.FieldProbe
+import io.sarl.sre.services.probing.IProbeListener
 import io.sarl.sre.services.probing.IProbeReleaseListener
+import io.sarl.sre.services.probing.Probe
 import io.sarl.tests.api.AbstractSarlTest
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.net.URI
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
 import javax.annotation.Nullable
+import javax.inject.Provider
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentCaptor
+
+import static org.mockito.ArgumentMatchers.*
 
 import static extension org.mockito.Mockito.*
-import org.mockito.ArgumentCaptor
-import io.sarl.sre.services.probing.Probe
-import io.sarl.sre.services.probing.IProbeListener
+import io.sarl.sre.naming.SarlName
+import io.sarl.sre.naming.NameScheme
 
 /**
  * @author $Author: sgalland$
@@ -62,15 +71,23 @@ class FieldProbeTest extends AbstractSarlTest {
 	@Nullable
 	var probe : FieldProbe<Integer>
 
+	@Nullable
+	var nameObject : SarlName
+	
 	@Before
 	def setUp : void {
+		this.nameObject = typeof(SarlName).mock
+		when(this.nameObject.scheme).thenReturn(NameScheme::SPACE)
 		this.field = typeof(FieldAccess).mock
+		when(this.field.name).thenReturn(this.nameObject)
 		when(this.field.get).thenReturn(34)
 		this.releaseListener = typeof(IProbeReleaseListener).mock
 		this.probeListener = typeof(IProbeListener).mock
 		this.uri = URI::create("context://mycontext#myfield")
 		this.name = UUID::randomUUID.toString
-		this.probe = new TestedFieldProbe(this.releaseListener, this.name, this.uri, typeof(Integer), this.field) 
+		val coll = new SmartListenerCollection(new SequenceListenerNotifier)
+		this.probe = new TestedFieldProbe(this.releaseListener, this.name, this.uri, typeof(Integer), this.field,
+			[coll], [NoReadWriteLock::SINGLETON]) 
 		this.probe.addProbeListener(this.probeListener)
 	}
 
@@ -163,8 +180,9 @@ class FieldProbeTest extends AbstractSarlTest {
 	}
 
 	private static class TestedFieldProbe extends FieldProbe<Integer> {
-		new (manager : IProbeReleaseListener, name : String, uri : URI, type : Class<Integer>, field : FieldAccess) {
-			super(manager, name, uri, type, field)
+		new (manager : IProbeReleaseListener, name : String, uri : URI, type : Class<Integer>, field : FieldAccess,
+			listenerCollectionProvider : Provider<SmartListenerCollection<?>>, lockProvider : Provider<ReadWriteLock>) {
+			super(manager, name, uri, type, field, listenerCollectionProvider, lockProvider)
 		}
 	}
 

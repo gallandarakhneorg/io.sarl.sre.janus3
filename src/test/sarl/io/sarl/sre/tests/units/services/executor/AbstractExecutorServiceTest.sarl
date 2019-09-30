@@ -60,14 +60,13 @@ abstract class AbstractExecutorServiceTest<T extends AbstractExecutorService> ex
 	protected var service : T
 	
 	@Before
-	def setUp {
+	def setUp : void {
 		this.logger = typeof(Logger).mock
 		this.executor = typeof(java.util.concurrent.ExecutorService).mock
-		this.service = newService
-		this.service.executorService = this.executor
+		this.service = newService(this.executor)
 	}
 
-	protected abstract def newService : T
+	protected abstract def newService(executor : java.util.concurrent.ExecutorService) : T
 
 	protected def startService {
 		startServiceManually(this.service)

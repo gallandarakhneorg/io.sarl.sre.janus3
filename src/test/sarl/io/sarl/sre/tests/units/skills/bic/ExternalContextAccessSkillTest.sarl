@@ -36,10 +36,13 @@ import io.sarl.sre.services.lifecycle.AgentLife
 import io.sarl.sre.services.lifecycle.AgentState
 import io.sarl.sre.skills.bic.ExternalContextAccessSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.skills.bic.mocks.MyAgent4
+import io.sarl.sre.tests.units.skills.bic.mocks.MyInternalEventBusSkill2
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import org.junit.Before
 import org.junit.Test
@@ -91,8 +94,14 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 	@Nullable
 	var eventBus : MyInternalEventBusSkill2
 
+	@Nullable
+	var emitter1 : ExternalContextMemberListener
+
+	@Nullable
+	var emitter2 : InternalContextMembershipListener
+	
 	@Before
-	def setUp {
+	def setUp : void {
 		this.contextId = UUID::randomUUID
 		this.^agentId = UUID::randomUUID
 		this.eventBusListener = typeof(InformedEventListener).mock
@@ -109,21 +118,12 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 		this.defaultContext = typeof(Context).mock
 		when(this.defaultContext.ID).thenReturn(this.contextId)
 		when(this.defaultContext.defaultSpace).thenReturn(this.defaultSpace)
-		AgentLife::getLife(this.^agent).setDefaultContext(defaultContext, adr)
-		this.^skill = new ExternalContextAccessSkill(this.^agent)
-		this.^skill.contextService = this.service
-	}
-
-	private def forceExternalContextEventEmitter : ExternalContextMemberListener {
-		var emitter = typeof(ExternalContextMemberListener).mock
-		this.^skill.externalContextMemberListenerProvider = [emitter]
-		return emitter
-	}
-
-	private def forceInternalContextEventEmitter : InternalContextMembershipListener {
-		var emitter = typeof(InternalContextMembershipListener).mock
-		this.^skill.internalContextMembershipListenerFactory = [emitter]
-		return emitter
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).setDefaultContext(defaultContext, adr)
+		this.emitter1 = typeof(ExternalContextMemberListener).mock
+		this.emitter2 = typeof(InternalContextMembershipListener).mock
+		this.^skill = new ExternalContextAccessSkill(this.service, [emitter1], [emitter2], [NoReadWriteLock::SINGLETON])
+		this.reflect.invoke(this.^skill, "setOwner", this.^agent)
+		this.reflect.invoke(this.^skill, "install")
 	}
 
 	private def forceOneExternalContextCreation : Context[] {
@@ -135,7 +135,7 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 		when(space1.spaceID).thenReturn(sid1)
 		when(ctx1.defaultSpace).thenReturn(space1)
 		var adr1 = new Address(sid1, this.^agentId)
-		AgentLife::getLife(this.^agent).addExternalContext(ctx1, adr1)
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).addExternalContext(ctx1, adr1)
 		return #[ctx1]
 	}
 
@@ -149,7 +149,7 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 		when(space2.spaceID).thenReturn(sid2)
 		when(ctx2.defaultSpace).thenReturn(space2)
 		var adr2 = new Address(sid2, this.^agentId)
-		AgentLife::getLife(this.^agent).addExternalContext(ctx2, adr2)
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).addExternalContext(ctx2, adr2)
 
 		return #[first.get(0), ctx2]
 	}
@@ -242,9 +242,6 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 
 	@Test
 	def join_defaultContext {
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-		
 		assertFalse(this.^skill.join(this.contextId, this.defaultSpace.spaceID.ID))
 		
 		var actual = this.^skill.allContexts
@@ -256,8 +253,6 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 	@Test
 	def join_joinedExternalContext {
 		var ctxs = forceTwoExternalContextCreation
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
 		
 		assertFalse(this.^skill.join(ctxs.get(0).ID, ctxs.get(0).defaultSpace.spaceID.ID))
 		
@@ -269,9 +264,6 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 
 	@Test
 	def join_unknownContext {
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-	
 		assertFalse(this.^skill.join(UUID::randomUUID, this.defaultSpace.spaceID.ID))
 		
 		var actual = this.^skill.allContexts
@@ -292,9 +284,6 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 		when(context.ID).thenReturn(ctxId)
 		when(this.service.getContext(any)).thenReturn(context)
 		
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-
 		assertFalse(this.^skill.join(ctxId, this.defaultSpace.spaceID.ID))
 
 		var actual = this.^skill.allContexts
@@ -315,9 +304,6 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 		when(context.ID).thenReturn(ctxId)
 		when(this.service.getContext(any)).thenReturn(context)
 
-		forceExternalContextEventEmitter
-		forceInternalContextEventEmitter
-		
 		assertFalse(this.^skill.join(ctxId, spId))
 	}
 
@@ -333,11 +319,8 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 		when(context.ID).thenReturn(ctxId)
 		when(this.service.getContext(any)).thenReturn(context)
 
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-		
 		// Force alive
-		AgentLife::getLife(this.^agent).setState(AgentState::ALIVE)
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).setState(AgentState::ALIVE)
 		
 		assertTrue(this.^skill.join(ctxId, spId))
 		
@@ -377,9 +360,6 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 		when(context.ID).thenReturn(ctxId)
 		when(this.service.getContext(any)).thenReturn(context)
 
-		forceExternalContextEventEmitter
-		forceInternalContextEventEmitter
-
 		assertFalse(this.^skill.join(ctxId, spId))
 	}
 
@@ -397,11 +377,8 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 		when(context.ID).thenReturn(ctxId)
 		when(this.service.getContext(any)).thenReturn(context)
 
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-
 		// Force alive
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 
 		assertTrue(this.^skill.join(ctxId, spId))
 		
@@ -429,28 +406,24 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 
 	@Test
 	def leave_unknownContext {
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-		
 		assertFalse(this.^skill.leave(UUID::randomUUID))
 		
 		var actual = this.^skill.allContexts
 		assertContains(actual, this.defaultContext)
-		assertSame(this.defaultContext, AgentLife::getLife(this.^agent).defaultContext.context)
+		assertSame(this.defaultContext,
+			AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).defaultContext.context)
 		verifyNoMoreInteractions(emitter1)
 		verifyNoMoreInteractions(emitter2)
 	}
 
 	@Test
 	def leave_defaultContext_noExternalContext {
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-		
 		assertFalse(this.^skill.leave(this.contextId))
 		
 		var actual = this.^skill.allContexts
 		assertContains(actual, this.defaultContext)
-		assertSame(this.defaultContext, AgentLife::getLife(this.^agent).defaultContext.context)
+		assertSame(this.defaultContext,
+			AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).defaultContext.context)
 		verifyNoMoreInteractions(emitter1)
 		verifyNoMoreInteractions(emitter2)
 	}
@@ -458,14 +431,13 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 	@Test
 	def leave_defaultContext_twoExternalContext {
 		var ctxs = forceTwoExternalContextCreation
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-		
+
 		assertFalse(this.^skill.leave(this.contextId))
 		
 		var actual = this.^skill.allContexts
 		assertContains(actual, this.defaultContext, ctxs.get(0), ctxs.get(1))
-		assertSame(this.defaultContext, AgentLife::getLife(this.^agent).defaultContext.context)
+		assertSame(this.defaultContext,
+			AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).defaultContext.context)
 		verifyNoMoreInteractions(emitter1)
 		verifyNoMoreInteractions(emitter2)
 	}
@@ -473,14 +445,12 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 	@Test
 	def leave_defaultContext_oneExternalContext {
 		var ctxs = forceOneExternalContextCreation
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-		
+
 		assertTrue(this.^skill.leave(this.contextId))
 		
 		var actual = this.^skill.allContexts
 		assertContains(actual, ctxs.get(0))
-		assertSame(ctxs.get(0), AgentLife::getLife(this.^agent).defaultContext.context)
+		assertSame(ctxs.get(0), AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).defaultContext.context)
 
 		var captedContextId = ArgumentCaptor::forClass(typeof(UUID))
 		emitter2.verify(1.times).contextLeft(captedContextId.capture)
@@ -504,14 +474,13 @@ class ExternalContextAccessSkillTest extends AbstractSreTest {
 	@Test
 	def leave_externalContext {
 		var ctxs = forceTwoExternalContextCreation
-		var emitter1 = forceExternalContextEventEmitter
-		var emitter2 = forceInternalContextEventEmitter
-		
+
 		assertTrue(this.^skill.leave(ctxs.get(1).ID))
 		
 		var actual = this.^skill.allContexts
 		assertContains(actual, this.defaultContext, ctxs.get(0))
-		assertSame(this.defaultContext, AgentLife::getLife(this.^agent).defaultContext.context)
+		assertSame(this.defaultContext,
+			AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).defaultContext.context)
 
 
 		var captedContextId = ArgumentCaptor::forClass(typeof(UUID))

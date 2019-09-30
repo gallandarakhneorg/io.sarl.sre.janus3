@@ -22,6 +22,8 @@
 package io.sarl.sre.tests.units.services.context;
 
 import io.sarl.sre.services.context.MemoryBasedContextService
+import io.sarl.sre.services.context.Context
+import io.sarl.util.concurrent.NoReadWriteLock
 
 /**
  * @author $Author: sgalland$
@@ -31,8 +33,8 @@ import io.sarl.sre.services.context.MemoryBasedContextService
  */
 class MemoryBasedContextServiceTest extends AbstractInjectionBasedContextServiceTest<MemoryBasedContextService> {
 
-	override newService : MemoryBasedContextService {
-		new MemoryBasedContextService
+	override newService(rootContext : Context) : MemoryBasedContextService {
+		new MemoryBasedContextService(rootContext, this.injector, this.contextFactory, NoReadWriteLock::SINGLETON)
 	}
 
 }

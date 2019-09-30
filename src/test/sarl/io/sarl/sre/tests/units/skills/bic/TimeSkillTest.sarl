@@ -21,18 +21,18 @@
 
 package io.sarl.sre.tests.units.skills.bic
 
-import io.sarl.lang.core.Agent
+import io.sarl.lang.scoping.extensions.time.TimeExtensions
 import io.sarl.sre.services.time.TimeService
 import io.sarl.sre.skills.bic.TimeSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.Nullable
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.concurrent.TimeUnit
 import org.junit.Before
 import org.junit.Test
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
-import io.sarl.lang.scoping.extensions.time.TimeExtensions
 
 /**
  * @author $Author: sgalland$
@@ -44,9 +44,6 @@ class TimeSkillTest extends AbstractSreTest {
 
 	@Nullable
 	var service : TimeService
-
-	@Nullable
-	var ^agent : Agent
 
 	@Nullable
 	var ^skill : TimeSkill
@@ -78,9 +75,7 @@ class TimeSkillTest extends AbstractSreTest {
 			var value = (it.getArgument(0) as Number).doubleValue
 			return value * 5.0
 		]
-		this.^agent = typeof(Agent).mock
-		this.^skill = new TimeSkill(this.^agent)
-		this.^skill.timeService = this.service
+		this.^skill = new TimeSkill(this.service)[NoReadWriteLock::SINGLETON]
 	}
 	
 	@Test

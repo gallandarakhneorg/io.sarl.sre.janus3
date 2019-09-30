@@ -25,6 +25,10 @@ import io.sarl.core.Behaviors
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.Behavior
+import io.sarl.lang.core.SREutils
+import io.sarl.lang.core.Skill
+import io.sarl.lang.util.ClearableReference
+import io.sarl.lang.util.SynchronizedIterable
 import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.naming.BehaviorName
 import io.sarl.sre.naming.NameScheme
@@ -36,17 +40,14 @@ import io.sarl.sre.spaces.SpaceWithParticipants
 import io.sarl.tests.api.AbstractSarlTest
 import io.sarl.tests.api.Nullable
 import io.sarl.util.OpenEventSpace
+import io.sarl.util.concurrent.Collections3
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import org.junit.Before
 import org.junit.Test
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import io.sarl.util.Collections3
-import io.sarl.lang.util.SynchronizedIterable
-import io.sarl.lang.core.SREutils
-import io.sarl.lang.core.Skill
-import io.sarl.lang.util.ClearableReference
 
 /**
  * @author $Author: sgalland$
@@ -97,8 +98,7 @@ class BehaviorNamespaceFinderTest extends AbstractSarlTest {
 	@PrivateAPI(isCallerOnly = true)
 	def setUp : void {
 		this.contextService = typeof(ContextService).mock
-		this.finder = new BehaviorNamespaceFinder
-		this.finder.contextService = this.contextService
+		this.finder = new BehaviorNamespaceFinder(this.contextService)
 
 		// Default space creation
 		this.aid0 = UUID::randomUUID
@@ -329,7 +329,7 @@ class BehaviorNamespaceFinderTest extends AbstractSarlTest {
 		@SuppressWarnings("use_reserved_sarl_annotation")
 		@PrivateAPI(isCallerOnly = true)
 		def initBeh(beh0 : Behavior, beh1 : Behavior) {
-			var set : SynchronizedIterable<Behavior> = Collections3::unmodifiableSynchronizedIterable(#[beh0, beh1], this)
+			var set : SynchronizedIterable<Behavior> = Collections3::unmodifiableSynchronizedIterable(#[beh0, beh1], NoReadWriteLock.SINGLETON)
 			var behs = typeof(MyBehaviors).mock
 			when(behs.registeredBehaviors).thenReturn(set)
 			SREutils::getSkillRepository(this).put(typeof(Behaviors), new ClearableReference(behs))

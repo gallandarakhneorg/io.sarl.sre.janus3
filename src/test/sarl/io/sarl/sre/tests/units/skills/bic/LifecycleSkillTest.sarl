@@ -30,7 +30,10 @@ import io.sarl.sre.services.lifecycle.LifecycleService
 import io.sarl.sre.services.lifecycle.SpawnResult
 import io.sarl.sre.skills.bic.LifecycleSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.skills.bic.mocks.MyAgent2
+import io.sarl.sre.tests.units.skills.bic.mocks.MyAgent3
 import io.sarl.tests.api.Nullable
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.Arrays
 import java.util.Collections
 import java.util.UUID
@@ -70,20 +73,20 @@ class LifecycleSkillTest extends AbstractSreTest {
 	var ^skill : LifecycleSkill
 
 	@Before
-	def setUp {
+	def setUp : void {
 		this.spawnerID = UUID::randomUUID
 		this.service = typeof(LifecycleService).mock
 		this.context = typeof(Context).mock
 		when(this.context.ID).thenReturn(UUID::randomUUID)
 		this.^agent = new MyAgent3(this.context.ID, this.spawnerID).spy
-		AgentLife::getLife(^agent).setDefaultContext(this.context, typeof(Address).mock)
-		this.^skill = new LifecycleSkill(this.^agent)
-		this.^skill.lifecycleService = this.service
+		AgentLife::getLife(^agent, [NoReadWriteLock::SINGLETON]).setDefaultContext(this.context, typeof(Address).mock)
+		this.^skill = new LifecycleSkill(this.service)[NoReadWriteLock::SINGLETON]
+		this.reflect.invoke(this.^skill, "setOwner", this.^agent)
 	}
 
 	private def forceAlive {
 		// Force being alive
-		AgentLife.getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife.getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 	}
 
 	@Test

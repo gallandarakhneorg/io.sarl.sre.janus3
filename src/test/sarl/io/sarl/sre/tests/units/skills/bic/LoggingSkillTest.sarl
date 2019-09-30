@@ -25,6 +25,7 @@ import io.sarl.lang.core.Agent
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.skills.bic.LoggingSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.skills.bic.mocks.MyAgent2
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
 import java.util.UUID
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.when
 
 import static extension org.mockito.Mockito.times
 import static extension org.mockito.Mockito.verify
+import io.sarl.util.concurrent.NoReadWriteLock
 
 /**
  * @author $Author: sgalland$
@@ -65,7 +67,7 @@ class LoggingSkillTest extends AbstractSreTest {
 	protected var logService : LoggingService
 
 	@Nullable
-	protected var ^skill : LoggingSkill
+	public var ^skill : LoggingSkill
 
 	@Nullable
 	protected var logger : Logger
@@ -93,8 +95,8 @@ class LoggingSkillTest extends AbstractSreTest {
 		var agentId = UUID::randomUUID
 		this.owner = new MyAgent2(agentId, this)
 		this.owner = this.owner.spy
-		this.^skill = this.reflect.newInstance(typeof(LoggingSkill), this.owner)
-		this.^skill.loggingService = this.logService
+		this.^skill = new LoggingSkill(this.logService)[NoReadWriteLock::SINGLETON]
+		this.reflect.invoke(this.^skill, "setOwner", this.owner) 
 	}
 
 	@Test

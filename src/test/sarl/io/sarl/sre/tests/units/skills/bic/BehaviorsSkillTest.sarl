@@ -32,9 +32,13 @@ import io.sarl.sre.services.lifecycle.AgentLife
 import io.sarl.sre.services.lifecycle.AgentState
 import io.sarl.sre.skills.bic.BehaviorsSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.skills.bic.mocks.MyAgent
+import io.sarl.sre.tests.units.skills.bic.mocks.MyInternalEventBusSkill
+import io.sarl.sre.tests.units.skills.bic.mocks.MyInternalSchedulesSkill
 import io.sarl.tests.api.Nullable
-import io.sarl.util.Collections3
 import io.sarl.util.OpenEventSpace
+import io.sarl.util.concurrent.Collections3
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import org.eclipse.xtext.xbase.lib.Functions.Function1
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
@@ -85,13 +89,14 @@ class BehaviorsSkillTest extends AbstractSreTest {
 		this.schedules = new MyInternalSchedulesSkill().spy
 		this.^agentId = UUID::randomUUID
 		this.^agent = new MyAgent(contextId, this.^agentId, this.eventBus, this.schedules).spy
-		this.^skill = new BehaviorsSkill(this.^agent)
+		this.^skill = new BehaviorsSkill[NoReadWriteLock::SINGLETON]
+		this.reflect.invoke(this.^skill, "setOwner", this.^agent)
 		reset(this.schedules, this.eventBus, this.eventBusListener, this.^agent)
 	}
 
 	private def forceAlive : void {
 		// Force being alive
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 	}
 	
 	private def forceNoBehavior : void {
@@ -107,7 +112,8 @@ class BehaviorsSkillTest extends AbstractSreTest {
 		var theset = <Behavior>newHashSet
 		theset += beh1
 		theset += beh2
-		this.eventBus.setRegisteredEventBusListeners(Collections3::unmodifiableSynchronizedSet(theset, this))
+		this.eventBus.setRegisteredEventBusListeners(
+			Collections3::unmodifiableSynchronizedSet(theset, NoReadWriteLock.SINGLETON))
 		var array : Behavior[] = newArrayOfSize(theset.size)
 		theset.toArray(array)
 		return array
@@ -117,7 +123,7 @@ class BehaviorsSkillTest extends AbstractSreTest {
 		var innerContext = typeof(Context).mock
 		var defaultSpace = typeof(OpenEventSpace).mock
 		when(innerContext.defaultSpace).thenReturn(defaultSpace)
-		AgentLife::getLife(this.^agent).innerContext = innerContext
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).innerContext = innerContext
 		return defaultSpace
 	}
 

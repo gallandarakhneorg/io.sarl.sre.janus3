@@ -30,7 +30,10 @@ import io.sarl.sre.services.lifecycle.AgentState
 import io.sarl.sre.skills.internal.EventBus
 import io.sarl.sre.skills.internal.InternalEventBusSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.skills.internal.mocks.MyAgent
+import io.sarl.sre.tests.units.skills.internal.mocks.MyLoggingSkill
 import io.sarl.tests.api.Nullable
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import java.util.logging.Logger
 import org.eclipse.xtext.xbase.lib.Functions.Function1
@@ -72,14 +75,14 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 	var logger : MyLoggingSkill
 
 	@Before
-	def setUp {
+	def setUp : void {
 		this.contextId = UUID::randomUUID
 		this.^agentId = UUID::randomUUID
 		this.eventBus = typeof(EventBus).mock
 		this.logger = new MyLoggingSkill().spy
 		this.^agent = new MyAgent(contextId, this.^agentId, this.logger).spy
-		this.^skill = new InternalEventBusSkill(this.^agent)
-		this.^skill.eventBus = this.eventBus
+		this.^skill = new InternalEventBusSkill(this.eventBus, [NoReadWriteLock::SINGLETON])
+		this.reflect.invoke(this.^skill, "setOwner", this.^agent)
 	}
 
 	@Test
@@ -173,7 +176,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentNotStarted_notEventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::UNSTARTED
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::UNSTARTED
 		
 		this.^skill.eventBuffering = false
 		var ^event = typeof(Event).mock
@@ -186,7 +189,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentInitialization_notEventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::INITIALIZING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::INITIALIZING
 		
 		this.^skill.eventBuffering = false
 		var ^event = typeof(Event).mock
@@ -203,7 +206,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentAlive_notEventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 		
 		this.^skill.eventBuffering = false
 		var ^event = typeof(Event).mock
@@ -220,7 +223,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentDying_notEventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::DYING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DYING
 		
 		this.^skill.eventBuffering = false
 		var ^event = typeof(Event).mock
@@ -233,7 +236,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentDead_notEventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::DEAD
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DEAD
 		
 		this.^skill.eventBuffering = false
 		var ^event = typeof(Event).mock
@@ -246,7 +249,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentNotStarted_eventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::UNSTARTED
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::UNSTARTED
 		
 		this.^skill.eventBuffering = true
 		var ^event = typeof(Event).mock
@@ -259,7 +262,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentInitialization_eventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::INITIALIZING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::INITIALIZING
 		
 		this.^skill.eventBuffering = true
 		var ^event = typeof(Event).mock
@@ -272,7 +275,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentAlive_eventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 		
 		this.^skill.eventBuffering = true
 		var ^event = typeof(Event).mock
@@ -285,7 +288,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentDying_eventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::DYING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DYING
 		
 		this.^skill.eventBuffering = true
 		var ^event = typeof(Event).mock
@@ -298,7 +301,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEvent_agentDead_eventCaching {
-		AgentLife::getLife(this.^agent).state = AgentState::DEAD
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DEAD
 		
 		this.^skill.eventBuffering = true
 		var ^event = typeof(Event).mock
@@ -311,7 +314,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_notExceptionThrowing_agentNotStarted {
-		AgentLife::getLife(this.^agent).state = AgentState::UNSTARTED
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::UNSTARTED
 		
 		var ^event = typeof(Event).mock
 		
@@ -323,7 +326,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_notExceptionThrowing_agentInitializing {
-		AgentLife::getLife(this.^agent).state = AgentState::INITIALIZING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::INITIALIZING
 		
 		var ^event = typeof(Event).mock
 		
@@ -342,7 +345,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_notExceptionThrowing_agentAlive {
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 		
 		var ^event = typeof(Event).mock
 		
@@ -361,7 +364,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_notExceptionThrowing_agentDying {
-		AgentLife::getLife(this.^agent).state = AgentState::DYING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DYING
 		
 		var ^event = typeof(Event).mock
 		
@@ -380,7 +383,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_notExceptionThrowing_agentDead {
-		AgentLife::getLife(this.^agent).state = AgentState::DEAD
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DEAD
 		
 		var ^event = typeof(Event).mock
 		
@@ -392,7 +395,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_exceptionThrowing_agentNotStarted {
-		AgentLife::getLife(this.^agent).state = AgentState::UNSTARTED
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::UNSTARTED
 		
 		var ^event = typeof(Event).mock
 		
@@ -404,7 +407,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_exceptionThrowing_agentInitializing {
-		AgentLife::getLife(this.^agent).state = AgentState::INITIALIZING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::INITIALIZING
 		
 		var ^event = typeof(Event).mock
 		
@@ -423,7 +426,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_exceptionThrowing_agentAlive {
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 		
 		var ^event = typeof(Event).mock
 		
@@ -442,7 +445,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_exceptionThrowing_agentDying {
-		AgentLife::getLife(this.^agent).state = AgentState::DYING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DYING
 		
 		var ^event = typeof(Event).mock
 		
@@ -461,7 +464,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_notEventGathering_exceptionThrowing_agentDead {
-		AgentLife::getLife(this.^agent).state = AgentState::DEAD
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DEAD
 		
 		var ^event = typeof(Event).mock
 		
@@ -473,7 +476,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_notExceptionThrowing_agentNotStarted {
-		AgentLife::getLife(this.^agent).state = AgentState::UNSTARTED
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::UNSTARTED
 		
 		var ^event = typeof(Event).mock
 		
@@ -485,7 +488,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_notExceptionThrowing_agentInitializing {
-		AgentLife::getLife(this.^agent).state = AgentState::INITIALIZING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::INITIALIZING
 		
 		var ^event = typeof(Event).mock
 		
@@ -504,7 +507,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_notExceptionThrowing_agentAlive {
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 		
 		var ^event = typeof(Event).mock
 		
@@ -523,7 +526,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_notExceptionThrowing_agentDying {
-		AgentLife::getLife(this.^agent).state = AgentState::DYING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DYING
 		
 		var ^event = typeof(Event).mock
 		
@@ -542,7 +545,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_notExceptionThrowing_agentDead {
-		AgentLife::getLife(this.^agent).state = AgentState::DEAD
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DEAD
 		
 		var ^event = typeof(Event).mock
 		
@@ -554,7 +557,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_exceptionThrowing_agentNotStarted {
-		AgentLife::getLife(this.^agent).state = AgentState::UNSTARTED
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::UNSTARTED
 		
 		var ^event = typeof(Event).mock
 		
@@ -566,7 +569,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_exceptionThrowing_agentInitializing {
-		AgentLife::getLife(this.^agent).state = AgentState::INITIALIZING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::INITIALIZING
 		
 		var ^event = typeof(Event).mock
 		
@@ -585,7 +588,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_exceptionThrowing_agentAlive {
-		AgentLife::getLife(this.^agent).state = AgentState::ALIVE
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::ALIVE
 		
 		var ^event = typeof(Event).mock
 		
@@ -603,7 +606,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_exceptionThrowing_agentDying {
-		AgentLife::getLife(this.^agent).state = AgentState::DYING
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DYING
 		
 		var ^event = typeof(Event).mock
 		
@@ -622,7 +625,7 @@ class InternalEventBusSkillTest extends AbstractSreTest {
 
 	@Test
 	def fireEventAndWait_eventGathering_exceptionThrowing_agentDead {
-		AgentLife::getLife(this.^agent).state = AgentState::DEAD
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).state = AgentState::DEAD
 		
 		var ^event = typeof(Event).mock
 		

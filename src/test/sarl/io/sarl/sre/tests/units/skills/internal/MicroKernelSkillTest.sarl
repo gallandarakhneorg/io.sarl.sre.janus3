@@ -22,12 +22,12 @@
 package io.sarl.sre.tests.units.skills.internal
 
 import com.google.common.util.concurrent.Service
-import io.sarl.lang.core.Agent
 import io.sarl.sre.Kernel
 import io.sarl.sre.skills.internal.MicroKernelSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
+import io.sarl.util.concurrent.NoReadWriteLock
 import org.junit.Before
 import org.junit.Test
 
@@ -50,9 +50,6 @@ class MicroKernelSkillTest extends AbstractSreTest {
 	var service : Service
 
 	@Nullable
-	var ^agent : Agent
-
-	@Nullable
 	var ^skill : MicroKernelSkill
 
 	@Before
@@ -60,8 +57,7 @@ class MicroKernelSkillTest extends AbstractSreTest {
 		this.service = typeof(Service).mock
 		this.kernel = typeof(Kernel).mock
 		when(this.kernel.getService(any)).thenReturn(this.service)
-		this.^agent = typeof(Agent).mock
-		this.^skill = new MicroKernelSkill(this.^agent, this.kernel)
+		this.^skill = new MicroKernelSkill(this.kernel, [NoReadWriteLock::SINGLETON])
 	}
 
 	@Test

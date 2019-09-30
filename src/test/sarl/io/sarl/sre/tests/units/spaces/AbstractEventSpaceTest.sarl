@@ -48,6 +48,8 @@ import static org.mockito.Mockito.when
 
 import static extension org.mockito.ArgumentMatchers.any
 import static extension org.mockito.MockitoAnnotations.initMocks
+import io.sarl.util.concurrent.NoReadWriteLock
+import io.sarl.sre.services.logging.LoggingService
 
 /**
  * @author $Author: sgalland$
@@ -95,7 +97,8 @@ abstract class AbstractEventSpaceTest extends AbstractSreTest {
 
 		this.address = new Address(this.spaceId, this.agentId)
 
-		this.^space = new AbstractEventSpace(this.spaceId) {
+		this.^space = new AbstractEventSpace(this.spaceId,
+			[NoReadWriteLock::SINGLETON], typeof(LoggingService).mock) {
 			def getInternalParticipantStructure : Map<UUID, Participant> {
 				return AbstractEventSpaceTest.this.participants
 			}

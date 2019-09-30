@@ -32,11 +32,13 @@ import io.sarl.sre.services.context.ContextService
 import io.sarl.sre.services.lifecycle.AgentLife
 import io.sarl.sre.skills.bic.InnerContextAccessSkill
 import io.sarl.sre.tests.testutils.AbstractSreTest
+import io.sarl.sre.tests.units.skills.bic.mocks.MyAgent0
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
-import io.sarl.util.Collections3
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.OpenEventSpaceSpecification
+import io.sarl.util.concurrent.Collections3
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.Collections
 import java.util.UUID
 import org.junit.Before
@@ -88,15 +90,15 @@ class InnerContextSkillTest extends AbstractSreTest {
 		var defaultSpaceID = new SpaceID(this.context.ID, this.parentID, typeof(OpenEventSpaceSpecification))
 		var defaultAdr = typeof(Address).mock
 		when(defaultAdr.spaceID).thenReturn(defaultSpaceID)
-		AgentLife::getLife(this.^agent).setDefaultContext(this.context, defaultAdr)
-		this.^skill = new InnerContextAccessSkill(^agent)
-		this.^skill.contextService = this.service
+		AgentLife::getLife(this.^agent, [NoReadWriteLock::SINGLETON]).setDefaultContext(this.context, defaultAdr)
+		this.^skill = new InnerContextAccessSkill(this.service)[NoReadWriteLock::SINGLETON]
+		this.reflect.invoke(this.^skill, "setOwner", this.^agent)
 	}
 
 	@Test
 	def getInnerContext_init : void {
 		var ctx = typeof(Context).mock
-		when(this.service.createContext(any, any)).thenReturn(ctx)
+		when(this.service.createContext(any, any, any(typeof(Agent)))).thenReturn(ctx)
 		var ^space = typeof(OpenEventSpace).mock
 		when(ctx.defaultSpace).thenReturn(^space)
 		
@@ -108,13 +110,13 @@ class InnerContextSkillTest extends AbstractSreTest {
 		^space.verify(only).register(listener.capture)
 		assertNotNull(listener.value)
 
-		this.service.verify(only).createContext(any, any)
+		this.service.verify(only).createContext(any, any, any(typeof(Agent)))
 	}
 	
 	@Test
 	def getInnerContext_twoCalls : void {
 		var ctx = typeof(Context).mock
-		when(this.service.createContext(any, any)).thenReturn(ctx)
+		when(this.service.createContext(any, any, any(typeof(Agent)))).thenReturn(ctx)
 		var ^space = typeof(OpenEventSpace).mock
 		when(ctx.defaultSpace).thenReturn(^space)
 		
@@ -128,7 +130,7 @@ class InnerContextSkillTest extends AbstractSreTest {
 		^space.verify(only).register(listener.capture)
 		assertNotNull(listener.value)
 
-		this.service.verify(only).createContext(any, any)
+		this.service.verify(only).createContext(any, any, any(typeof(Agent)))
 	}
 
 	private def forceInnerContextCreation : Context {
@@ -138,7 +140,7 @@ class InnerContextSkillTest extends AbstractSreTest {
 		var ctx = typeof(Context).mock
 		when(ctx.ID).thenReturn(this.parentID)
 		when(ctx.defaultSpace).thenReturn(^space)
-		when(this.service.createContext(any, any)).thenReturn(ctx)
+		when(this.service.createContext(any, any, any(typeof(Agent)))).thenReturn(ctx)
 		return this.^skill.getInnerContext as Context
 	}
 	
@@ -223,7 +225,7 @@ class InnerContextSkillTest extends AbstractSreTest {
 	def getMemberAgentCount_withInnerContextInstance_noAgent {
 		var innerContext = forceInnerContextCreation
 		when(innerContext.defaultSpace.participants).thenReturn(
-				Collections3.synchronizedSet(#{this.parentID}, this))
+				Collections3.synchronizedSet(#{this.parentID}, NoReadWriteLock.SINGLETON))
 		assertEquals(0, this.^skill.memberAgentCount)
 	}
 
@@ -234,7 +236,7 @@ class InnerContextSkillTest extends AbstractSreTest {
 		var id2 = UUID::randomUUID
 		var ids = newHashSet(#[this.parentID, id1, id2])
 		when(innerContext.defaultSpace.participants).thenReturn(
-				Collections3.unmodifiableSynchronizedSet(ids, this))
+				Collections3.unmodifiableSynchronizedSet(ids, NoReadWriteLock.SINGLETON))
 		assertEquals(2, this.^skill.memberAgentCount)
 	}
 
@@ -247,7 +249,7 @@ class InnerContextSkillTest extends AbstractSreTest {
 	def getMemberAgents_withInnerContextInstance_noAgent {
 		var innerContext = forceInnerContextCreation
 		when(innerContext.defaultSpace.participants).thenReturn(
-				Collections3.synchronizedSet(Collections.singleton(this.parentID), this))
+				Collections3.synchronizedSet(Collections.singleton(this.parentID), NoReadWriteLock.SINGLETON))
 		assertFalse(this.^skill.memberAgents.iterator.hasNext)
 	}
 
@@ -258,7 +260,7 @@ class InnerContextSkillTest extends AbstractSreTest {
 		var id2 = UUID::randomUUID
 		var ids = newHashSet(#[this.parentID, id1, id2])
 		when(innerContext.defaultSpace.participants).thenReturn(
-				Collections3.unmodifiableSynchronizedSet(ids, this))
+				Collections3.unmodifiableSynchronizedSet(ids, NoReadWriteLock.SINGLETON))
 		var actual = this.^skill.memberAgents
 		assertContains(actual, id1, id2)
 	}
@@ -272,7 +274,7 @@ class InnerContextSkillTest extends AbstractSreTest {
 	def hasMemberAgent_withInnerContextInstance_noAgent {
 		var innerContext = forceInnerContextCreation
 		when(innerContext.defaultSpace.participants).thenReturn(
-				Collections3.synchronizedSet(Collections.singleton(this.parentID), this))
+				Collections3.synchronizedSet(Collections.singleton(this.parentID), NoReadWriteLock.SINGLETON))
 		assertFalse(this.^skill.hasMemberAgent)
 	}
 
@@ -283,7 +285,7 @@ class InnerContextSkillTest extends AbstractSreTest {
 		var id2 = UUID::randomUUID
 		var ids = newHashSet(#[this.parentID, id1, id2])
 		when(innerContext.defaultSpace.participants).thenReturn(
-				Collections3.unmodifiableSynchronizedSet(ids, this))
+				Collections3.unmodifiableSynchronizedSet(ids, NoReadWriteLock.SINGLETON))
 		assertTrue(this.^skill.hasMemberAgent)
 	}
 

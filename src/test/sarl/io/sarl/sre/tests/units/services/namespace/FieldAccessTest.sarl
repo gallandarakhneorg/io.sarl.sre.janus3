@@ -27,6 +27,7 @@ import java.lang.reflect.Field
 import javax.annotation.Nullable
 import org.junit.Before
 import org.junit.Test
+import io.sarl.sre.naming.SarlName
 
 /**
  * @author $Author: sgalland$
@@ -49,11 +50,21 @@ class FieldAccessTest extends AbstractSarlTest {
 	@Nullable
 	var accessor : FieldAccess
 
+	@Nullable
+	var nameMock : SarlName
+
+	
 	@Before
 	def setUp : void {
+		this.nameMock = typeof(SarlName).mock
 		this.field = typeof(ObjectMock).getDeclaredField("fld")
 		this.objectMock = new ObjectMock
-		this.accessor = new FieldAccess(this.field, this.objectMock)
+		this.accessor = new FieldAccess(this.nameMock, this.field, this.objectMock)
+	}
+
+	@Test
+	def getName {
+		this.nameMock.assertSame(this.accessor.name)
 	}
 
 	@Test

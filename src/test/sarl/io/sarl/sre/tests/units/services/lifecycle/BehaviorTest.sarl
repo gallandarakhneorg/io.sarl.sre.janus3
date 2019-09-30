@@ -26,6 +26,7 @@ import io.sarl.lang.core.Behavior
 import io.sarl.sre.services.lifecycle.BehaviorLife
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.Nullable
+import io.sarl.util.concurrent.NoReadWriteLock
 import org.junit.Before
 import org.junit.Test
 
@@ -46,7 +47,7 @@ class BehaviorTest extends AbstractSreTest {
 	@Before
 	def setUp : void {
 		this.^behavior = typeof(Behavior).mock
-		this.life = BehaviorLife::getLife(this.^behavior)
+		this.life = BehaviorLife::getLife(this.^behavior)[NoReadWriteLock::SINGLETON]
 	}
 
 	@Test

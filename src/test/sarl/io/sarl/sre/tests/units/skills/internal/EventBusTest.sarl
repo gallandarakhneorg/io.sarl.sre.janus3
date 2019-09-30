@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when
 
 import static extension org.mockito.ArgumentMatchers.any
 import static extension org.mockito.Mockito.verify
+import io.sarl.util.concurrent.NoReadWriteLock
 
 /**
  * @author $Author: sgalland$
@@ -65,7 +66,7 @@ class EventBusTest extends AbstractSreTest {
 	def setUp : void {
 		this.registry = typeof(BehaviorGuardEvaluatorRegistry).mock
 		this.executor = typeof(ExecutorService).mock
-		this.eventBus = new EventBus(this.executor, this.registry)
+		this.eventBus = new EventBus(this.executor, [NoReadWriteLock::SINGLETON], this.registry)
 	}
 
 	@Test
