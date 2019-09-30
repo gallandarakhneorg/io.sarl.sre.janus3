@@ -30,6 +30,7 @@ import java.lang.reflect.Constructor
 import java.util.UUID
 import javax.inject.Provider
 import io.sarl.sarlspecification.SarlSpecificationChecker
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
 
 /** 
@@ -51,11 +52,13 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 	 * @param sarlSpecificationChecker the tool for checking the validity of the SARL specification supported by
 	 * the agents to launch.
 	 * @param skillProvider the provider of skills that should be used to init the agents.
+	 * @param lockProvider the provider of locks.
 	 */
 	@Inject
 	new (injector : Injector, sarlSpecificationChecker : SarlSpecificationChecker,
 		skillProvider : DynamicSkillProvider) {
 		this(sarlSpecificationChecker, skillProvider, new CreatorFactory(injector, skillProvider))
+		lockProvider : Provider<ReadWriteLock>,
 	}
 
 	/** 
@@ -71,7 +74,6 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 		super(sarlSpecificationChecker, agentFactoryProvider)
 	}
 
-	
 	/** 
 	 * An injection module that is able to inject the parent ID and agent ID when creating an agent.
 	 * 
@@ -189,9 +191,12 @@ class InjectionBasedLifecycleService extends AbstractLifecycleService {
 			bind(this.agentType).toProvider(this)
 		}
 
-		synchronized def get : T {
-			var idx = this.creationIndex
-			this.creationIndex ++
+		def get : T {
+			var idx : int
+			synchronized (this) {
+				idx = this.creationIndex
+				this.creationIndex ++
+			}
 			var aid = this.identifierComputer.apply(idx)
 			assert this.constructor1 !== null || this.constructor2 !== null
 			try {

@@ -24,6 +24,7 @@ import io.sarl.core.AgentTask
 import java.lang.ref.WeakReference
 import java.util.Comparator
 import java.util.Set
+import java.util.concurrent.locks.ReadWriteLock
 
 /** 
  * Describes any information that is required by SRE for supporting the agent trait's life. 
@@ -45,41 +46,87 @@ abstract class AgentTraitLife {
 		System::identityHashCode(t1) <=> System.identityHashCode(t2)
 	]
 
+	/** Only one lock for the entire instance in order to minimum memory foot print.
+	 * It may be more efficient at run-time to create more locks, but with bigger memort foot print.
+	 */
+	val lock : ReadWriteLock
+
 	var tasks : Set<WeakReference<AgentTask>>
 
-	protected new {
-		//
+	/** Constructor.
+	 *
+	 * @param lock the synchronization lock to used for this life description.
+	 */
+	protected new(lock : ReadWriteLock) {
+		this.lock = lock
 	}
 
 	/** Add a reference to a task that is assumed to be cancelled if the behavior becomes unregistered.
 	 *
 	 * @param task the task to save.
 	 */
-	synchronized def addTaskReference(task : AgentTask) {
-		if (this.tasks === null) {
-			this.tasks = newTreeSet(COMPARATOR)
+	def addTaskReference(task : AgentTask) {
+		this.lock.writeLock.lock
+		try {
+			if (this.tasks === null) {
+				this.tasks = newTreeSet(COMPARATOR)
+			}
+			this.tasks += new WeakReference(task)
+		} finally {
+			this.lock.writeLock.unlock
 		}
-		this.tasks += new WeakReference(task)
 	}
 
 	/** Remove the reference to a task that is assumed to be cancelled if the behavior becomes unregistered.
 	 * 
 	 * @param task the task to remove.
 	 */
-	synchronized def removeTaskReference(task : AgentTask) {
-		if (this.tasks !== null) {
-			var ref = new WeakReference(task)
-			this.tasks -= ref
+	def removeTaskReference(task : AgentTask) {
+		var tsk : Set<WeakReference<AgentTask>>
+		this.lock.readLock.lock
+		try {
+			tsk = this.tasks
+		} finally {
+			this.lock.readLock.unlock
+		}
+		if (tsk !== null) {
+			this.lock.writeLock.lock
+			try {
+				tsk = this.tasks
+				if (tsk !== null) {
+					val ref = new WeakReference(task)
+					tsk -= ref
+				}
+			} finally {
+				this.lock.writeLock.unlock
+			}
 		}
 	}
+
 	/** Remove all the references to the tasks associated to this behavior.
 	 * 
 	 * @return the removed tasks.
 	 */
-	synchronized def removeAllTaskReferences : Set<WeakReference<AgentTask>> {
-		var tasks = this.tasks
-		this.tasks = null
-		return tasks
+	def removeAllTaskReferences : Set<WeakReference<AgentTask>> {
+		var tsk : Set<WeakReference<AgentTask>> = null
+		this.lock.readLock.lock
+		try {
+			tsk = this.tasks
+		} finally {
+			this.lock.readLock.unlock
+		}
+		if (tsk !== null) {
+			this.lock.writeLock.lock
+			try {
+				tsk = this.tasks
+				if (tsk !== null) {
+					this.tasks = null
+				}
+			} finally {
+				this.lock.writeLock.unlock
+			}
+		}
+		return tsk
 	}
 
 }

@@ -32,7 +32,7 @@ import java.text.MessageFormat
 import java.util.ArrayList
 import java.util.List
 import java.util.UUID
-import javax.inject.Inject
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Provider
 import javax.inject.Singleton
 import org.arakhne.afc.util.ListenerCollection
@@ -74,18 +74,25 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 
 	var userDynamicSkillProviders : List<DynamicSkillProvider>
 
+	@Accessors(PROTECTED_GETTER)
+	val lockProvider : Provider<ReadWriteLock>
+
+	val userDynamicSkillProvidersLock : ReadWriteLock
+
 	/** 
 	 * Constructs the service.
 	 * 
 	 * @param sarlSpecificationChecker the tool for checking the validity of the SARL specification supported by
 	 *     the agents to launch.
 	 * @param creator the provider of agent creators that is used when spawning agents.
+	 * @param lockProvider the provider of locks.
 	 */
 	new (sarlSpecificationChecker : SarlSpecificationChecker, creator : AgentCreatorProvider) {
 		assert sarlSpecificationChecker !== null
 		assert creator !== null
 		this.sarlSpecificationChecker = sarlSpecificationChecker
 		this.agentCreatorProvider = creator
+		this.lockProvider = lockProvider
 	}
 
 	/** Set the uninstaller of the builtin capacities.
@@ -201,14 +208,18 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 
 	def isKillableAgent(^agent : Agent) : boolean {
 		try {
-			var innerContext = ^agent.life.innerContext
+			var innerContext = getLife(^agent, this.lockProvider).innerContext
 			if (innerContext !== null) {
 				var participants = innerContext.defaultSpace.getParticipants
 				if (participants !== null) {
-					synchronized (participants.mutex) {
+					var lck = participants.lock
+					lck.readLock.lock
+					try {
 						if (participants.size > 1 || (participants.size == 1 && !participants.contains(^agent.ID))) {
 							return false
 						} 
+					} finally {
+						lck.readLock.unlock
 					}
 				}
 			}
@@ -233,13 +244,14 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	 * @return {@code true} if the service can spawn an agent.
 	 */
 	def canSpawnAgent : boolean {
-		this.running
+		isRunning
 	}
 	
 	protected def spawnAgent(nbAgents : int, spawningAgent : UUID, parent : Context, agentClazz : Class<? extends Agent>, params : Object[],
 		agentIds : (int) => UUID) : SpawnResult {
 
 		val agents = new ArrayList<Agent>(nbAgents)
+		val agentsLock = this.lockProvider.get
 		val errors = new ArrayList<Throwable>()
 		if (canSpawnAgent && nbAgents > 0) {
 			// Create the list of the spawned agents during this function execution
@@ -258,19 +270,22 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 							throw new CannotSpawnException(agentClazz)
 						}
 						// Start the agent's life
-						var life = ^agent.life
+						var life = getLife(^agent, this.lockProvider)
 						try {
 							var started = false
 							try {
-								started = life.start(this.skillUninstaller, this.logger, spawningAgent, parent,
+								started = life.start(this.skillUninstaller, getLoggingService, spawningAgent, parent,
 									params)
 							} catch (e : Throwable) {
 								errors += new CannotSpawnException(agentClazz, e)
 							}
 							if (started) {
 								// Add the agent in the system. It is synchronized because additions may occur in parallel
-								synchronized (agents) {
+								agentsLock.writeLock.lock
+								try {
 									agents += ^agent
+								} finally {
+									agentsLock.writeLock.unlock
 								}
 								^agent.onAgentCreated
 							} else if (parent.emptyRootContext) {
@@ -375,9 +390,9 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	def killAgent(^agent : Agent) : boolean {
 		// We should check if it is possible to kill the agent BEFORE killing it.
 		if (this.running && ^agent.isKillableAgent()) {
-			var life = ^agent.life
+			var life = getLife(^agent, this.lockProvider)
 			var defaultContext = life.defaultContext
-			var contexts = life.stop(this.skillUninstaller, this.logger)
+			var contexts = life.stop(this.skillUninstaller, getLoggingService)
 			^agent.onAgentKilled
 			fireAgentDestructionEvents(^agent, defaultContext, contexts)
 			return true
@@ -416,11 +431,16 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	}
 
 	/** Replies the dynamic skill providers that are defined by the user of the service. */
-	protected synchronized def getDynamicSkillProviders : Iterable<DynamicSkillProvider> {
-		if (this.userDynamicSkillProviders === null) {
-			return emptyList
+	protected def getDynamicSkillProviders : Iterable<DynamicSkillProvider> {
+		this.userDynamicSkillProvidersLock.readLock.lock
+		try {
+			if (this.userDynamicSkillProviders === null) {
+				return emptyList
+			}
+			return Collections3::unmodifiableSynchronizedIterable(this.userDynamicSkillProviders, this.userDynamicSkillProvidersLock)
+		} finally {
+			this.userDynamicSkillProvidersLock.readLock.unlock
 		}
-		return Collections3::unmodifiableSynchronizedIterable(this.userDynamicSkillProviders, this)
 	}
 
 	/** Add a dynamic skill provider that must be used for the agents that are spawned
@@ -428,24 +448,44 @@ abstract class AbstractLifecycleService extends AbstractSreService implements Li
 	 * 
 	 * @param provider is the provider of skills for newly created agents.
 	 */
-	synchronized def addDynamicSkillProvider(provider : DynamicSkillProvider) {
+	def addDynamicSkillProvider(provider : DynamicSkillProvider) {
 		assert provider !== null
-		if (this.userDynamicSkillProviders === null) {
-			this.userDynamicSkillProviders = newArrayList
+		this.userDynamicSkillProvidersLock.writeLock.lock
+		try {
+			if (this.userDynamicSkillProviders === null) {
+				this.userDynamicSkillProviders = newArrayList
+			}
+			this.userDynamicSkillProviders += provider
+		} finally {
+			this.userDynamicSkillProvidersLock.writeLock.unlock
 		}
-		this.userDynamicSkillProviders += provider
 	}
 
 	/** Remove a dynamic skill provider that must be not be used any more for the agents that are spawned.
 	 * 
 	 * @param provider is the provider of skills to be removed.
 	 */
-	synchronized def removeDynamicSkillProvider(provider : DynamicSkillProvider) {
+	def removeDynamicSkillProvider(provider : DynamicSkillProvider) {
 		assert provider !== null
-		if (this.userDynamicSkillProviders !== null) {
-			this.userDynamicSkillProviders.remove(provider)
-			if (this.userDynamicSkillProviders.empty) {
-				this.userDynamicSkillProviders = null
+		var list : List<DynamicSkillProvider>
+		this.userDynamicSkillProvidersLock.readLock.lock
+		try {
+			list = this.userDynamicSkillProviders
+		} finally {
+			this.userDynamicSkillProvidersLock.readLock.unlock
+		}
+		if (list !== null) {
+			this.userDynamicSkillProvidersLock.writeLock.lock
+			try {
+				list = this.userDynamicSkillProviders
+				if (list !== null) {
+					this.userDynamicSkillProviders.remove(provider)
+					if (this.userDynamicSkillProviders.empty) {
+						this.userDynamicSkillProviders = null
+					}
+				}
+			} finally {
+				this.userDynamicSkillProvidersLock.writeLock.unlock
 			}
 		}
 	}

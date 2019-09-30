@@ -26,6 +26,8 @@ import io.sarl.sre.services.executor.ExecutorService
 import java.util.Map
 import java.util.UUID
 import javax.inject.Inject
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
 
 /** 
  * A repository of spaces specific to a given context.
@@ -47,6 +49,7 @@ class LocalSpaceRepository extends SpaceRepository {
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
 	 * @param configFactory accessor to the configuration.
+	 * @param lockProvider the provider of the locking objects that must be used to synchronize this repository.
 	 */
 	@Inject
 	new (injector : Injector, executor : ExecutorService, config : SreConfig) {

@@ -34,7 +34,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 0.6
- * @see io.sarl.sre.services.executor.Runnables
+ * @see Runnables
  */
 abstract class SreExecutable {
 
@@ -95,7 +95,7 @@ abstract class SreExecutable {
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 0.6
- * @see io.sarl.sre.services.executor.Runnables
+ * @see Runnables
  */
 class SreRunnable extends SreExecutable implements Runnable {
 
@@ -193,7 +193,7 @@ class SreRunnable extends SreExecutable implements Runnable {
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 0.6
- * @see io.sarl.sre.services.executor.Runnables
+ * @see Runnables
  */
 class SreCallable<T> extends SreExecutable implements Callable<T> {
 
@@ -300,7 +300,7 @@ class SreCallable<T> extends SreExecutable implements Callable<T> {
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 0.7
- * @see io.sarl.sre.services.executor.Runnables
+ * @see Runnables
  */
 class SreConsumer<T> extends SreExecutable implements Consumer<T> {
 
@@ -407,7 +407,7 @@ class SreConsumer<T> extends SreExecutable implements Consumer<T> {
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 0.10
- * @see io.sarl.sre.services.executor.Runnables
+ * @see Runnables
  */
 class SreKernelRunnable implements Runnable {
 

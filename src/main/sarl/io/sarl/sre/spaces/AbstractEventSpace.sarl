@@ -35,9 +35,11 @@ import io.sarl.util.Scopes
 import io.sarl.util.concurrent.Collections3
 import java.text.MessageFormat
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
 import java.util.logging.Level
 import java.util.stream.Stream
 import javax.inject.Inject
+import javax.inject.Provider
 
 /** 
  * Abstract implementation of an event space.
@@ -55,7 +57,8 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 
 	static val DEFAULT_ROUTER = new LocalEventTransportService
 
-	val mutexInstance = new Object
+	@Accessors(PUBLIC_GETTER)
+	val lock : ReadWriteLock
 
 	/** 
 	 * Logging service.
@@ -95,19 +98,17 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 	def setLoggingService(logger : LoggingService) {
 		this.logger = logger
 	}
-
-	/** Replies the mutex for synchronization. */
-	final def getMutex {
-		this.mutexInstance
-	}
-
 	protected final def registerToSpace(entity : EventListener) : Address {
 		assert entity !== null
 		var id = entity.ID
 		var address = new Address(this.spaceID, id)
 		var participant = Participant::createAndInit(address, entity)
-		synchronized (mutex) {
+		val lck = getLock
+		lck.writeLock.lock
+		try {
 			this.internalParticipantStructure.put(id, participant)
+		} finally {
+			lck.writeLock.unlock
 		}
 		return address
 	}
@@ -116,10 +117,14 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 		assert entity !== null
 		var participant : Participant = null
 		var becomesEmpty : boolean
-		synchronized (mutex) {
+		val lck = getLock
+		lck.writeLock.lock
+		try {
 			var structure = this.internalParticipantStructure
 			participant = structure.remove(entity.ID)
 			becomesEmpty = structure.empty
+		} finally {
+			lck.writeLock.unlock
 		}
 		if (participant !== null) {
 			if (becomesEmpty) {
@@ -133,8 +138,12 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 	def getAddress(id : UUID) : Address {
 		assert id !== null
 		var participant : Participant = null
-		synchronized (mutex) {
+		val lck = getLock
+		lck.writeLock.lock
+		try {
 			participant = this.internalParticipantStructure.remove(id)
+		} finally {
+			lck.writeLock.unlock
 		}
 		if (participant !== null) {
 			return participant.address
@@ -144,9 +153,12 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 
 	@Deprecated
 	final def getParticipants : SynchronizedSet<UUID> {
-		var mut = mutex
-		synchronized (mut) {
-			Collections3.unmodifiableSynchronizedSet(this.internalParticipantStructure.keySet, mut)
+		val lck = getLock
+		lck.readLock.lock
+		try {
+			Collections3.unmodifiableSynchronizedSet(this.internalParticipantStructure.keySet, lck)
+		} finally {
+			lck.readLock.unlock
 		}
 	}
 
@@ -206,12 +218,14 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 	 */
 	protected def getScopedParticipants(scope : Scope<? super Address>) : Stream<Participant> {
 		if (scope === null || scope === Scopes::allParticipants) {
-			this.internalParticipantStructure.values.stream
-		} else if (scope instanceof AddressScope) {
-			Stream.of(scope.addresses).map([it.lazyParticipant]).filter([it !== null])
-		} else {
-			this.internalParticipantStructure.values.stream.filter [scope.matches(it.address)]
+			return this.internalParticipantStructure.values.stream
 		}
+		if (scope instanceof AddressScope) {
+			return Stream.of(scope.addresses).map([it.lazyParticipant]).filter([it !== null])
+		}
+		return this.internalParticipantStructure.values.stream.filter [
+			scope.matches(it.address)
+		]
 	}
 	
 	/** 
@@ -230,26 +244,15 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 		// The emit process is run in the current thread.
 		// The reception process should be treated into a separate thread in order
 		// to never block the sender process.
-		synchronized (mutex) {
+		val lck = getLock
+		lck.readLock.lock
+		try {
 			val participants = getScopedParticipants(scope)
 			participants.forEach [
 					it.getParticipant.receiveEvent(^event)
 			]
-
-			/*participants.forEach [
-				var receptionTask : Runnable = [
-					it.getParticipant.receiveEvent(^event)
-				]
-				this.executor.executeAsap(receptionTask)
-			]*/
-
-			/*while (participants.hasNext) {
-				var participant = participants.next
-				var receptionTask : Runnable = [
-					participant.getParticipant.receiveEvent(^event)
-				]
-				this.executor.executeAsap(receptionTask)
-			}*/
+		} finally {
+			lck.readLock.unlock
 		}
 	}
 

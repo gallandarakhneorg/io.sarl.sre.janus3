@@ -21,7 +21,6 @@
 
 package io.sarl.sre.boot.commands
 
-import com.google.inject.Provider
 import io.bootique.cli.Cli
 import io.bootique.command.CommandWithMetadata
 import io.bootique.meta.application.CommandMetadata
@@ -31,8 +30,10 @@ import io.sarl.lang.core.Agent
 import io.sarl.sre.boot.configs.SreConfig
 import io.sarl.sre.boot.configs.subconfigs.BootConfig
 import java.util.List
+import java.util.concurrent.locks.ReadWriteLock
 
 import static java.lang.Thread.*
+import javax.inject.Provider
 
 /**
  * Abstract command for running the SRE without agent at boot time.
@@ -53,14 +54,18 @@ abstract class AbstractRunCommand extends CommandWithMetadata {
 
 	var sre : SREBootstrap
 
+	val lock : ReadWriteLock
+	
 	/** Constructor.
 	 *
 	 * @param configuration the configuration of the tool.
 	 * @param commandBuilder the builder of the command.
+	 * @param lock the lock to use for synchronizing.
 	 */
-	new (configuration : Provider<SreConfig>, commandBuilder : CommandMetadata.Builder) {
+	new (configuration : Provider<SreConfig>, commandBuilder : CommandMetadata.Builder, lock : ReadWriteLock) {
 		super(commandBuilder)
 		this.configuration = configuration
+		this.lock = lock
 	}
 
 	/** Replies if the given value is the fully qualified name of an agent's type.
@@ -89,7 +94,7 @@ abstract class AbstractRunCommand extends CommandWithMetadata {
 	 * @param maxNbAgents is the maximum number of agents to be launched. 
 	 * @return the boot configuration.
 	 */
-	protected synchronized def synchronizeCliWithBootConfig(args : Cli, maxNbAgents : int) : BootConfig {
+	protected def synchronizeCliWithBootConfig(args : Cli, maxNbAgents : int) : BootConfig {
 		var config = this.configuration.get
 		var boot = config.boot
 		// Set the command line arguments
@@ -125,28 +130,44 @@ abstract class AbstractRunCommand extends CommandWithMetadata {
 	 * 
 	 * @return the SRE bootstrap. 
 	 */
-	protected synchronized def getSREBootstrap : SREBootstrap {
-		if (this.sre === null) {
-			this.sre = SRE::bootstrap
-			val config = this.configuration.get
-			switch (config.boot.rootContextBootType) {
-				case BOOT_AGENT_NAME: {
-					this.sre.setBootAgentTypeContextUUID
-				}
-				case RANDOM: {
-					this.sre.setRandomContextUUID
-				}
-				case DEFAULT: {
-					this.sre.setSpecificContextUUID
-				}
-				default: {
-					this.sre.setSpecificContextUUID
-				}
-			}
-			this.sre.universeContextUUID = config.boot.rootContextID
-			this.sre.universeSpaceUUID = config.boot.rootSpaceID
+	protected def getSREBootstrap : SREBootstrap {
+		var s : SREBootstrap
+		this.lock.readLock.lock
+		try {
+			s = this.sre
+		} finally {
+			this.lock.readLock.unlock
 		}
-		return this.sre
+		if (s === null) {
+			this.lock.writeLock.lock
+			try {
+				s = this.sre
+				if (s === null) {
+					this.sre = SRE::bootstrap
+					s = this.sre
+					val config = this.configuration.get
+					switch (config.boot.rootContextBootType) {
+						case BOOT_AGENT_NAME: {
+							this.sre.setBootAgentTypeContextUUID
+						}
+						case RANDOM: {
+							this.sre.setRandomContextUUID
+						}
+						case DEFAULT: {
+							this.sre.setSpecificContextUUID
+						}
+						default: {
+							this.sre.setSpecificContextUUID
+						}
+					}
+					this.sre.universeContextUUID = config.boot.rootContextID
+					this.sre.universeSpaceUUID = config.boot.rootSpaceID
+				}
+			} finally {
+				this.lock.writeLock.unlock
+			}
+		}
+		return s
 	}
 
 	/** Start all the boot agents that are defined into the configuration.

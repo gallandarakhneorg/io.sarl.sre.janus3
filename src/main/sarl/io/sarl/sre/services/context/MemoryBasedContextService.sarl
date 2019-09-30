@@ -51,19 +51,37 @@ class MemoryBasedContextService extends AbstractInjectionBasedContextService {
 
 	protected def getContextInternalStructure : Map<UUID, Context> {
 		var repository : Map<UUID, Context>
-		synchronized (mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			repository = this.contextRepository
-			if (repository === null) {
-				repository = newTreeMap(null)
-				this.contextRepository = repository
+		} finally {
+			lck.readLock.unlock
+		}
+		if (repository === null) {
+			lck.writeLock.lock
+			try {
+				repository = this.contextRepository
+				if (repository === null) {
+					repository = newTreeMap(null)
+					this.contextRepository = repository
+				}
+			} finally {
+				lck.writeLock.unlock
 			}
 		}
-		repository
+		return repository
 	}
 	
 	def getAllContexts : SynchronizedIterable<Context> {
-		var all = Iterables::concat(Collections::singletonList(rootContext), this.contextInternalStructure.values)
-		return Collections3::unmodifiableSynchronizedIterable(all, this.mutex)
+		var lck = getLock
+		lck.writeLock.lock
+		try {
+			var all = Iterables::concat(Collections::singletonList(rootContext), this.contextInternalStructure.values)
+			return Collections3::unmodifiableSynchronizedIterable(all, lck)
+		} finally {
+			lck.writeLock.unlock
+		}
 	}
 	
 }

@@ -71,23 +71,11 @@ abstract class AbstractTimeService extends AbstractSreService implements TimeSer
 	}
 	
 	def addTimeListener(listener : TimeListener) {
-		synchronized (this) {
-			if (this.listeners === null) {
-				this.listeners = new ListenerCollection
-			}
-			this.listeners.add(typeof(TimeListener), listener);
-		}
+		this.listeners.add(typeof(TimeListener), listener)
 	}
 	
 	def removeTimeListener(listener : TimeListener) {
-		synchronized (this) {
-			if (this.listeners !== null) {
-				this.listeners.remove(typeof(TimeListener), listener);
-				if (this.listeners.empty) {
-					this.listeners = null
-				}
-			}
-		}
+		this.listeners.remove(typeof(TimeListener), listener);
 	}
 	
 }

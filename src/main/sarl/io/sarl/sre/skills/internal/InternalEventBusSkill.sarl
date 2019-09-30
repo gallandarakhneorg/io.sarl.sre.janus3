@@ -32,12 +32,13 @@ import java.lang.ref.WeakReference
 import java.util.LinkedList
 import java.util.List
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject
+import javax.inject.Provider
 
+import static io.sarl.sre.services.lifecycle.AgentLife.*
 import static io.sarl.sre.skills.internal.InternalEventBusSkill.BinFlags.*
 
-import static extension io.sarl.sre.services.lifecycle.AgentLife.*
 import io.sarl.lang.core.Agent
 
 /** 
@@ -52,7 +53,7 @@ import io.sarl.lang.core.Agent
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("potential_field_synchronization_problem")
-	skill InternalEventBusSkill extends BuiltinSkill implements InternalEventBusCapacity {
+skill InternalEventBusSkill extends BuiltinSkill implements InternalEventBusCapacity {
 
 	uses Logging
 
@@ -73,7 +74,9 @@ import io.sarl.lang.core.Agent
 	
 	var eventListener : InformedEventListener
 
-	val isEventBufferEnabled = new AtomicBoolean
+	var isEventBufferEnabled = false
+
+	val lock : ReadWriteLock
 
 	var eventBuffer : List<Event> = null
 
@@ -84,6 +87,11 @@ import io.sarl.lang.core.Agent
 	@Inject
 	override setEventBus(bus : EventBus) {
 		this.eventBus = bus
+
+	/** Replies the lock object.
+	 */
+	def getLock : ReadWriteLock {
+		this.lock
 	}
 
 	override getEventBus : EventBus {
@@ -114,10 +122,27 @@ import io.sarl.lang.core.Agent
 	}
 
 	final def getAssociatedEventBusListener : InformedEventListener {
-		if (this.eventListener === null) {
-			this.eventListener = new ExternalEventBusAccessor(owner.ID, this)
+		var lst : InformedEventListener
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			lst = this.eventListener
+		} finally {
+			lck.readLock.unlock
 		}
-		return this.eventListener
+		if (lst === null) {
+			lck.writeLock.lock
+			try {
+				lst = this.eventListener
+				if (lst === null) {
+					lst = new ExternalEventBusAccessor(owner.ID, this)
+					this.eventListener = lst
+				}
+			} finally {
+				lck.writeLock.unlock
+			}
+		}
+		return lst
 	}
 
 	def registerEventBusListener(listener : Object, filter : (Event)=>boolean, callback : (Object)=>void) {
@@ -138,7 +163,15 @@ import io.sarl.lang.core.Agent
 	 * @return the value of the flag before its change.
 	 */
 	def setEventBuffering(buffering : boolean) : boolean {
-		this.isEventBufferEnabled.getAndSet(buffering)
+		val lck = getLock
+		lck.writeLock.lock
+		try {
+			val old = this.isEventBufferEnabled
+			this.isEventBufferEnabled = buffering
+			return old
+		} finally {
+			lck.writeLock.unlock
+		}
 	}
 
 	/** Replies if the events are buffering.
@@ -146,7 +179,13 @@ import io.sarl.lang.core.Agent
 	 * @return {@code true} if the events are buffered.
 	 */
 	def isEventBuffering() : boolean {
-		this.isEventBufferEnabled.get
+		val lck = getLock
+		lck.readLock.lock
+		try {
+			return this.isEventBufferEnabled			
+		} finally {
+			lck.readLock.unlock
+		}
 	}
 
 	/** Replies the buffered events.
@@ -154,30 +193,49 @@ import io.sarl.lang.core.Agent
 	 * @return an unmodifiable iterable of the buffered elements.
 	 */
 	def getBufferedEvents : SynchronizedIterable<Event> {
-		synchronized (this.isEventBufferEnabled) {
+		val lck = getLock
+		lck.readLock.lock
+		try {
 			if (this.eventBuffer === null) {
 				return Collections3::emptySynchronizedSet
 			}
-			return Collections3::unmodifiableSynchronizedIterable(this.eventBuffer, this.isEventBufferEnabled);
+			return Collections3::unmodifiableSynchronizedIterable(this.eventBuffer, lck)
+		} finally {
+			lck.readLock.unlock
 		}
 	}
 
 	def fireEventAndWait(^event : Event, gatherEvents : boolean, thrownExceptions : boolean,
 		listener : Object) : Iterable<Event> {
-		if (owner.life.state.blockingEventHandling) {
+		if (getLife(owner, this.lockProvider).state.blockingEventHandling) {
 			if (gatherEvents) {
-				val wasEnabled = this.isEventBufferEnabled.getAndSet(true)
+				var wasEnabled : boolean
+				val lck = getLock
+				lck.writeLock.lock
+				try {
+					wasEnabled = this.isEventBufferEnabled
+					this.isEventBufferEnabled = true
+				} finally {
+					lck.writeLock.unlock
+				}
 				try {
 					this.eventBus.immediateDispatchTo(listener, ^event, thrownExceptions, getLogger)
 				} finally {
-					this.isEventBufferEnabled.set(wasEnabled)
+					lck.writeLock.lock
+					try {
+						this.isEventBufferEnabled = wasEnabled
+					} finally {
+						lck.writeLock.unlock
+					}
 				}
-				var cache : List<Event>
-				synchronized (this.isEventBufferEnabled) {
-					cache = this.eventBuffer
+				lck.writeLock.lock
+				try {
+					var cache = this.eventBuffer
 					this.eventBuffer = null
+					return cache
+				} finally {
+					lck.writeLock.unlock
 				}
-				return cache
 			}
 			this.eventBus.immediateDispatchTo(listener, ^event, thrownExceptions, getLogger)
 		}
@@ -185,20 +243,35 @@ import io.sarl.lang.core.Agent
 	}
 
 	def fireEventAndWait(^event : Event, gatherEvents : boolean, thrownExceptions : boolean) : Iterable<Event> {
-		if (owner.life.state.blockingEventHandling) {
+		if (getLife(owner, this.lockProvider).state.blockingEventHandling) {
 			if (gatherEvents) {
-				val wasEnabled = this.isEventBufferEnabled.getAndSet(true)
+				var wasEnabled : boolean
+				val lck = getLock
+				lck.writeLock.lock
+				try {
+					wasEnabled = this.isEventBufferEnabled
+					this.isEventBufferEnabled = true
+				} finally {
+					lck.writeLock.unlock
+				}
 				try {
 					this.eventBus.immediateDispatch(^event, thrownExceptions, getLogger)
 				} finally {
-					this.isEventBufferEnabled.set(wasEnabled)
+					lck.writeLock.lock
+					try {
+						this.isEventBufferEnabled = wasEnabled
+					} finally {
+						lck.writeLock.unlock
+					}
 				}
-				var cache : List<Event>
-				synchronized (this.isEventBufferEnabled) {
-					cache = this.eventBuffer
+				lck.writeLock.lock
+				try {
+					var cache = this.eventBuffer
 					this.eventBuffer = null
+					return cache
+				} finally {
+					lck.writeLock.unlock
 				}
-				return cache
 			}
 			this.eventBus.immediateDispatch(^event, thrownExceptions, getLogger)
 		}
@@ -207,13 +280,27 @@ import io.sarl.lang.core.Agent
 
 	
 	def fireEvent(^event : Event) {
-		if (owner.life.state.asynchronousEventHandling) {
-			if (this.isEventBufferEnabled.get) {
-				synchronized (this.isEventBufferEnabled) {
-					if (this.eventBuffer === null) {
-						this.eventBuffer = new LinkedList
+		if (getLife(owner, this.lockProvider).state.asynchronousEventHandling) {
+			var mustBuf : boolean 
+			val lck = getLock
+			lck.readLock.lock
+			try {
+				mustBuf = this.isEventBufferEnabled
+			} finally {
+				lck.readLock.unlock
+			}
+			if (mustBuf) {
+				lck.writeLock.lock
+				try {
+					mustBuf = this.isEventBufferEnabled
+					if (mustBuf) {
+						if (this.eventBuffer === null) {
+							this.eventBuffer = new LinkedList
+						}
+						this.eventBuffer += ^event
 					}
-					this.eventBuffer += ^event
+				} finally {
+					lck.writeLock.unlock
 				}
 			} else {
 				this.eventBus.asyncDispatch(^event, getLogger)

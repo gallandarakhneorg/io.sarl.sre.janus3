@@ -73,9 +73,10 @@ abstract class SpaceRepository implements SpaceListener {
 
 	val destroyDelay : int
 
-	val mutexInstance : Object
+	val lockProvider : Provider<ReadWriteLock>
 
-	val listeners = new ListenerCollection<SpaceRepositoryListener>
+	val lock : ReadWriteLock
+
 
 	val spacesBySpec = <Class<? extends SpaceSpecification<?>>, Set<SpaceDescription>>newTreeMap(
 		Comparators::classComparator)
@@ -90,18 +91,17 @@ abstract class SpaceRepository implements SpaceListener {
 	 * @param injector the injector.
 	 * @param executor the asynchronous execution service.
 	 * @param config the configuration.
-	 * @param mutex the mutex object that must be used to synchronize this repository.
+	 * @param lock the locking object that must be used to synchronize this repository.
 	 */
 	@Inject
-	new (injector : Injector, executor : ExecutorService, config : SreConfig, mutex : Object = null) {
-		if (mutex === null) {
-			this.mutexInstance = new Object
-		} else {
-			this.mutexInstance = mutex
-		}
+	new (injector : Injector, executor : ExecutorService, config : SreConfig,
+		listenerCollection : SmartListenerCollection<?>, lockProvider : Provider<ReadWriteLock>) {
 		this.injector = injector
 		this.executor = executor
 		this.destroyDelay = config.services.executors.keepAliveDuration
+		this.listeners = listenerCollection
+		this.lockProvider = lockProvider
+		this.lock = lockProvider.get
 	}
 
 	/** Replies the internal map that contains the spaces */
@@ -116,12 +116,12 @@ abstract class SpaceRepository implements SpaceListener {
 	 * @return the description.
 	 */
 	protected def createSpaceDescription(id : SpaceID, ^space : Space) : SpaceDescription {
-		new SpaceDescription(id, ^space)
+		new SpaceDescription(id, ^space, this.lockProvider.get)
 	}
 
-	/** Replies the mutex for changing the internal data structures, except for the destroyable spaces. */
-	def getMutex : Object {
-		this.mutexInstance
+	/** Replies the lock for changing the internal data structures, except for the destroyable spaces. */
+	def getLock : ReadWriteLock {
+		this.lock
 	}
 
 	/** Replies the space information associated to the space if already associated.
@@ -165,12 +165,16 @@ abstract class SpaceRepository implements SpaceListener {
 	 */
 	package final def createDefaultSpace(spaceID : SpaceID) : OpenEventSpace {
 		var defaultSpace = getOrCreateSpaceWithID(spaceID, typeof(OpenEventSpaceSpecification))
-		synchronized (mutex) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			if (defaultSpace === null) {
 				this.defaultSpace = null
 			} else {
 				this.defaultSpace = new WeakReference(defaultSpace)
 			}
+		} finally {
+			lck.writeLock.unlock
 		}
 		return defaultSpace
 	}
@@ -181,8 +185,12 @@ abstract class SpaceRepository implements SpaceListener {
 				spaceID.spaceSpecification == spec, "The specification type is invalid"
 
 		var defaultSpace : OpenEventSpace
-		synchronized (mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			defaultSpace = this.defaultSpace?.get
+		} finally {
+			lck.readLock.unlock
 		}
 		var defaultSpaceInjector : Injector
 		if (defaultSpace === null) {
@@ -208,15 +216,18 @@ abstract class SpaceRepository implements SpaceListener {
 		^space.life(description)
 		id.life(description)
 		val spaces = sharedStructure
-		synchronized (mutex) {
-			var list =  this.spacesBySpec.get(id.spaceSpecification)
+		lck.writeLock.lock
+		try {
+			var list = this.spacesBySpec.get(id.spaceSpecification)
 			if (list === null) {
 				list = newTreeSet(null)
 				this.spacesBySpec.put(id.spaceSpecification, list)
 			}
 			list += description
-			spaces.put(id.ID, description)
+		} finally {
+			lck.writeLock.unlock
 		}
+		spaces.put(id.ID, description)
 		if (^space instanceof AbstractSpace) {
 			^space.spaceListenerIfNone = this
 		}
@@ -232,7 +243,9 @@ abstract class SpaceRepository implements SpaceListener {
 	 * <p>Caution: Do not call this function if you are not certain it does the expected things.
 	 */
 	def refreshInternalStructures : void {
-		synchronized (mutex) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			this.spacesBySpec.clear
 			for (description : this.sharedStructure.values) {
 				var ^space = description.^space
@@ -249,6 +262,8 @@ abstract class SpaceRepository implements SpaceListener {
 					^space.spaceListenerIfNone = this
 				}
 			}
+		} finally {
+			lck.writeLock.unlock
 		}
 	}
 
@@ -271,8 +286,12 @@ abstract class SpaceRepository implements SpaceListener {
 	 * Destroy this repository and release all the resources.
 	 */
 	final def destroy {
-		synchronized (mutex) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			safeDestroy
+		} finally {
+			lck.writeLock.unlock
 		}
 		this.listeners.clear
 	}
@@ -320,7 +339,9 @@ abstract class SpaceRepository implements SpaceListener {
 			var spaces = sharedStructure
 			assert spaces !== null
 			var description : SpaceDescription
-			synchronized (mutex) {
+			var lck = getLock
+			lck.writeLock.lock
+			try {
 				description = spaces.remove(spaceID.ID)
 				if (description !== null) {
 					var cousins = this.spacesBySpec.get(spaceID.spaceSpecification)
@@ -328,6 +349,8 @@ abstract class SpaceRepository implements SpaceListener {
 						cousins.remove(description)
 					}
 				}
+			} finally {
+				lck.writeLock.unlock
 			}
 			^space.life(null)
 			spaceID.life(null)
@@ -350,12 +373,16 @@ abstract class SpaceRepository implements SpaceListener {
 	def getOrCreateSpaceWithSpec(spaceID : SpaceID, spec : Class<? extends SpaceSpecification<S>>,
 		creationParams : Object*) : S with S extends Space {
 		var ^space : Space = null
-		synchronized (mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			var spaces = spacesBySpec.get(spec)
 			if (spaces !== null && !spaces.empty) {
 				var description = spaces.iterator.next
 				^space = description.ensureSpaceInstance
 			}
+		} finally {
+			lck.readLock.unlock
 		}
 		if (^space === null) {
 			return spec.createSpaceFirstInstance(spaceID, creationParams)
@@ -376,8 +403,12 @@ abstract class SpaceRepository implements SpaceListener {
 		creationParams : Object*) : S with S extends Space {
 		val spaces = sharedStructure
 		var description : SpaceDescription
-		synchronized (mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			description = spaces.get(spaceID.ID)
+		} finally {
+			lck.readLock.unlock
 		}
 		if (description === null) {
 			return spec.createSpaceFirstInstance(spaceID, creationParams)
@@ -392,9 +423,13 @@ abstract class SpaceRepository implements SpaceListener {
 	 */
 	def getSpaces : SynchronizedIterable<? extends Space> {
 		val spaces = sharedStructure
-		synchronized (mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			var translated = spaces.values.map[it.ensureSpaceInstance]
-			return Collections3::unmodifiableSynchronizedIterable(translated, mutex)
+			return Collections3::unmodifiableSynchronizedIterable(translated, lck)
+		} finally {
+			lck.readLock.unlock
 		}
 	}
 
@@ -406,14 +441,18 @@ abstract class SpaceRepository implements SpaceListener {
 	 * @return the collection of all spaces with the specified {@link SpaceSpecification} stored in this repository
 	 */
 	def getSpaces(spec : Class<? extends SpaceSpecification<S>>) : SynchronizedIterable<S> with S extends Space {
-		synchronized (mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			var spaces = this.spacesBySpec.get(spec)
 			if (spaces !== null) {
 				var mapped = spaces.map [it.ensureSpaceInstance as S]
-				return Collections3::unmodifiableSynchronizedIterable(mapped, mutex)
+				return Collections3::unmodifiableSynchronizedIterable(mapped, lock)
 			}
+		} finally {
+			lck.readLock.unlock
 		}
-		Collections3::synchronizedCollection(Collections::emptyList, new Object)
+		return Collections3::emptySynchronizedSet
 	}
 
 	/** 
@@ -424,11 +463,15 @@ abstract class SpaceRepository implements SpaceListener {
 	 */
 	def getSpace(spaceID : SpaceID) : Space {
 		val spaces = sharedStructure
-		synchronized (mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			var description = spaces.get(spaceID.ID)
 			if (description !== null) {
 				return description.ensureSpaceInstance
 			}
+		} finally {
+			lck.readLock.unlock
 		}
 		return null
 	}
@@ -477,8 +520,12 @@ abstract class SpaceRepository implements SpaceListener {
 		var run : Runnable = [
 			var participants = ^space.participants
 			var couldBeDestroyed : boolean
-			synchronized (participants.mutex) {
+			var lck = participants.lock
+			lck.readLock.lock
+			try {
 				couldBeDestroyed = participants.empty
+			} finally {
+				lck.readLock.unlock
 			}
 			if (couldBeDestroyed) {
 				removeSpace(^space)
@@ -499,11 +546,14 @@ abstract class SpaceRepository implements SpaceListener {
 
 		val id : SpaceID
 
-		transient volatile var ^space : Space
+		transient var ^space : Space
 
-		new (id : SpaceID, ^space : Space) {
+		val lock : ReadWriteLock
+
+		new (id : SpaceID, ^space : Space, lock : ReadWriteLock) {
 			this.id = id
 			this.^space = ^space
+			this.lock = lock
 		}
 
 		def getSpaceID : SpaceID {
@@ -511,11 +561,21 @@ abstract class SpaceRepository implements SpaceListener {
 		}
 		
 		def getSpace : Space {
-			this.^space
+			this.lock.readLock.lock
+			try {
+				return this.^space
+			} finally {
+				this.lock.readLock.unlock
+			}
 		}
 
 		def setSpace(^space : Space) {
-			this.^space = ^space
+			this.lock.writeLock.lock
+			try {
+				this.^space = ^space
+			} finally {
+				this.lock.writeLock.unlock
+			}
 		}
 
 		def equals(obj : Object) : boolean {

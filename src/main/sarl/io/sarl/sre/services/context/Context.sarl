@@ -122,8 +122,15 @@ class Context implements AgentContext {
 		this.id
 	}
 
-	def toString : String {
-		this.id.toString
+	/** Replies the lock used for synchronizing this context. */
+	def getLock : ReadWriteLock {
+		this.lock
+	}
+
+	@Pure
+	override toString(builder : ToStringBuilder) {
+		builder.add("id", getID)
+		builder.add("owner", getOwner)
 	}
 
 	private def getPlatformEventEmitter : SpaceRepositoryListener {
@@ -138,20 +145,45 @@ class Context implements AgentContext {
 	private def ensureRepository : SpaceRepository {
 		var instance : SpaceRepository
 		var addListener = false
-		synchronized (this) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			instance = this.repositoryInstance
-			// Create the repository
-			if (instance === null) {
-				instance = this.repositoryProvider.get
-				this.repositoryInstance = instance
-				addListener = true
+		} finally {
+			lck.readLock.unlock
+		}
+		if (instance === null) {
+			lck.writeLock.lock
+			try {
+				instance = this.repositoryInstance
+				if (instance === null) {
+					instance = this.repositoryProvider.get
+					this.repositoryInstance = instance
+					addListener = true
+				}
+			} finally {
+				lck.writeLock.unlock
 			}
-			// Create the repository
-			var ds = this.defaultSpaceInstance
-			if (ds === null) {
-				var spaceID = new SpaceID(ID, this.defaultSpaceID, typeof(OpenEventSpaceSpecification))
-				ds = instance.createDefaultSpace(spaceID)
-				this.defaultSpaceInstance = ds
+		}
+
+		var ds : OpenEventSpace
+		lck.readLock.lock
+		try {
+			ds = this.defaultSpaceInstance
+		} finally {
+			lck.readLock.unlock
+		}
+		if (ds === null) {
+			lck.writeLock.lock
+			try {
+				ds = this.defaultSpaceInstance
+				if (ds === null) {
+					var spaceID = new SpaceID(ID, this.defaultSpaceID, typeof(OpenEventSpaceSpecification))
+					ds = instance.createDefaultSpace(spaceID)
+					this.defaultSpaceInstance = ds
+				}				
+			} finally {
+				lck.writeLock.unlock
 			}
 		}
 		if (addListener) {
@@ -170,26 +202,42 @@ class Context implements AgentContext {
 	 */
 	def destroy {
 		this.platformEventEmitter = null
-		this.defaultSpaceInstance = null
-		var instance = this.repositoryInstance
-		if (instance !== null) {
-			instance.destroy
-			instance.removeSpaceRepositoryListener(getPlatformEventEmitter)
+		var lck = getLock
+		lck.writeLock.lock
+		try {
+			this.defaultSpaceInstance = null
+			var instance = this.repositoryInstance
+			if (instance !== null) {
+				instance.destroy
+				instance.removeSpaceRepositoryListener(getPlatformEventEmitter)
+			}
+			this.repositoryInstance = null
+		} finally {
+			lck.writeLock.unlock
 		}
-		this.repositoryInstance = null
-		this.repositoryProvider = null
-		this.logger = null
 	}
 
 	def getDefaultSpace : OpenEventSpace {
 		ensureRepository
-		return this.defaultSpaceInstance
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			return this.defaultSpaceInstance
+		} finally {
+			lck.readLock.unlock
+		}
 	}
 
 	def getSpace(spaceUUID : UUID) : S with S extends Space {
 		var repo = ensureRepository
 		if (this.defaultSpaceID == spaceUUID) {
-			return this.defaultSpaceInstance as S
+			var lck = getLock
+			lck.readLock.lock
+			try {
+				return this.defaultSpaceInstance as S
+			} finally {
+				lck.readLock.unlock
+			}
 		}
 		var spaceID = new SpaceID(ID, spaceUUID, null)
 		return repo.getSpace(spaceID) as S
@@ -208,7 +256,13 @@ class Context implements AgentContext {
 		// If the space identifier corresponds to the default space, get the default space (by accessing the cache attribute)
 		var instance = ensureRepository
 		if (spaceUUID == this.defaultSpaceID) {
-			return this.defaultSpaceInstance as S
+			var lck = getLock
+			lck.readLock.lock
+			try {
+				return this.defaultSpaceInstance as S
+			} finally {
+				lck.readLock.unlock
+			}
 		}
 		var spaceID = new SpaceID(ID, spaceUUID, spec)
 		return instance.createSpace(spaceID, spec, creationParams)
@@ -218,7 +272,13 @@ class Context implements AgentContext {
 			creationParams : Object*) : S with S extends Space {
 		var instance = ensureRepository
 		if (typeof(OpenEventSpaceSpecification).isAssignableFrom(spec)) {
-			return this.defaultSpaceInstance as S
+			var lck = getLock
+			lck.readLock.lock
+			try {
+				return this.defaultSpaceInstance as S
+			} finally {
+				lck.readLock.unlock
+			}
 		}
 		var spaceID = new SpaceID(ID, spaceUUID, spec)
 		return instance.getOrCreateSpaceWithSpec(spaceID, spec, creationParams)
@@ -228,7 +288,13 @@ class Context implements AgentContext {
 			creationParams : Object*) : S with S extends Space {
 		var instance = ensureRepository
 		if (this.defaultSpaceID == spaceUUID) {
-			return this.defaultSpaceInstance as S
+			var lck = getLock
+			lck.readLock.lock
+			try {
+				return this.defaultSpaceInstance as S
+			} finally {
+				lck.readLock.unlock
+			}
 		}
 		var spaceID = new SpaceID(ID, spaceUUID, spec)
 		return instance.getOrCreateSpaceWithID(spaceID, spec, creationParams)
@@ -246,7 +312,14 @@ class Context implements AgentContext {
 	 * @param listener
 	 */
 	def removeSpaceRepositoryListener(listener : SpaceRepositoryListener) {
-		var instance = this.repositoryInstance
+		var instance : SpaceRepository
+		var lck = getLock
+		lck.readLock.lock
+		try {
+			instance = this.repositoryInstance
+		} finally {
+			lck.readLock.unlock
+		}
 		if (instance !== null) {
 			instance.removeSpaceRepositoryListener(listener)
 		}

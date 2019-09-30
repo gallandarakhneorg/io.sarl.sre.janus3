@@ -20,23 +20,25 @@
  */
 package io.sarl.sre.skills.bic
 
-import io.sarl.sre.capacities.InternalEventBusCapacity
-import io.sarl.sre.capacities.InternalSchedules
 import io.sarl.core.Behaviors
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Behavior
 import io.sarl.lang.core.Event
 import io.sarl.lang.core.EventListener
 import io.sarl.lang.core.Scope
 import io.sarl.lang.util.SynchronizedIterable
-
-import static io.sarl.sre.skills.bic.BehaviorsSkill.BinFlags.*
-
-import static extension io.sarl.sre.services.lifecycle.AgentLife.*
-import io.sarl.core.Initialize
-import io.sarl.core.Destroy
-import io.sarl.sre.skills.BuiltinSkill
+import io.sarl.sre.capacities.InternalEventBusCapacity
+import io.sarl.sre.capacities.InternalSchedules
 import io.sarl.sre.skills.BuiltinCapacitiesOrder
+import io.sarl.sre.skills.BuiltinSkill
+
+import static io.sarl.sre.services.lifecycle.AgentLife.*
+import static io.sarl.sre.skills.bic.BehaviorsSkill.BinFlags.*
+import javax.inject.Inject
+import javax.inject.Provider
+import java.util.concurrent.locks.ReadWriteLock
 
 /** 
  * SRE implementation of SARL's {@link Behaviors} built-in capacity.
@@ -65,13 +67,21 @@ skill BehaviorsSkill extends BuiltinSkill implements Behaviors {
 		}
 	}
 
+	/** Constructor. */
+	@Inject
+	new (lockProvider : Provider<ReadWriteLock>) {
+		super(lockProvider)
+	}
+
 	protected override uninstall(stage : UninstallationStage) {
 		if (stage === UninstallationStage::PRE_DESTROY_EVENT) {
+			val adr = getLife(owner, this.lockProvider).addressInInnerDefaultSpace
 			unregisterEventBusListener(typeof(Behavior)) [
 				// Destroy the behavior
 				val ^event = new Destroy
-				^event.source = owner.life.addressInInnerDefaultSpace
+				^event.source = adr
 				fireEventAndWait(^event, false, true, it)
+				(it as Behavior).releaseInternalResources
 			]
 		}
 	}
@@ -82,12 +92,13 @@ skill BehaviorsSkill extends BuiltinSkill implements Behaviors {
 
 	def registerBehavior(attitude : Behavior, filter : (Event)=>boolean, initializationParameters : Object*) : Behavior {
 		assert attitude !== null
-		val life = owner.life
+		val life = getLife(owner, this.lockProvider)
 		if (life.state.alive) {
+			val adr = life.addressInInnerDefaultSpace
 			attitude.registerEventBusListener(filter) [
 				// Initialize the behavior
 				val ^event = new Initialize(this.ID, initializationParameters)
-				^event.source = life.addressInInnerDefaultSpace
+				^event.source = adr
 				fireEventAndWait(^event, false, true, attitude)
 			]
 		}
@@ -96,12 +107,14 @@ skill BehaviorsSkill extends BuiltinSkill implements Behaviors {
 
 	def unregisterBehavior(attitude : Behavior) : Behavior {
 		assert attitude !== null
+		var adr = getLife(owner, this.lockProvider).addressInInnerDefaultSpace
 		attitude.unregisterTasksForBehavior
 		attitude.unregisterEventBusListener [
 			// Destroy the behavior
 			val ^event = new Destroy
-			^event.source = owner.life.addressInInnerDefaultSpace
+			^event.source = adr
 			fireEventAndWait(^event, false, true, attitude)
+			attitude.releaseInternalResources
 		]
 		return attitude
 	}
@@ -111,7 +124,7 @@ skill BehaviorsSkill extends BuiltinSkill implements Behaviors {
 		// running in distant kernels) are notified. The event will return into
 		// the agent via the inner default space add call internalReceiveEvent
 		// for real posting
-		val life = this.owner.life
+		val life = getLife(owner, this.lockProvider)
 		if (life.state.alive) {
 			var context = life.innerContext
 			if (context !== null) {
@@ -138,8 +151,11 @@ skill BehaviorsSkill extends BuiltinSkill implements Behaviors {
 	
 	def hasRegisteredBehavior : boolean {
 		val iterable = getRegisteredEventBusListeners(typeof(Behavior))
-		synchronized (iterable.mutex) {
+		iterable.lock.readLock.lock
+		try {
 			return iterable.iterator.hasNext
+		} finally {
+			iterable.lock.readLock.unlock
 		}
 	}
 	

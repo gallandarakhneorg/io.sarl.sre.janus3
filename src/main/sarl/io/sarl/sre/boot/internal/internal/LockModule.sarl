@@ -18,62 +18,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.sarl.sre.boot.internal.skills
+package io.sarl.sre.boot.internal.internal
 
 import com.google.inject.AbstractModule
-import com.google.inject.Injector
-import com.google.inject.Provides
-import io.sarl.sre.services.executor.ExecutorService
-import io.sarl.sre.skills.internal.EventBus
-import javax.inject.Provider
-import io.bootique.BQModuleProvider
 import com.google.inject.Module
 import io.bootique.BQModule
+import io.bootique.BQModuleProvider
+import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /** 
- * Module for configuring the agents' event buses.
+ * Module for configuring the injection of locks.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 0.10
  */
-class EventBusModule extends AbstractModule {
+class LockModule extends AbstractModule {
 
 	protected override configure {
-		//
-	}
-
-	@Provides
-	def provideEventBus(executorService : Provider<ExecutorService>, lockProvider : Provider<ReadWriteLock>, injector : Injector) : EventBus {
-		// Ensure a new instance is created at each injection.
-		val aeb = new EventBus(executorService.get, lockProvider)
-		// to be able to inject the ExecutorService and SubscriberFindingStrategy
-		injector.injectMembers(aeb)
-		return aeb
+		typeof(Lock).bind.to(typeof(ReentrantLock))
+		typeof(ReadWriteLock).bind.to(typeof(ReentrantReadWriteLock))
 	}
 
 }
 
-/** Provider of the module for configuring the agents' event buses.
+/** Provider of the module for configuring the injection of locks.
  * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 0.9
+ * @since 0.10
  */
-class EventBusModuleProvider implements BQModuleProvider {
+class LockModuleProvider implements BQModuleProvider {
 
 	override module : Module {
-		return new EventBusModule
+		return new LockModule
 	}
 
 	override moduleBuilder : BQModule.Builder {
 		return BQModule::builder(module).overrides(overrides).providerName(name).configs(configs).description(
-			Messages::EventBusModuleProvider_0);
+			Messages::LockModuleProvider_0);
 	}
 
 }
-

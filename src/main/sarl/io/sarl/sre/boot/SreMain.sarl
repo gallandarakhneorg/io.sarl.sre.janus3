@@ -22,6 +22,7 @@
 package io.sarl.sre.boot
 
 import com.google.common.base.Throwables
+import com.google.common.util.concurrent.Service
 import com.google.inject.Injector
 import com.google.inject.Module
 import com.google.inject.ProvisionException
@@ -51,7 +52,6 @@ import org.arakhne.afc.util.OutputParameter
 import org.eclipse.xtend.lib.annotations.Accessors
 
 import static io.sarl.bootstrap.SRE.*
-import com.google.common.util.concurrent.Service
 
 /** Class that implements the standard main function for running a SARL run-time environment
  * with bootique modules.
@@ -79,7 +79,6 @@ class SreMain implements SREBootstrap {
 	var userDefinedContextId : UUID
 
 	var userDefinedSpaceId : UUID
-
 	
 	/** Set the Bootique runtime instance.
 	 *
@@ -92,10 +91,6 @@ class SreMain implements SREBootstrap {
 			return true
 		}
 		return false
-	}
-
-	override isActive : boolean {
-		return this.runtime !== null && this.kernel !== null
 	}
 
 	override isRunning : boolean {
@@ -139,9 +134,9 @@ class SreMain implements SREBootstrap {
 		var lvl = if (level < 0) 0 else (if (level >= levels.length) levels.length - 1 else level)
 		var levelObject = levels.get(lvl)
 		config.level = levelObject
-		if (isActive) {
-			var service = this.runtime.getInstance(typeof(LoggingService))
-			service.platformLogger.level = levelObject.toJul
+		var logger = getKernelLogger
+		if (logger !== null) {
+			logger.level = levelObject.toJul
 		}
 	}
 
@@ -170,12 +165,10 @@ class SreMain implements SREBootstrap {
 	}
 
 	private def ensureBootiqueRuntimeInstance(bootique : Bootique, module : Class<? extends Module>, args : String*) : BQRuntime {
-		if (this.runtime === null) {
-			synchronized (this) {
-				if (this.runtime === null) {
-					this.runtime = createRuntime(bootique, module, args)
-				}
-			}
+		var r = this.runtime
+		if (r === null) {
+			this.runtime = createRuntime(bootique, module, args)
+			r = this.runtime
 		}
 		return this.runtime
 	}
@@ -231,43 +224,38 @@ class SreMain implements SREBootstrap {
 		return helpOptions.options
 	}
 	
-	synchronized override getBootAgentIdentifier : UUID {
+	override getBootAgentIdentifier : UUID {
 		this.lastBootAgent
 	}
 
 	private def ensureKernelInstance(bootique : Bootique, module : Class<? extends Module>, args : String*) : Kernel {
-		if (this.kernel === null) {
-			synchronized (this) {
-				if (this.kernel === null) {
-					var runtime = ensureBootiqueRuntimeInstance(bootique, module, args)
-					val injector = runtime.getInstance(typeof(Injector))
-					// Update the method for selecting the root context identifier
-					if (this.bootType !== null
-							|| this.userDefinedContextId !== null
-							|| this.userDefinedSpaceId !== null) {
-						val sreConfig = injector.getInstance(typeof(SreConfig))
-						if (this.bootType !== null) {
-							sreConfig.boot.rootContextBootType = this.bootType
-						}
-						if (this.userDefinedContextId !== null) {
-							sreConfig.boot.rootContextID = this.userDefinedContextId
-						}
-						if (this.userDefinedSpaceId !== null) {
-							sreConfig.boot.rootSpaceID = this.userDefinedSpaceId
-						}
-					}
-					var kern = injector.getInstance(typeof(Kernel))
-					val listener : KernelAgentLifecycleListener = [
-						synchronized (SreMain.this) {
-							this.kernel = null
-							this.runtime = null
-							this.isResetableBootAgent = true
-						}
-					]
-					kern.getService(typeof(LifecycleService)).addKernelAgentLifecycleListener(listener)
-					this.kernel = kern
+		var k = this.kernel
+		if (k === null) {
+			var runtime = ensureBootiqueRuntimeInstance(bootique, module, args)
+			val injector = runtime.getInstance(typeof(Injector))
+			// Update the method for selecting the root context identifier
+			if (this.bootType !== null
+					|| this.userDefinedContextId !== null
+					|| this.userDefinedSpaceId !== null) {
+				val sreConfig = injector.getInstance(typeof(SreConfig))
+				if (this.bootType !== null) {
+					sreConfig.boot.rootContextBootType = this.bootType
+				}
+				if (this.userDefinedContextId !== null) {
+					sreConfig.boot.rootContextID = this.userDefinedContextId
+				}
+				if (this.userDefinedSpaceId !== null) {
+					sreConfig.boot.rootSpaceID = this.userDefinedSpaceId
 				}
 			}
+			k = injector.getInstance(typeof(Kernel))
+			val listener : KernelAgentLifecycleListener = [
+				this.kernel = null
+				this.runtime = null
+				this.isResetableBootAgent = true
+			]
+			k.getService(typeof(LifecycleService)).addKernelAgentLifecycleListener(listener)
+			this.kernel = k
 		}
 		// Force the bootstrap to be this object
 		SRE::bootstrap = this
@@ -301,10 +289,9 @@ class SreMain implements SREBootstrap {
 		var ids = new OutputParameter<List<UUID>>(emptyList)
 		kernel.spawn(nbAgents, agentCls, [
 			ids.set(it)
-			synchronized (this) {
-				if (this.isResetableBootAgent) {
-					this.lastBootAgent = it.head
-				}
+			if (this.isResetableBootAgent) {
+				this.lastBootAgent = it.head
+				
 			}
 		], params)
 		
@@ -333,10 +320,8 @@ class SreMain implements SREBootstrap {
 		val id = new OutputParameter<UUID>
 		kernel.spawn(agentCls, [
 			id.set(it)
-			synchronized (this) {
-				if (this.isResetableBootAgent) {
-					this.lastBootAgent = it
-				}
+			if (this.isResetableBootAgent) {
+				this.lastBootAgent = it
 			}
 		], params)
 		return id.get
@@ -352,21 +337,16 @@ class SreMain implements SREBootstrap {
 		}
 		val kernel = ensureKernelInstance(null, null)
 		kernel.spawn(agentID, agentCls, [
-			synchronized (this) {
-				if (this.isResetableBootAgent) {
-					this.lastBootAgent = it
-				}
+			if (this.isResetableBootAgent) {
+				this.lastBootAgent = it
 			}
 		], params)
 	}
 
 	@SuppressWarnings("discouraged_reference")
 	def shutdown(blocking : boolean) throws InterruptedException {
-		var kern : Kernel = null
-		synchronized (this) {
-			kern = this.kernel
-			this.kernel = null
-		}
+		var kern = this.kernel
+		this.kernel = null
 		if (kern !== null) {
 			var stopBehavior = kern.shutdownTrigger
 			stopBehavior.run
@@ -378,12 +358,9 @@ class SreMain implements SREBootstrap {
 		}
 	}
 
-	synchronized override getService(serviceType : Class<T>) : T with T {
+	override getService(serviceType : Class<T>) : T with T {
 		if (typeof(Service).isAssignableFrom(serviceType)) {
-			var kern : Kernel
-			synchronized (this) {
-				kern = this.kernel
-			}
+			var kern = this.kernel
 			if (kern !== null) {
 				var castedServiceType = serviceType.asSubclass(typeof(Service))
 				var serv = kern.getService(castedServiceType)

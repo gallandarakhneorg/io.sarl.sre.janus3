@@ -27,8 +27,10 @@ import io.sarl.revision.BehaviorGuardEvaluatorRegistry
 import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.util.concurrent.Collections3
 import java.util.Collection
+import java.util.concurrent.locks.ReadWriteLock
 import java.util.logging.Logger
 import javax.inject.Inject
+import javax.inject.Provider
 import org.arakhne.afc.util.MultiCollection
 
 /** 
@@ -51,7 +53,9 @@ class EventBus {
 	 */
 	val behaviorGuardEvaluatorRegistry : BehaviorGuardEvaluatorRegistry
 
-	/**
+	val lock : ReadWriteLock
+	
+	/** 
 	 * The executor used to execute behavior methods in dedicated thread.
 	 */
 	val executor : ExecutorService
@@ -60,22 +64,32 @@ class EventBus {
 	 * Instantiates a dispatcher.
 	 * 
 	 * @param executor the executor service.
+	 * @param provider of synchronization locks.
 	 */
 	@Inject
-	new (executor : ExecutorService) {
-		this(executor, new BehaviorGuardEvaluatorRegistry)
+	new (executor : ExecutorService, lockProvider : Provider<ReadWriteLock>) {
+		this(executor, lockProvider, new BehaviorGuardEvaluatorRegistry)
 	}
 
 	/** 
 	 * Instantiates a dispatcher.
 	 * 
 	 * @param executor the executor service.
+	 * @param provider of synchronization locks.
+	 * @param dispatcher the event dispatcher.
 	 */
-	new (executor : ExecutorService, dispatcher : BehaviorGuardEvaluatorRegistry) {
+	new (executor : ExecutorService, lockProvider : Provider<ReadWriteLock>, dispatcher : BehaviorGuardEvaluatorRegistry) {
 		assert executor !== null
+		assert lockProvider !== null
 		assert dispatcher !== null
 		this.executor = executor
+		this.lock = lockProvider.get
 		this.behaviorGuardEvaluatorRegistry = dispatcher
+	}
+
+	/** Replies the lock. */
+	protected def getLock : ReadWriteLock {
+		this.lock
 	}
 
 	/** Replies if a listener with the given type is registered.
@@ -85,8 +99,12 @@ class EventBus {
 	 * @since 0.5.0
 	 */
 	def hasRegisteredEventListener(type : Class<?>) : boolean {
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			this.behaviorGuardEvaluatorRegistry.hasRegisteredEventListener(type)
+		} finally {
+			lck.readLock.unlock
 		}
 	}
 
@@ -99,10 +117,14 @@ class EventBus {
 	 * @since 0.6.0
 	 */
 	def getRegisteredEventListeners(type : Class<T>) : SynchronizedIterable<T> with T {
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			Collections3::unmodifiableSynchronizedIterable(
 				this.behaviorGuardEvaluatorRegistry.getRegisteredEventListeners(type),
-				this.behaviorGuardEvaluatorRegistry)
+				lck)
+		} finally {
+			lck.readLock.unlock
 		}
 	}
 
@@ -118,8 +140,12 @@ class EventBus {
 	 * @param callback function which is invoked just after the first registration of the object. It could be {@code null}.
 	 */
 	def register(object : Object, filter : (Event)=>boolean, callback : (Object)=>void) {
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			this.behaviorGuardEvaluatorRegistry.register(object, filter, callback)
+		} finally {
+			lck.writeLock.unlock
 		}
 	}
 
@@ -131,8 +157,12 @@ class EventBus {
 	 * @throws IllegalArgumentException if the object was not previously registered.
 	 */
 	def unregister(object : Object, callback : (Object)=>void) {
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			this.behaviorGuardEvaluatorRegistry.unregister(object, callback)
+		} finally {
+			lck.writeLock.unlock
 		}
 	}
 
@@ -145,8 +175,12 @@ class EventBus {
 	 * @since 0.7.0
 	 */
 	def unregister(type : Class<?>, callback : (Object)=>void) {
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			this.behaviorGuardEvaluatorRegistry.unregister(type, callback)
+		} finally {
+			lck.writeLock.unlock
 		}
 	}
 
@@ -157,8 +191,12 @@ class EventBus {
 	 * @throws IllegalArgumentException if the object was not previously registered.
 	 */
 	def unregisterAll(callback : (Object)=>void) {
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			this.behaviorGuardEvaluatorRegistry.unregisterAll(callback)
+		} finally {
+			lck.writeLock.unlock
 		}
 	}
 
@@ -177,8 +215,12 @@ class EventBus {
 	def immediateDispatch(^event : Event, thrownExceptions : boolean, logger : Logger = null) {
 		assert ^event !== null
 		var behaviorGuardEvaluators : Iterable<BehaviorGuardEvaluator> = null
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			behaviorGuardEvaluators = this.behaviorGuardEvaluatorRegistry.getBehaviorGuardEvaluators(^event)
+		} finally {
+			lck.readLock.unlock
 		}
 		if (behaviorGuardEvaluators !== null) {
 			var behaviorsMethodsToExecute = ^event.evaluateGuards(behaviorGuardEvaluators, logger)
@@ -203,8 +245,12 @@ class EventBus {
 	def immediateDispatchTo(listener : Object, ^event : Event, thrownExceptions : boolean, logger : Logger = null) {
 		assert ^event !== null
 		var behaviorGuardEvaluators : Iterable<BehaviorGuardEvaluator> = null
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			behaviorGuardEvaluators = this.behaviorGuardEvaluatorRegistry.getBehaviorGuardEvaluatorsFor(^event, listener)
+		} finally {
+			lck.readLock.unlock
 		}
 		if (behaviorGuardEvaluators !== null) {
 			var behaviorsMethodsToExecute = ^event.evaluateGuards(behaviorGuardEvaluators, logger)
@@ -224,8 +270,12 @@ class EventBus {
 	def asyncDispatch(^event : Event, logger : Logger = null) {
 		assert ^event !== null
 		var behaviorGuardEvaluators : Iterable<BehaviorGuardEvaluator> = null
-		synchronized (this.behaviorGuardEvaluatorRegistry) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			behaviorGuardEvaluators = this.behaviorGuardEvaluatorRegistry.getBehaviorGuardEvaluators(^event)
+		} finally {
+			lck.readLock.unlock
 		}
 		if (behaviorGuardEvaluators !== null) {
 			var behaviorsMethodsToExecute = ^event.evaluateGuards(behaviorGuardEvaluators, logger)

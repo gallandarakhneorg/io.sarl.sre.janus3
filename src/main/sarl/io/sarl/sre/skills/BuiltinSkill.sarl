@@ -21,6 +21,8 @@
 package io.sarl.sre.skills
 
 import io.sarl.lang.core.Skill
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
 
 /** 
  * A builtin skill into the SRE.
@@ -31,6 +33,15 @@ import io.sarl.lang.core.Skill
  * @mavenartifactid $ArtifactId$
  */
 abstract class BuiltinSkill extends Skill {
+
+	/** Provider of locks. */
+	protected val lockProvider : Provider<ReadWriteLock>
+
+	/** Constructor.
+	 */
+	new (provider : Provider<ReadWriteLock>) {
+		this.lockProvider = provider
+	}
 
 	/** Replies the installation order of the builtin skill.
 	 * 

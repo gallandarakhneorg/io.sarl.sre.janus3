@@ -25,6 +25,7 @@ import com.google.inject.BindingAnnotation
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
+import io.sarl.sre.capacities.InformedEventListener
 import io.sarl.sre.services.IServiceManager
 import io.sarl.sre.services.context.ContextService
 import io.sarl.sre.services.lifecycle.KernelAgentLifecycleListener
@@ -44,7 +45,6 @@ import java.util.logging.LogRecord
 import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Singleton
-import io.sarl.sre.capacities.InformedEventListener
 
 /** 
  * This class represents the Kernel of the SRE platform.
@@ -262,13 +262,16 @@ class Kernel {
 		val contexts = contextService.allContexts
 		val encounteredAgents = <UUID>newTreeSet(null)
 		val agents = newArrayList
-		synchronized (contexts.mutex) {
+		val clock = contexts.lock
+		clock.readLock.lock
+		try {
 			val iter = contexts.iterator
 			while (iter.hasNext) {
 				val context = iter.next
 				val ^space = context.defaultSpace as AbstractEventSpace
-				val mut = ^space.mutex
-				synchronized (mut) {
+				val slock = ^space.lock
+				slock.readLock.lock
+				try {
 					for (participant : ^space.internalParticipantStructure.values) {
 						val listener = participant.participant
 						if (listener instanceof InformedEventListener) {
@@ -279,8 +282,12 @@ class Kernel {
 							}
 						}
 					}
+				} finally {
+					slock.readLock.unlock
 				}
 			}
+		} finally {
+			clock.readLock.unlock
 		}
 		var nb = 0
 		for (ag : agents) {

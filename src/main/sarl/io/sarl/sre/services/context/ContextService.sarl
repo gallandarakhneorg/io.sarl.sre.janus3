@@ -31,6 +31,8 @@ import io.sarl.lang.core.SpaceID
 import io.sarl.lang.util.SynchronizedIterable
 import java.util.EventListener
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
 
 /** 
  * This service enables to store the contexts and to manage the spaces in the SRE platform.
@@ -173,8 +175,9 @@ interface InternalContextMembershipListenerFactory {
 	/** Create a listener associated to the given agent.
 	 *
 	 * @param agent the agent to link to the provided listener.
+	 * @param lockProvider a provider of synchronization locks.
 	 * @return a listener.
 	 */	
-	def create(owner : Agent) : InternalContextMembershipListener
+	def create(owner : Agent, lockProvider : Provider<ReadWriteLock>) : InternalContextMembershipListener
 
 }

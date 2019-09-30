@@ -21,20 +21,21 @@
 
 package io.sarl.sre.boot.commands
 
-import com.google.inject.AbstractModule
-import com.google.inject.Module
-import com.google.inject.Provider
-import com.google.inject.Provides
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
 import io.bootique.cli.Cli
 import io.bootique.command.CommandOutcome
 import io.bootique.meta.application.CommandMetadata
 import io.sarl.sre.boot.configs.SreConfig
-import javax.inject.Singleton
 
 import static extension io.bootique.BQCoreModule.extend
 import java.text.MessageFormat
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
+import com.google.inject.AbstractModule
+import javax.inject.Singleton
+import com.google.inject.Provides
+import com.google.inject.Module
 
 /**
  * Command for running the SRE with a single agent at boot time.
@@ -52,12 +53,14 @@ class RunSingleAgentCommand extends AbstractRunCommand {
 	/** Constructor.
 	 *
 	 * @param configuration the configuration of the tool.
+	 * @param lock the lock to use for synchronizing.
 	 */
-	new (configuration : Provider<SreConfig>) {
+	new (configuration : Provider<SreConfig>, lock : ReadWriteLock) {
 		super(configuration,
 			CommandMetadata
 				.builder(typeof(RunSingleAgentCommand))
-				.description(Messages::RunSingleAgentCommand_0))
+				.description(Messages::RunSingleAgentCommand_0),
+			lock)
 	}
 
 	override run(cli : Cli) : CommandOutcome {
@@ -104,12 +107,13 @@ class RunSingleAgentCommandModule extends AbstractModule {
 	/** Provide the command for running the SRE.
 	 * 
 	 * @param configuration the configuration of the tool.
+	 * @param lock the provider of lock.
 	 * @return the command.
 	 */
 	@Provides
 	@Singleton
-	def provideRunCommand(configuration : Provider<SreConfig>) : RunSingleAgentCommand {
-		return new RunSingleAgentCommand(configuration)
+	def provideRunCommand(configuration : Provider<SreConfig>, lock : Provider<ReadWriteLock>) : RunSingleAgentCommand {
+		return new RunSingleAgentCommand(configuration, lock.get)
 	}
 
 }

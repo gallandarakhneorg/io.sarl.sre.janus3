@@ -23,7 +23,9 @@ package io.sarl.sre.services.context
 import io.sarl.sre.services.AbstractSreService
 import java.util.Map
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Singleton
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /** 
  * A service managing the root context and enabling the creation of contexts.
@@ -40,18 +42,34 @@ import javax.inject.Singleton
 @Singleton
 abstract class AbstractContextService extends AbstractSreService implements ContextService {
 
-	val mutexInstance = new Object
+	val lock : ReadWriteLock
 
-	/** Replies the mutex for synchronizing this service */
-	def getMutex : Object {
-		this.mutexInstance
+	@Accessors(PUBLIC_GETTER)
+	val rootContext : Context
+
+	/** Constructor.
+	 * 
+	 * @param rootContext the root context.
+	 * @param lock is the lock that must be used by this service.
+	 */
+	protected new (rootContext : Context, lock : ReadWriteLock) {
+		this.rootContext = rootContext
+		this.lock = lock
 	}
 
-	/** Change the root context.
-	 *
-	 * @param context the new root context.
+	def onStart {
+		this.rootContext.initialize
+	}
+
+	def onStop {
+		this.rootContext.destroy
+	}
+
+	/** Replies the lock for synchronizing this service
 	 */
-	abstract def setRootContext(context : Context)
+	def getLock : ReadWriteLock {
+		this.lock
+	}
 
 	/** Replies the internal data structure for storing the contexts.
 	 *
@@ -71,20 +89,29 @@ abstract class AbstractContextService extends AbstractSreService implements Cont
 		if (contextID == this.rootContext.ID) {
 			return this.rootContext
 		}
-		val repository = contextInternalStructure
+		val repository = getContextInternalStructure
 		var existingContext : Context
-		synchronized(mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			existingContext = repository.get(contextID)
+		} finally {
+			lck.readLock.unlock
 		}
-		if (existingContext !== null) {
-			return existingContext
+		if (existingContext === null) {
+			assert defaultSpaceID !== null, "The defaultSpaceUUID cannot be null"
+			lck.writeLock.lock
+			try {
+				existingContext = repository.get(contextID)
+				if (existingContext === null) {
+					existingContext = contextID.newContextInstance(defaultSpaceID, owner)
+					repository.putIfAbsent(contextID, existingContext)
+				}
+			} finally {
+				lck.writeLock.unlock
+			}
 		}
-		assert defaultSpaceID !== null, "The defaultSpaceUUID cannot be null"
-		var context = contextID.newContextInstance(defaultSpaceID, false)
-		synchronized (mutex) {
-			repository.put(contextID, context)
-		}
-		return context
+		return existingContext
 	}
 
 	def getContext(contextID : UUID) : Context {
@@ -95,8 +122,12 @@ abstract class AbstractContextService extends AbstractSreService implements Cont
 		}
 		val repository = contextInternalStructure
 		var existingContext : Context
-		synchronized (mutex) {
+		var lck = getLock
+		lck.readLock.lock
+		try {
 			existingContext = repository.get(contextID)
+		} finally {
+			lck.readLock.unlock
 		}
 		return existingContext
 	}
@@ -108,8 +139,12 @@ abstract class AbstractContextService extends AbstractSreService implements Cont
 		}
 		val repository = contextInternalStructure
 		var existingContext : Context
-		synchronized (mutex) {
+		var lck = getLock
+		lck.writeLock.lock
+		try {
 			existingContext = repository.remove(contextID)
+		} finally {
+			lck.writeLock.unlock
 		}
 		if (existingContext !== null) {
 			existingContext.destroy

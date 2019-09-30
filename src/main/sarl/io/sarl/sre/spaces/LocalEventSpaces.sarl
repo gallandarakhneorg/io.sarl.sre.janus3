@@ -25,6 +25,7 @@ import io.sarl.lang.core.Address
 import io.sarl.lang.core.EventListener
 import io.sarl.lang.core.SpaceID
 import io.sarl.sre.capacities.InformedEventListener
+import io.sarl.sre.services.logging.LoggingService
 import io.sarl.util.OpenEventSpace
 import io.sarl.util.RestrictedAccessEventSpace
 import java.security.AccessControlException
@@ -33,6 +34,8 @@ import java.security.acl.Acl
 import java.security.acl.Permission
 import java.util.Map
 import java.util.UUID
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
 
 /** 
  * Default implementation of an event space which has a local repository.
@@ -86,9 +89,12 @@ class RestrictedAccessLocalEventSpace extends AbstractEventSpace implements Rest
 	 * @param id identifier of the space.
 	 * @param acl Access Control List
 	 * @param accessPermission permission that corresponds to the registration in the space.
+	 * @param lockProvider the provider of synchronization locks.
+	 * @param logger the logger service.
 	 */
-	new (id : SpaceID, acl : Acl, accessPermission : Permission) {
-		super(id)
+	new (id : SpaceID, acl : Acl, accessPermission : Permission, lockProvider : Provider<ReadWriteLock>,
+		logger : LoggingService) {
+		super(id, lockProvider, logger)
 		assert acl !== null
 		assert accessPermission !== null
 		this.acl = acl

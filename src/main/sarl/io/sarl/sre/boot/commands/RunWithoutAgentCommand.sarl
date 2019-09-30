@@ -21,10 +21,6 @@
 
 package io.sarl.sre.boot.commands
 
-import com.google.inject.AbstractModule
-import com.google.inject.Module
-import com.google.inject.Provider
-import com.google.inject.Provides
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
 import io.bootique.cli.Cli
@@ -32,9 +28,14 @@ import io.bootique.command.CommandOutcome
 import io.bootique.meta.application.CommandMetadata
 import io.sarl.sre.boot.configs.SreConfig
 import java.text.MessageFormat
-import javax.inject.Singleton
 
 import static extension io.bootique.BQCoreModule.extend
+import java.util.concurrent.locks.ReadWriteLock
+import javax.inject.Provider
+import com.google.inject.AbstractModule
+import javax.inject.Singleton
+import com.google.inject.Provides
+import com.google.inject.Module
 
 /**
  * Command for running the SRE without agent at boot time.
@@ -52,13 +53,15 @@ class RunWithoutAgentCommand extends AbstractRunCommand {
 	/** Constructor.
 	 *
 	 * @param configuration the configuration of the tool.
+	 * @param lock the lock to use for synchronizing.
 	 */
-	new (configuration : Provider<SreConfig>) {
+	new (configuration : Provider<SreConfig>, lock : ReadWriteLock) {
 		super(configuration,
 			CommandMetadata
 				.builder(typeof(RunWithoutAgentCommand))
 				.description(Messages::RunWithoutAgentCommand_0)
-				.name(CLI_NAME))
+				.name(CLI_NAME),
+			lock)
 	}
 
 	override run(cli : Cli) : CommandOutcome {
@@ -100,12 +103,13 @@ class RunWithoutAgentCommandModule extends AbstractModule {
 	/** Provide the command for running the SRE.
 	 * 
 	 * @param configuration the configuration of the tool.
+	 * @param lock the provider of lock.
 	 * @return the command.
 	 */
 	@Provides
 	@Singleton
-	def provideRunCommand(configuration : Provider<SreConfig>) : RunWithoutAgentCommand {
-		return new RunWithoutAgentCommand(configuration)
+	def provideRunCommand(configuration : Provider<SreConfig>, lock : Provider<ReadWriteLock>) : RunWithoutAgentCommand {
+		return new RunWithoutAgentCommand(configuration, lock.get)
 	}
 
 }

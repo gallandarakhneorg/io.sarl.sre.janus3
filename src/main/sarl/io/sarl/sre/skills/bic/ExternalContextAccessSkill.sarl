@@ -80,43 +80,35 @@ import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
 
 	var internalEventEmitter : InternalContextMembershipListener
 
-	/** Set the backend context service.
-	 */
+	/** Constructor. */
 	@Inject
-	def setContextService(service : ContextService) {
+	new (service : ContextService, @KernelScope outerContextProvider  : Provider<ExternalContextMemberListener>,
+		@KernelScope innerContextProvider : InternalContextMembershipListenerFactory,
+		lockProvider : Provider<ReadWriteLock>) {
+		super(lockProvider)
 		this.contextService = service
+		this.externalEventEmitter = outerContextProvider.get
+		this.innerContextProvider = innerContextProvider
 	}
 
-	/** Set the provider of the context event emitter.
-	 * 
-	 * @param provider the provider.
-	 */
-	@Inject
-	def setExternalContextMemberListenerProvider(@KernelScope provider  : Provider<ExternalContextMemberListener>) {
-		assert provider !== null
-		this.externalEventEmitter = provider.get
-	}
-
-	/** Set the provider of the context event emitter.
-	 * 
-	 * @param provider the provider.
-	 */
-	@Inject
-	def setInternalContextMembershipListenerFactory(@KernelScope provider : InternalContextMembershipListenerFactory) {
-		assert provider !== null
-		this.internalEventEmitter = provider.create(this.owner)
+	protected override install {
+		this.internalEventEmitter = this.innerContextProvider.create(owner, this.lockProvider)
 	}
 
 	protected override uninstall(stage : UninstallationStage) {
 		if (stage == UninstallationStage::POST_DESTROY_EVENT) {
 
-			var life = this.owner.life
+			var life = getLife(owner, this.lockProvider)
 			// Unregister from the external context.
 			// The unregistration to the default context is be done into the AgentLife class.
 			var contexts = life.externalContexts
 			var identifiers = <UUID> newArrayList
-			synchronized (contexts.mutex) {
+			val lck = contexts.lock
+			lck.readLock.lock
+			try {
 				identifiers += contexts.map[it.context.ID]
+			} finally {
+				lck.readLock.unlock
 			}
 			for (id : identifiers) {
 				id.leave
@@ -130,7 +122,7 @@ import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
 
 	def getContext(contextID : UUID) : AgentContext {
 		assert contextID !== null
-		var life = this.owner.life
+		var life = getLife(owner, this.lockProvider)
 		var defaultContext = life.defaultContext
 		if (defaultContext !== null) {
 			var theDefaultContext = defaultContext.context
@@ -146,9 +138,9 @@ import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
 	}
 
 	def getAllContexts : SynchronizedIterable<AgentContext> {
-		var collection = this.owner.life.enclosingContexts
+		var collection = getLife(owner, this.lockProvider).enclosingContexts
 		var col2 = collection.map[var local : AgentContext = it.context; local]
-		Collections3::unmodifiableSynchronizedIterable(col2, collection.mutex)
+		Collections3::unmodifiableSynchronizedIterable(col2, collection.lock)
 	}
 	
 	def isInSpace(^event : Event, ^space : Space) : boolean {
@@ -167,7 +159,7 @@ import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
 		assert contextID !== null
 		assert expectedDefaultSpaceID !== null
 
-		var life = this.owner.life
+		var life = getLife(owner, this.lockProvider)
 		if (life.state.alive) {
 			if (life.defaultContext.context.ID == contextID) {
 				return false
@@ -208,7 +200,7 @@ import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
 	def leave(contextID : UUID) : boolean {
 		assert contextID !== null
 
-		var life = this.owner.life
+		var life = getLife(owner, this.lockProvider)
 		var exitDefaultSpace = false
 		var context : ContextReference
 		var candidate : ContextReference
@@ -218,12 +210,16 @@ import static io.sarl.sre.skills.bic.ExternalContextAccessSkill.BinFlags.*
 				return false
 			}
 			var ctxs = life.externalContexts
-			synchronized (ctxs.mutex) {
+			val lck = ctxs.lock
+			lck.readLock.lock
+			try {
 				var iterator = ctxs.iterator
 				if (!iterator.hasNext) {
 					return false
 				}
 				candidate = iterator.next
+			} finally {
+				lck.readLock.lock
 			}
 			context = life.defaultContext
 			exitDefaultSpace = true
