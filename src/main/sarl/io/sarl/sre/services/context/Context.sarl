@@ -258,15 +258,6 @@ class Context extends AgentTrait implements AgentContext {
 	def getOrCreateSpaceWithSpec(spec : Class<? extends SpaceSpecification<S>>, spaceUUID : UUID,
 			creationParams : Object*) : S with S extends Space {
 		var instance = ensureRepository
-		if (typeof(OpenEventSpaceSpecification).isAssignableFrom(spec)) {
-			var lck = getLock
-			lck.readLock.lock
-			try {
-				return this.defaultSpaceInstance as S
-			} finally {
-				lck.readLock.unlock
-			}
-		}
 		var spaceID = new SpaceID(ID, spaceUUID, spec)
 		return instance.getOrCreateSpaceWithSpec(spaceID, spec, creationParams)
 	}

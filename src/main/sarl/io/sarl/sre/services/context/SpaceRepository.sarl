@@ -374,22 +374,35 @@ abstract class SpaceRepository implements SpaceListener {
 	 */
 	def getOrCreateSpaceWithSpec(spaceID : SpaceID, spec : Class<? extends SpaceSpecification<S>>,
 		creationParams : Object*) : S with S extends Space {
-		var ^space : Space = null
+		var description : SpaceDescription = null
 		var lck = getLock
 		lck.readLock.lock
 		try {
 			var spaces = spacesBySpec.get(spec)
 			if (spaces !== null && !spaces.empty) {
-				var description = spaces.iterator.next
-				^space = description.ensureSpaceInstance
+				var defaultSpace = this.defaultSpace?.get
+				var iter = spaces.iterator
+				if (defaultSpace === null) {
+					if (iter.hasNext) {
+						description = iter.next
+					}
+				} else {
+					val dfid = defaultSpace.spaceID
+					while (description === null && iter.hasNext) {
+						var desc = iter.next
+						if (dfid != desc.spaceID) {
+							description = desc
+						}
+					}
+				}
 			}
 		} finally {
 			lck.readLock.unlock
 		}
-		if (^space === null) {
+		if (description === null) {
 			return spec.createSpaceFirstInstance(spaceID, creationParams)
 		}
-		return ^space as S
+		return description.ensureSpaceInstance as S
 	}
 
 	/** 

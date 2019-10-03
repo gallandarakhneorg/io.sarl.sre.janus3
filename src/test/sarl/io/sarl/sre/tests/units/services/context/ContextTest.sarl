@@ -175,16 +175,17 @@ class ContextTest extends AbstractSreTest {
 	@Test
 	def getOrCreateSpaceWithSpec_createDefaultSpace {
 		var ospace = typeof(OpenEventSpace).mock
-		when(this.repository.getOrCreateSpaceWithID(any, any, any)).thenAnswer [
-			if ((it.getArgument(0) as SpaceID).ID == this.spaceId) {
-				return ospace 
-			}
-			return null
+		when(this.repository.getOrCreateSpaceWithSpec(any, any, any)).thenAnswer [
+			return typeof(OpenEventSpace).mock
 		]
 		//
-		var ^space = this.context.getOrCreateSpaceWithSpec(typeof(OpenEventSpaceSpecification), this.spaceId)
-		assertNotNull(^space)
-		assertSame(ospace, ^space)
+		var space1 = this.context.getOrCreateSpaceWithSpec(typeof(OpenEventSpaceSpecification), this.spaceId)
+		assertNotNull(space1)
+		assertNotSame(ospace, space1)
+		//
+		var space2 = this.context.getOrCreateSpaceWithSpec(typeof(OpenEventSpaceSpecification), this.spaceId)
+		assertNotNull(^space2)
+		assertNotSame(space1, space2)
 	}
 
 	@Test
@@ -194,12 +195,16 @@ class ContextTest extends AbstractSreTest {
 			if ((it.getArgument(0) as SpaceID).ID == this.spaceId) {
 				return ospace 
 			}
-			return null
+			return typeof(OpenEventSpace).mock
 		]
 		//
-		var ^space = this.context.getOrCreateSpaceWithID(typeof(OpenEventSpaceSpecification), this.spaceId)
-		assertNotNull(^space)
-		assertSame(ospace, ^space)
+		var space1 = this.context.getOrCreateSpaceWithID(typeof(OpenEventSpaceSpecification), this.spaceId)
+		assertNotNull(space1)
+		assertSame(ospace, space1)
+		//
+		var space2 = this.context.getOrCreateSpaceWithID(typeof(OpenEventSpaceSpecification), this.spaceId)
+		assertNotNull(space2)
+		assertSame(space1, space2)
 	}
 
 }

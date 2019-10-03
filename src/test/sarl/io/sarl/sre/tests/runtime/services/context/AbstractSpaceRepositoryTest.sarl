@@ -53,7 +53,7 @@ abstract class AbstractSpaceRepositoryTest extends AbstractSreRunTest {
 	@Test
 	def getOrCreateSpaceWithSpec {
 		typeof(GetOrCreateSpaceWithSpecTestAgent).runSre(false, true, STANDARD_TIMEOUT)
-		allResults.assertContains("FOUND2", "IS_DEFAULT_SPACE")
+		allResults.assertContains("FOUND1", "FOUND2")
 	}
 
 	@Test
