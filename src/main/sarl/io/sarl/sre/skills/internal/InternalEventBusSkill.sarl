@@ -315,9 +315,13 @@ skill InternalEventBusSkill extends BuiltinSkill implements InternalEventBusCapa
 			this.id = id
 			this.owner = new WeakReference(owner)
 		}
+
+		private def getOwnerSkill : InternalEventBusSkill {
+			this.owner?.get
+		}
 	
 		override receiveEvent(^event : Event) {
-			this.owner.get.fireEvent(^event)
+			this.ownerSkill?.fireEvent(^event)
 		}
 		
 		override getID : UUID {
@@ -325,7 +329,7 @@ skill InternalEventBusSkill extends BuiltinSkill implements InternalEventBusCapa
 		}
 		
 		override getOwnerInstance : Agent {
-			this.owner.get.owner
+			this.ownerSkill?.owner
 		}
 	}	
 	
