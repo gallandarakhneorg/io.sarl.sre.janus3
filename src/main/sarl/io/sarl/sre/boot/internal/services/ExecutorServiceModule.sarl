@@ -71,7 +71,7 @@ class ExecutorServiceModule extends AbstractModule {
 	 */
 	@Provides
 	@Singleton
-	def getVerboseThreadExecutorPolicy(logService : LoggingService) : VerboseThreadExecutorPolicy {
+	def providesVerboseThreadExecutorPolicy(logService : LoggingService) : VerboseThreadExecutorPolicy {
 		new VerboseThreadExecutorPolicy(logService)
 	}
 
@@ -82,7 +82,7 @@ class ExecutorServiceModule extends AbstractModule {
 	 */
 	@Provides
 	@Singleton
-	def getQuietThreadExecutorPolicy : QuietThreadExecutorPolicy {
+	def provideQuietThreadExecutorPolicy : QuietThreadExecutorPolicy {
 		new QuietThreadExecutorPolicy
 	}
 
@@ -96,7 +96,7 @@ class ExecutorServiceModule extends AbstractModule {
 	 */
 	@Provides
 	@Singleton
-	def getRejectedExecutionHandler(loggingConfig : Log4jIntegrationConfig, executorsConfig : ExecutorsConfig,
+	def provideRejectedExecutionHandler(loggingConfig : Log4jIntegrationConfig, executorsConfig : ExecutorsConfig,
 		injector : Injector) : RejectedExecutionHandler {
 		var level = loggingConfig.level
 		var ielevel = executorsConfig.internalErrorVerboseLevel
@@ -119,7 +119,7 @@ class ExecutorServiceModule extends AbstractModule {
 	 */
 	@Provides
 	@Singleton
-	def getUncaughtExceptionHandler(loggingConfig : Log4jIntegrationConfig, executorsConfig : ExecutorsConfig,
+	def providetUncaughtExceptionHandler(loggingConfig : Log4jIntegrationConfig, executorsConfig : ExecutorsConfig,
 		injector : Injector) : UncaughtExceptionHandler {
 		var level = loggingConfig.level
 		var ielevel = executorsConfig.internalErrorVerboseLevel
@@ -150,7 +150,7 @@ class ExecutorServiceModule extends AbstractModule {
 			var max = Math::max(1, Math::max(minPoolSize, maxPoolSize))
 			executor = new ThreadPoolExecutor(min, max, keepAliveDuration, TimeUnit::SECONDS, new SynchronousQueue)
 		} else {
-			executor = Executors::newCachedThreadPool
+			executor = Executors::newFixedThreadPool(ExecutorsConfig::MAX_NUMBER_OF_THREADS_IN_EXECUTOR_VALUE)
 		}
 		if (rejectedExecutionHandler !== null && executor instanceof ThreadPoolExecutor) {
 			(executor as ThreadPoolExecutor).rejectedExecutionHandler = rejectedExecutionHandler
