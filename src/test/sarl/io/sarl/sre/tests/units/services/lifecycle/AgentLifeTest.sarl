@@ -24,6 +24,8 @@ package io.sarl.sre.tests.units.services.lifecycle
 import io.sarl.core.Destroy
 import io.sarl.core.Initialize
 import io.sarl.core.Logging
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.Event
@@ -39,8 +41,7 @@ import io.sarl.sre.tests.units.services.lifecycle.mocks.MyAgent1
 import io.sarl.sre.tests.units.services.lifecycle.mocks.MyLogging
 import io.sarl.sre.tests.units.services.lifecycle.mocks.MySkill
 import io.sarl.tests.api.Nullable
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.Collections
 import java.util.UUID
 import java.util.logging.Level
@@ -58,7 +59,6 @@ import static org.mockito.Mockito.when
 import static extension org.mockito.ArgumentMatchers.any
 import static extension org.mockito.Mockito.times
 import static extension org.mockito.Mockito.verify
-import io.sarl.util.concurrent.NoReadWriteLock
 
 /**
  * @author $Author: sgalland$

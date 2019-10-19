@@ -21,6 +21,9 @@
 
 package io.sarl.sre.tests.units.services.context
 
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
+import io.sarl.lang.core.Agent
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
@@ -31,18 +34,15 @@ import io.sarl.sre.services.context.SpaceRepositoryListenerFactory
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.Nullable
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import java.util.logging.Logger
+import javax.inject.Provider
 import org.junit.Before
 import org.junit.Test
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import javax.inject.Provider
-import io.sarl.lang.core.Agent
 
 /**
  * @author $Author: sgalland$

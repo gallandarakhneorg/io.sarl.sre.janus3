@@ -21,6 +21,7 @@
 
 package io.sarl.sre.tests.units.spaces
 
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Event
 import io.sarl.lang.core.Space
@@ -33,7 +34,6 @@ import io.sarl.sre.spaces.SpaceListener
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import org.junit.Before

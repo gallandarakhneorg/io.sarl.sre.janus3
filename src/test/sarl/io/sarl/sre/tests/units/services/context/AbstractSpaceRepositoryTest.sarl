@@ -22,6 +22,8 @@
 package io.sarl.sre.tests.units.services.context
 
 import com.google.inject.Injector
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
 import io.sarl.sre.boot.configs.SreConfig
@@ -34,10 +36,9 @@ import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.RestrictedAccessEventSpace
 import io.sarl.util.RestrictedAccessEventSpaceSpecification
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.Map
 import java.util.UUID
 import org.arakhne.afc.util.IntegerList
@@ -52,7 +53,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions
 import static org.mockito.Mockito.when
 
 import static extension org.mockito.MockitoAnnotations.initMocks
-import io.sarl.util.concurrent.NoReadWriteLock
 
 /**
  * @author $Author: sgalland$

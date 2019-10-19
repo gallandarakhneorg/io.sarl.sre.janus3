@@ -21,6 +21,8 @@
 
 package io.sarl.sre.tests.units.skills.bic
 
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
@@ -40,8 +42,6 @@ import io.sarl.sre.tests.units.skills.bic.mocks.MyAgent4
 import io.sarl.sre.tests.units.skills.bic.mocks.MyInternalEventBusSkill2
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import org.junit.Before

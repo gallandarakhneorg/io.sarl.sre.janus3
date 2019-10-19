@@ -20,11 +20,11 @@
 
 package io.sarl.sre.tests.runtime.bugs.bug66.mocks
 
-import io.sarl.lang.core.SpaceSpecification
 import com.google.inject.Inject
 import com.google.inject.name.Named
-import io.sarl.util.OpenEventSpace
+import io.sarl.core.OpenEventSpace
 import io.sarl.lang.core.SpaceID
+import io.sarl.lang.core.SpaceSpecification
 
 class MySpaceSpecificationWithNamedAnnotation implements SpaceSpecification<MySpace> {
 

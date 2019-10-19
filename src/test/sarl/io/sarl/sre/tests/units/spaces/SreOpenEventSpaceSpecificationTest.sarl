@@ -22,13 +22,15 @@
 package io.sarl.sre.tests.units.spaces
 
 import com.google.inject.Injector
+import io.sarl.core.OpenEventSpace
 import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.lang.core.SpaceID
+import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.spaces.SreOpenEventSpaceSpecification
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
-import io.sarl.util.OpenEventSpace
+import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import org.junit.Before
 import org.junit.Test
@@ -36,8 +38,6 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 
 import static extension org.mockito.MockitoAnnotations.initMocks
-import io.sarl.util.concurrent.NoReadWriteLock
-import io.sarl.sre.services.logging.LoggingService
 
 /**
  * @author $Author: sgalland$

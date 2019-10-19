@@ -21,11 +21,11 @@
 
 package io.sarl.sre.tests.units.spaces
 
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.SpaceID
 import io.sarl.lang.util.SynchronizedSet
 import io.sarl.sre.spaces.AbstractSpace
 import io.sarl.sre.tests.testutils.AbstractSreTest
-import io.sarl.util.OpenEventSpaceSpecification
 import java.util.UUID
 import org.junit.Test
 

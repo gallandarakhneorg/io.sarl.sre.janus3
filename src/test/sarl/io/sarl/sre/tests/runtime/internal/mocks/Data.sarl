@@ -21,9 +21,9 @@
 
 package io.sarl.sre.tests.runtime.internal.mocks
 
+import io.sarl.core.OpenEventSpace
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.SpaceID
-import io.sarl.util.OpenEventSpace
 
 /**
  * @author $Author: sgalland$

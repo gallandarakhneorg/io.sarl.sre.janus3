@@ -21,6 +21,8 @@
 package io.sarl.sre.services.context
 
 import com.google.inject.ImplementedBy
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.AgentContext
 import io.sarl.lang.core.AgentTrait
@@ -30,8 +32,6 @@ import io.sarl.lang.core.SpaceSpecification
 import io.sarl.lang.util.SynchronizedIterable
 import io.sarl.sre.KernelScope
 import io.sarl.sre.services.logging.LoggingService
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import java.util.UUID
 import java.util.concurrent.locks.ReadWriteLock
 import javax.inject.Inject

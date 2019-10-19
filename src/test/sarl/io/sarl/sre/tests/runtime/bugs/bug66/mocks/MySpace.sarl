@@ -20,8 +20,8 @@
 
 package io.sarl.sre.tests.runtime.bugs.bug66.mocks
 
+import io.sarl.core.OpenEventSpace
 import io.sarl.lang.core.Space
-import io.sarl.util.OpenEventSpace
 
 interface MySpace extends Space {
 	def getTheOtherSpace : OpenEventSpace

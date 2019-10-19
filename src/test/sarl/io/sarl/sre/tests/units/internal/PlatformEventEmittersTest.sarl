@@ -28,6 +28,8 @@ import io.sarl.core.ContextLeft
 import io.sarl.core.Logging
 import io.sarl.core.MemberJoined
 import io.sarl.core.MemberLeft
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.core.SpaceCreated
 import io.sarl.core.SpaceDestroyed
 import io.sarl.lang.core.Address
@@ -50,8 +52,6 @@ import io.sarl.sre.tests.units.internal.mocks.BehSkill
 import io.sarl.sre.tests.units.internal.mocks.LogSkill
 import io.sarl.sre.tests.units.internal.mocks.MyAgent0
 import io.sarl.tests.api.Nullable
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.UUID
 import java.util.logging.Logger

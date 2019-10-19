@@ -23,6 +23,8 @@ package io.sarl.sre.tests.units.services.lifecycle
 
 import io.sarl.core.Destroy
 import io.sarl.core.Initialize
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.Address
 import io.sarl.lang.core.Agent
 import io.sarl.lang.core.Event
@@ -47,8 +49,6 @@ import io.sarl.sre.tests.units.services.lifecycle.mocks.InvalidMyAgent2
 import io.sarl.sre.tests.units.services.lifecycle.mocks.MyAgent0
 import io.sarl.sre.tests.units.services.lifecycle.mocks.MyEventBus
 import io.sarl.tests.api.Nullable
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.concurrent.Collections3
 import io.sarl.util.concurrent.NoReadWriteLock
 import java.util.List

@@ -23,6 +23,8 @@ package io.sarl.sre.services.context
 import com.google.inject.AbstractModule
 import com.google.inject.Injector
 import com.google.inject.name.Names
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.SREutils
@@ -37,8 +39,6 @@ import io.sarl.sre.spaces.AbstractSpace
 import io.sarl.sre.spaces.SpaceListener
 import io.sarl.util.Comparators
 import io.sarl.util.DefaultSpace
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.concurrent.Collections3
 import java.io.Serializable
 import java.lang.ref.WeakReference

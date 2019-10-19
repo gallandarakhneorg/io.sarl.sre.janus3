@@ -23,11 +23,11 @@ package io.sarl.sre.tests.runtime.internal.mocks
 
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Lifecycle
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.core.Schedules
 import io.sarl.core.SpaceCreated
 import io.sarl.sre.tests.testutils.TestingAgent
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import java.util.UUID
 
 /**

@@ -20,9 +20,9 @@
 
 package io.sarl.sre.tests.runtime.bugs.bug66.mocks
 
+import io.sarl.core.OpenEventSpace
 import io.sarl.lang.core.SpaceID
 import io.sarl.lang.util.SynchronizedSet
-import io.sarl.util.OpenEventSpace
 import io.sarl.util.concurrent.Collections3
 import java.util.UUID
 

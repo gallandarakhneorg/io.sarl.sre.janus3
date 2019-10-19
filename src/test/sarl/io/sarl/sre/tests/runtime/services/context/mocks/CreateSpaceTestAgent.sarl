@@ -22,8 +22,8 @@
 package io.sarl.sre.tests.runtime.services.context.mocks
 
 import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.sre.tests.testutils.TestingAgent
-import io.sarl.util.OpenEventSpaceSpecification
 import java.util.UUID
 
 /**

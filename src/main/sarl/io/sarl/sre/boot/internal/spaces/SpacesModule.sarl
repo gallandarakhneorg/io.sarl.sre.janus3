@@ -24,11 +24,11 @@ import com.google.inject.AbstractModule
 import com.google.inject.Module
 import io.bootique.BQModule
 import io.bootique.BQModuleProvider
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.sre.spaces.SreEventSpaceSpecification
 import io.sarl.sre.spaces.SreOpenEventSpaceSpecification
 import io.sarl.sre.spaces.SreRestrictedAccessEventSpaceSpecification
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.RestrictedAccessEventSpaceSpecification
 import javax.inject.Singleton
 

@@ -22,12 +22,12 @@
 package io.sarl.sre.spaces
 
 import com.google.inject.Injector
+import io.sarl.core.OpenEventSpace
+import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.core.EventSpace
 import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.lang.core.SpaceID
 import io.sarl.sre.services.logging.LoggingService
-import io.sarl.util.OpenEventSpace
-import io.sarl.util.OpenEventSpaceSpecification
 import io.sarl.util.RestrictedAccessEventSpace
 import io.sarl.util.RestrictedAccessEventSpaceSpecification
 import java.security.acl.Acl
