@@ -36,6 +36,8 @@ import javax.inject.Singleton
 import io.bootique.BQModuleProvider
 import com.google.inject.Module
 import io.bootique.BQModule
+import io.sarl.sre.spaces.SpaceParticipantListenerFactory
+import io.sarl.sre.internal.SpaceParticipantEventEmitterFactory
 
 /** 
  * Module for configuring the methods for firing the specific events that are defined into the SARL API.
@@ -69,6 +71,13 @@ class PlatformEventEmitterModule extends AbstractModule {
 	@Singleton
 	static def provideSpaceRepositoryListenerFactory : SpaceRepositoryListenerFactory {
 		new SpaceEventEmitterFactory
+	}
+
+	@Provides
+	@KernelScope
+	@Singleton
+	static def provideSpaceParticipantListenerFactory : SpaceParticipantListenerFactory {
+		new SpaceParticipantEventEmitterFactory
 	}
 
 	@Provides

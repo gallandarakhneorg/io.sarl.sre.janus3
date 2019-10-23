@@ -18,42 +18,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.sarl.sre.spaces
 
-package io.sarl.sre.internal
+import java.util.EventListener
 
-import org.eclipse.osgi.util.NLS
-
-/** Messages.
+/** 
+ * A listener for the Java events on spaces.
+ * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 0.10
  */
-final class Messages extends NLS {
+interface SpaceParticipantListener extends EventListener {
 
-	static val BUNDLE_NAME = typeof(Messages).getPackage.name + ".messages"
-	
-	static new {
-		// initialize resource bundle
-		NLS.initializeMessages(BUNDLE_NAME, typeof(Messages))
-	}
-	
-	public static var SpaceEventEmitter_0 : String
-	public static var SpaceEventEmitter_1 : String
+	/** 
+	 * Invoked when a participant has joined a space.
+	 * 
+	 * @param participant the participant.
+	 */
+	def participantJoined(participant : Participant)
 
-	public static var SpaceParticipantEventEmitter_0 : String
-	public static var SpaceParticipantEventEmitter_1 : String
-
-	public static var AgentEventEmitter_0 : String
-	public static var AgentEventEmitter_1 : String
-
-	public static var ContextMemberEventEmitter_0 : String
-	public static var ContextMemberEventEmitter_1 : String
-	public static var ContextMemberEventEmitter_2 : String
-	public static var ContextMemberEventEmitter_3 : String
-
-	
-	private new {
-	}
+	/** 
+	 * Invoked when a participant has left a space.
+	 * 
+	 * @param participant the participant.
+	 */
+	def participantLeft(participant : Participant)
 
 }

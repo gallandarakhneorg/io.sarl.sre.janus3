@@ -26,6 +26,7 @@ import io.sarl.core.OpenEventSpace
 import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.lang.core.SpaceID
 import io.sarl.sre.services.logging.LoggingService
+import io.sarl.sre.spaces.SpaceParticipantListenerFactory
 import io.sarl.sre.spaces.SreOpenEventSpaceSpecification
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
@@ -62,7 +63,8 @@ class SreOpenEventSpaceSpecificationTest extends AbstractSreTest {
 		this.spaceId = new SpaceID(UUID::randomUUID, UUID::randomUUID, typeof(EventSpaceSpecification))
 		this.initMocks
 		this.specification = new SreOpenEventSpaceSpecification(this.injector,
-			[NoReadWriteLock::SINGLETON], typeof(LoggingService).mock)
+			[NoReadWriteLock::SINGLETON], typeof(OpenEventSpace).mock, typeof(SpaceParticipantListenerFactory).mock,
+			typeof(LoggingService).mock)
 	}
 
 	@Test

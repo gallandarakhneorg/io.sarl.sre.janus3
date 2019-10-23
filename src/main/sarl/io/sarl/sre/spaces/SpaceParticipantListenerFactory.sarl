@@ -18,42 +18,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.sarl.sre.spaces
 
-package io.sarl.sre.internal
+import io.sarl.lang.core.EventSpace
+import java.util.logging.Logger
 
-import org.eclipse.osgi.util.NLS
-
-/** Messages.
+/** Factory for a space participant event emitter.
+ * 
  * @author $Author: sgalland$
  * @version $FullVersion$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 0.10
  */
-final class Messages extends NLS {
+interface SpaceParticipantListenerFactory {
 
-	static val BUNDLE_NAME = typeof(Messages).getPackage.name + ".messages"
-	
-	static new {
-		// initialize resource bundle
-		NLS.initializeMessages(BUNDLE_NAME, typeof(Messages))
-	}
-	
-	public static var SpaceEventEmitter_0 : String
-	public static var SpaceEventEmitter_1 : String
-
-	public static var SpaceParticipantEventEmitter_0 : String
-	public static var SpaceParticipantEventEmitter_1 : String
-
-	public static var AgentEventEmitter_0 : String
-	public static var AgentEventEmitter_1 : String
-
-	public static var ContextMemberEventEmitter_0 : String
-	public static var ContextMemberEventEmitter_1 : String
-	public static var ContextMemberEventEmitter_2 : String
-	public static var ContextMemberEventEmitter_3 : String
-
-	
-	private new {
-	}
+	def create(defaultSpace : EventSpace, logger : Logger) : SpaceParticipantListener
 
 }

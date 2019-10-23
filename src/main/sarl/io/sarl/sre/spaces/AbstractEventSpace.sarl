@@ -72,15 +72,24 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 	@Accessors(PUBLIC_GETTER)
 	var eventTransportService : EventTransportService
 
+	/** Listener on platform events related to space participants.
+	 * @since 0.10
+	 */
+	@Accessors(PUBLIC_GETTER)
+	var spaceParticipantListener : SpaceParticipantListener
+
 	/** Constructor.
 	 * 
 	 * @param id identifier of the space.
 	 * @param lockProvider the provider of synchronization locks.
+	 * @param participantListener the platform listener on participant events.
 	 * @param logger the logger service.
 	 */
-	new (spaceId : SpaceID, lockProvider : Provider<ReadWriteLock>, logger : LoggingService) {
+	new (spaceId : SpaceID, lockProvider : Provider<ReadWriteLock>,
+		participantListener : SpaceParticipantListener, logger : LoggingService) {
 		super(spaceId)
 		this.lock = lockProvider.get
+		this.spaceParticipantListener = participantListener
 		this.logger = logger
 	}
 
@@ -106,6 +115,7 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 		} finally {
 			lck.writeLock.unlock
 		}
+		getSpaceParticipantListener?.participantJoined(participant)
 		return address
 	}
 
@@ -126,6 +136,7 @@ abstract class AbstractEventSpace extends AbstractSpace implements EventSpace, S
 			if (becomesEmpty) {
 				fireDestroyableSpace
 			}
+			getSpaceParticipantListener?.participantLeft(participant)
 			return participant.address
 		}
 		return null

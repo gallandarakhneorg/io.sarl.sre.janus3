@@ -22,23 +22,33 @@ package io.sarl.sre.services.context
 
 import com.google.inject.AbstractModule
 import com.google.inject.Injector
+import com.google.inject.Key
+import com.google.inject.Provides
 import com.google.inject.name.Names
 import io.sarl.core.OpenEventSpace
 import io.sarl.core.OpenEventSpaceSpecification
 import io.sarl.lang.annotation.PrivateAPI
 import io.sarl.lang.core.EventSpace
+import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.lang.core.SREutils
 import io.sarl.lang.core.Space
 import io.sarl.lang.core.SpaceID
 import io.sarl.lang.core.SpaceSpecification
 import io.sarl.lang.util.SynchronizedIterable
+import io.sarl.sre.KernelScope
 import io.sarl.sre.boot.configs.SreConfig
 import io.sarl.sre.internal.SmartListenerCollection
 import io.sarl.sre.services.executor.ExecutorService
+import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.spaces.AbstractSpace
 import io.sarl.sre.spaces.SpaceListener
+import io.sarl.sre.spaces.SpaceParticipantListenerFactory
+import io.sarl.sre.spaces.SreEventSpaceSpecification
+import io.sarl.sre.spaces.SreOpenEventSpaceSpecification
+import io.sarl.sre.spaces.SreRestrictedAccessEventSpaceSpecification
 import io.sarl.util.Comparators
 import io.sarl.util.DefaultSpace
+import io.sarl.util.RestrictedAccessEventSpaceSpecification
 import io.sarl.util.concurrent.Collections3
 import java.io.Serializable
 import java.lang.ref.WeakReference
@@ -194,14 +204,16 @@ abstract class SpaceRepository implements SpaceListener {
 		} finally {
 			lck.readLock.unlock
 		}
-		var defaultSpaceInjector : Injector
+		var spaceSpecificationInstance : SpaceSpecification<S>
 		if (defaultSpace === null) {
-			defaultSpaceInjector = this.injector
+			// Usually, this case cover the creation of the default space within a context
+			spaceSpecificationInstance = this.injector.getInstance(Key.get(spec, typeof(KernelScope)))
 		} else {
+			// Usually, this case is for the creation of the spaces that are not the default space
 			val defaultSpaceInjectionModule = new JustInTimeDefaultSpaceInjectionModule(defaultSpace)
-			defaultSpaceInjector = this.injector.createChildInjector(defaultSpaceInjectionModule)
+			val defaultSpaceInjector = this.injector.createChildInjector(defaultSpaceInjectionModule)
+			spaceSpecificationInstance = defaultSpaceInjector.getInstance(spec)
 		}
-		val spaceSpecificationInstance = defaultSpaceInjector.getInstance(spec)
 		
 		// Split the call to create() to let the JVM to create the "empty" array for creation parameters.
 		var ^space : S
@@ -636,6 +648,48 @@ abstract class SpaceRepository implements SpaceListener {
 		override configure {
 			typeof(OpenEventSpace).bind.annotatedWith(Names::named(NAME)).toInstance(this.defaultSpace)
 			typeof(OpenEventSpace).bind.annotatedWith(typeof(DefaultSpace)).toInstance(this.defaultSpace)
+		}
+
+		/** This injection definition is for the spaces that are not a default space.
+		 *
+		 * <p>Note: This provider must be defined into this "temp" module because it depends on the
+		 * definition of the default space injection.
+		 */
+		@Provides
+		def provideEventSpaceSpecification(injector : Injector, lockProvider : Provider<ReadWriteLock>,
+			@DefaultSpace defaultSpace : OpenEventSpace,
+			@KernelScope spaceParticipantListenerFactory : Provider<SpaceParticipantListenerFactory>,
+			logger : LoggingService) : EventSpaceSpecification {
+			new SreEventSpaceSpecification(injector, lockProvider, defaultSpace, spaceParticipantListenerFactory.get,
+				logger)
+		}
+
+		/** This injection definition is for the spaces that are not a default space.
+		 * 
+		 * <p>Note: This provider must be defined into this "temp" module because it depends on the
+		 * definition of the default space injection.
+		 */
+		@Provides
+		def provideOpenEventSpaceSpecification(injector : Injector, lockProvider : Provider<ReadWriteLock>,
+			@DefaultSpace defaultSpace : OpenEventSpace,
+			@KernelScope spaceParticipantListenerFactory : Provider<SpaceParticipantListenerFactory>,
+			logger : LoggingService) : OpenEventSpaceSpecification {
+			new SreOpenEventSpaceSpecification(injector, lockProvider, defaultSpace,
+				spaceParticipantListenerFactory.get, logger)
+		}
+
+		/** This injection definition is for the spaces that are not a default space.
+		 * 
+		 * <p>Note: This provider must be defined into this "temp" module because it depends on the
+		 * definition of the default space injection.
+		 */
+		@Provides
+		def provideRestrictedAccessEventSpaceSpecification(injector : Injector, lockProvider : Provider<ReadWriteLock>,
+			@DefaultSpace defaultSpace : OpenEventSpace,
+			@KernelScope spaceParticipantListenerFactory : Provider<SpaceParticipantListenerFactory>,
+			logger : LoggingService) : RestrictedAccessEventSpaceSpecification {
+			new SreRestrictedAccessEventSpaceSpecification(injector, lockProvider, defaultSpace,
+				spaceParticipantListenerFactory.get, logger)
 		}
 
 	}

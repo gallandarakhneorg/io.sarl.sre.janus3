@@ -31,6 +31,7 @@ import io.sarl.sre.services.executor.ExecutorService
 import io.sarl.sre.services.logging.LoggingService
 import io.sarl.sre.spaces.AbstractEventSpace
 import io.sarl.sre.spaces.Participant
+import io.sarl.sre.spaces.SpaceParticipantListener
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
 import io.sarl.tests.api.Nullable
@@ -98,7 +99,7 @@ abstract class AbstractEventSpaceTest extends AbstractSreTest {
 		this.address = new Address(this.spaceId, this.agentId)
 
 		this.^space = new AbstractEventSpace(this.spaceId,
-			[NoReadWriteLock::SINGLETON], typeof(LoggingService).mock) {
+			[NoReadWriteLock::SINGLETON], typeof(SpaceParticipantListener).mock, typeof(LoggingService).mock) {
 			def getInternalParticipantStructure : Map<UUID, Participant> {
 				return AbstractEventSpaceTest.this.participants
 			}

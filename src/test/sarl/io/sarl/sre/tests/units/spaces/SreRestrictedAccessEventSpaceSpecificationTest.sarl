@@ -22,9 +22,11 @@
 package io.sarl.sre.tests.units.spaces
 
 import com.google.inject.Injector
+import io.sarl.core.OpenEventSpace
 import io.sarl.lang.core.EventSpaceSpecification
 import io.sarl.lang.core.SpaceID
 import io.sarl.sre.services.logging.LoggingService
+import io.sarl.sre.spaces.SpaceParticipantListenerFactory
 import io.sarl.sre.spaces.SreRestrictedAccessEventSpaceSpecification
 import io.sarl.sre.tests.testutils.AbstractSreTest
 import io.sarl.tests.api.ManualMocking
@@ -71,7 +73,7 @@ class SreRestrictedAccessEventSpaceSpecificationTest extends AbstractSreTest {
 		this.initMocks
 		this.specification = new SreRestrictedAccessEventSpaceSpecification(
 			this.injector,
-			[NoReadWriteLock::SINGLETON],
+			[NoReadWriteLock::SINGLETON], typeof(OpenEventSpace).mock, typeof(SpaceParticipantListenerFactory).mock,
 			typeof(LoggingService).mock)
 	}
 

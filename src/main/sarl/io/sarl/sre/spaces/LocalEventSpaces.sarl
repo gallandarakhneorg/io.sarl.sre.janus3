@@ -90,11 +90,12 @@ class RestrictedAccessLocalEventSpace extends AbstractEventSpace implements Rest
 	 * @param acl Access Control List
 	 * @param accessPermission permission that corresponds to the registration in the space.
 	 * @param lockProvider the provider of synchronization locks.
+	 * @param participantListener the platform listener on participant events.
 	 * @param logger the logger service.
 	 */
 	new (id : SpaceID, acl : Acl, accessPermission : Permission, lockProvider : Provider<ReadWriteLock>,
-		logger : LoggingService) {
-		super(id, lockProvider, logger)
+		participantListener : SpaceParticipantListener, logger : LoggingService) {
+		super(id, lockProvider, participantListener, logger)
 		assert acl !== null
 		assert accessPermission !== null
 		this.acl = acl

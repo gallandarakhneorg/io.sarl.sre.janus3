@@ -38,6 +38,8 @@ import org.mockito.Mock
 import static extension org.mockito.MockitoAnnotations.initMocks
 import io.sarl.util.concurrent.NoReadWriteLock
 import io.sarl.sre.services.logging.LoggingService
+import io.sarl.sre.spaces.SpaceParticipantListenerFactory
+import io.sarl.core.OpenEventSpace
 
 /**
  * @author $Author: sgalland$
@@ -62,7 +64,10 @@ class SreEventSpaceSpecificationTest extends AbstractSreTest {
 		this.spaceId = new SpaceID(UUID::randomUUID, UUID::randomUUID, typeof(EventSpaceSpecification))
 		this.initMocks
 		this.specification = new SreEventSpaceSpecification(this.injector,
-			[NoReadWriteLock::SINGLETON], typeof(LoggingService).mock)
+			[NoReadWriteLock::SINGLETON],
+			typeof(OpenEventSpace).mock,
+			typeof(SpaceParticipantListenerFactory).mock,
+			typeof(LoggingService).mock)
 	}
 
 	@Test

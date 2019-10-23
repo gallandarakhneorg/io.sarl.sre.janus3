@@ -58,6 +58,11 @@ import java.util.logging.Logger
 import javax.inject.Provider
 
 import static io.sarl.sre.services.lifecycle.AgentLife.*
+import io.sarl.sre.spaces.SpaceParticipantListener
+import io.sarl.sre.spaces.Participant
+import io.sarl.core.ParticipantJoined
+import io.sarl.core.ParticipantLeft
+import io.sarl.sre.spaces.SpaceParticipantListenerFactory
 
 /** Emit the space platform events.
  *
@@ -113,6 +118,65 @@ class SpaceEventEmitterFactory implements SpaceRepositoryListenerFactory {
 
 	def create(contextID : UUID, defaultSpace : EventSpace, logger : Logger) : SpaceRepositoryListener {
 		new SpaceEventEmitter(contextID, defaultSpace, logger)
+	}
+
+}
+
+/** Emit the space participant platform events.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 0.10
+ */
+class SpaceParticipantEventEmitter implements SpaceParticipantListener {
+
+	val logger : Logger
+
+	val defaultSpace : EventSpace
+
+	new (defaultSpace : EventSpace, logger : Logger) {
+		this.defaultSpace = defaultSpace
+		this.logger = logger
+	}
+
+	override participantJoined(participant : Participant) {
+		this.logger.config[MessageFormat::format(Messages::SpaceParticipantEventEmitter_0, participant.address)]
+		// Send the event in the default space of the context.
+		if (this.defaultSpace !== null) {
+			var participantAddr = participant.address
+			var addr = new Address(this.defaultSpace.spaceID, participantAddr.UUID)
+			// The first parameter is null because the event has an address.
+			this.defaultSpace.emit(null, new ParticipantJoined(addr, participantAddr.spaceID))
+		}
+	}
+
+	override participantLeft(participant : Participant) {
+		this.logger.config[MessageFormat::format(Messages::SpaceParticipantEventEmitter_1, participant.address)]
+		// Send the event in the default space of the context.
+		if (this.defaultSpace !== null) {
+			var participantAddr = participant.address
+			var addr = new Address(this.defaultSpace.spaceID, participantAddr.UUID)
+			// The first parameter is null because the event has an address.
+			this.defaultSpace.emit(null, new ParticipantLeft(addr, participantAddr.spaceID))
+		}
+	}
+
+}
+
+/** Factory for a space participant event emitter.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 0.10
+ */
+class SpaceParticipantEventEmitterFactory implements SpaceParticipantListenerFactory {
+
+	def create(defaultSpace : EventSpace, logger : Logger) : SpaceParticipantListener {
+		new SpaceParticipantEventEmitter(defaultSpace, logger)
 	}
 
 }
