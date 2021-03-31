@@ -13,7 +13,7 @@
 		
 		<osgi.nls.version>3.10.0-v20140606-1445</osgi.nls.version>
 		<afc.version>16.0</afc.version>
-		<guava.version>27.1-jre</guava.version>
+		<guava.version>30.1.1-jre</guava.version>
 		<guice.version>4.1.0</guice.version>
 		<compiler.level>1.8</compiler.level>
 	</properties>
